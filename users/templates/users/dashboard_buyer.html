@@ -1,5 +1,16 @@
 {% extends 'users/base.html' %}
+
 {% block title %}Dashboard Comprador{% endblock %}
+
 {% block content %}
-<h2>Bienvenido comprador</h2>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Buscá lo que necesitás</h2>
+  <form class="d-flex justify-content-center mb-4">
+    <input type="search" class="form-control w-50" placeholder="Buscar productos...">
+    <button type="submit" class="btn btn-primary ms-2">Buscar</button>
+  </form>
+
+  <h4>Últimos productos cargados</h4>
+  <p>Aquí verás los productos disponibles cuando estén cargados por los vendedores.</p>
+</div>
 {% endblock %}

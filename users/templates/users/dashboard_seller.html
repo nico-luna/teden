@@ -1,5 +1,23 @@
 {% extends 'users/base.html' %}
 {% block title %}Dashboard Vendedor{% endblock %}
+
 {% block content %}
-<h2>Bienvenido vendedor</h2>
+<div class="d-flex" style="min-height: 100vh;">
+  <!-- Sidebar -->
+  <div class="bg-dark text-white p-3" style="width: 250px;">
+    <h4 class="text-center mb-4">Panel Vendedor</h4>
+    <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link text-white" href="#">📦 Mis Productos</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="#">➕ Cargar Producto</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="#">📊 Inventario</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="#">⚙️ Configuración</a></li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-grow-1 p-4">
+    <h2>Bienvenido, {{ user.username }}</h2>
+    <p>Desde aquí podés gestionar tus productos y perfil.</p>
+  </div>
+</div>
 {% endblock %}
