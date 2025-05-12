@@ -34,17 +34,3 @@ def dashboard(request):
         return render(request, 'users/dashboard_seller.html')
     else:
         return redirect('select_role')
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-
-@login_required
-def buyer_dashboard(request):
-    if request.user.role != 'buyer':
-        return HttpResponseForbidden("No tenés permiso para acceder a esta sección.")
-    return render(request, 'users/buyer_dashboard.html')
-
-@login_required
-def seller_dashboard(request):
-    if request.user.role != 'seller':
-        return HttpResponseForbidden("No tenés permiso para acceder a esta sección.")
-    return render(request, 'users/seller_dashboard.html')

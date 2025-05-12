@@ -8,7 +8,10 @@
     <h4 class="text-center mb-4">Panel Vendedor</h4>
     <ul class="nav flex-column">
       <li class="nav-item"><a class="nav-link text-white" href="#">📦 Mis Productos</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#">➕ Cargar Producto</a></li>
+    <li class="nav-item">
+    <a class="nav-link" href="{% url 'add_product' %}">➕ Cargar producto</a>
+    </li>
+
       <li class="nav-item"><a class="nav-link text-white" href="#">📊 Inventario</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#">⚙️ Configuración</a></li>
     </ul>
