@@ -34,3 +34,9 @@ def dashboard(request):
         return render(request, 'users/dashboard_seller.html')
     else:
         return redirect('select_role')
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def mi_cuenta(request):
+    return render(request, 'users/mi_cuenta.html')

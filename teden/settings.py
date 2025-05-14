@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'django.contrib.sites',
     'products',
+    'core',
     # 'cart',
     # 'orders',
     # 'payments',
@@ -133,3 +134,10 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+STATIC_URL = '/static/'
+
+# (Solo si estás usando una carpeta común como "static/")
+# STATICFILES_DIRS = [BASE_DIR / "static"]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

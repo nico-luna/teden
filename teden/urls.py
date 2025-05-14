@@ -16,12 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', lambda request: redirect('login')),
-    path('', include('users.urls')),
+    path('', include('core.urls')),         # Página pública (home)
+    path('', include('users.urls')),        # 👈 Las rutas de users se cargan en la raíz
     path('products/', include('products.urls')),
-
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

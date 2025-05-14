@@ -1,0 +1,76 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Inventario{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'products/css/styles.css' %}">
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Inventario de productos</h2>
+    <a href="{% url 'add_product' %}" class="btn btn-success">+ Agregar producto</a>
+  </div>
+
+  <form method="get" class="row mb-3">
+    <div class="col-md-4">
+      <input type="text" name="q" class="form-control" placeholder="Buscar por nombre..." value="{{ request.GET.q }}">
+    </div>
+    <div class="col-md-2">
+      <select name="stock" class="form-select">
+        <option value="">Todos los stocks</option>
+        <option value="in" {% if request.GET.stock == 'in' %}selected{% endif %}>Con stock</option>
+        <option value="out" {% if request.GET.stock == 'out' %}selected{% endif %}>Sin stock</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </form>
+
+  <table class="table table-hover align-middle bg-white shadow-sm">
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Imagen</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Stock</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for producto in productos %}
+      <tr>
+        <td style="width: 100px;">
+          {% if producto.image %}
+            <img src="{{ producto.image.url }}" class="img-thumbnail" alt="{{ producto.name }}">
+          {% else %}
+            <div class="bg-light text-muted text-center py-2 rounded">Sin imagen</div>
+          {% endif %}
+        </td>
+        <td>{{ producto.name }}</td>
+        <td>${{ producto.price }}</td>
+        <td>
+          {% if producto.stock > 0 %}
+            <span class="text-success">{{ producto.stock }}</span>
+          {% else %}
+            <span class="text-danger">Sin stock</span>
+          {% endif %}
+        </td>
+        <td class="d-flex gap-1">
+          <a href="{% url 'edit_product' producto.id %}" class="btn btn-sm btn-warning">Editar</a>
+          <form action="{% url 'delete_product' producto.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No hay productos para mostrar.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

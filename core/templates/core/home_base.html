@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Inicio - TEDEN{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #fcb900;
+      min-height: 100vh;
+      padding-top: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    .sidebar .nav-link {
+      color: #000;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sidebar .nav-link:hover {
+      background-color: #fff3cd;
+      color: #000;
+    }
+    .products-area {
+      margin-left: 200px;
+      margin-right: 100px;
+      padding: 2rem;
+    }
+    .ad-bar {
+      width: 100px;
+      background: #444;
+      color: #fff;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      text-align: center;
+      padding: 2rem 0;
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      z-index: 500;
+    }
+    .searchbar {
+      background: #fff;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+    }
+    .searchbar input {
+      border: none;
+      flex: 1;
+    }
+    .auth-buttons {
+      position: relative;
+      z-index: 1001;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="text-center fw-bold fs-5 mb-4">teden</div>
+      {% if user.is_authenticated and user.role == 'seller' %}
+    <a href="{% url 'dashboard' %}" class="nav-link bg-warning rounded">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+    {% endif %}
+    {% if user.is_authenticated and user.role == 'buyer' %}
+    <a href="{% url 'mi_cuenta' %}" class="nav-link bg-warning rounded">
+      <i class="fas fa-user"></i> Mi cuenta
+    </a>
+    {% endif %}
+    <a href="{% url 'home' %}" class="nav-link">
+      <i class="fas fa-home"></i> Inicio
+    </a>
+    <a href="#" class="nav-link">
+      <i class="fas fa-box"></i> Sección
+    </a>
+    <a href="#" class="nav-link">
+      <i class="fas fa-cogs"></i> Sección
+    </a>
+    <a href="#" class="nav-link">
+      <i class="fas fa-users"></i> Sección
+    </a>
+  
+    <a href="#" class="nav-link mt-3">
+      <i class="fas fa-plus"></i> MAS
+    </a>
+  </div>
+
+  <div class="products-area">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="searchbar">
+        <i class="fas fa-search me-2"></i>
+        <input type="text" placeholder="Buscar productos...">
+      </div>
+      <div class="auth-buttons">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar sesión</button>
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</button>
+      </div>
+    </div>
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <div class="ad-bar">
+    Publicidad
+  </div>
+
+  {% include "partials/login_modal.html" %}
+  {% include "partials/register_modal.html" %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

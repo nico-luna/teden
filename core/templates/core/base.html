@@ -1,0 +1,21 @@
+{% extends "core/home_base.html" %}
+
+{% block content %}
+  <div class="text-center mt-5">
+    <h1>Bienvenido a TEDEN 🧠</h1>
+    <p>Explorá productos y servicios digitales</p>
+    <button class="btn btn-primary" onclick="openLogin()">Iniciar sesión</button>
+  </div>
+
+  <!-- Simulamos el popup -->
+  <div id="loginModal" style="display:none; position:fixed; top:20%; left:40%; background:white; padding:20px; border:1px solid black;">
+    <h3>Login</h3>
+    <a href="{% url 'login' %}">Ir al login</a>
+  </div>
+
+  <script>
+    function openLogin() {
+      document.getElementById('loginModal').style.display = 'block';
+    }
+  </script>
+{% endblock %}
