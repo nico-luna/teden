@@ -40,3 +40,28 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def mi_cuenta(request):
     return render(request, 'users/mi_cuenta.html')
+
+from django.contrib import messages
+from django.contrib.auth.forms import UserChangeForm
+
+@login_required
+def mi_cuenta_vendedor(request):
+    if request.user.role != 'seller':
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tus datos fueron actualizados correctamente.")
+            return redirect('mi_cuenta_vendedor')
+    else:
+        form = UserChangeForm(instance=request.user)
+
+    return render(request, 'users/mi_cuenta_vendedor.html', {'form': form})
+
+
+from django.shortcuts import render
+
+def terms_and_conditions(request):
+    return render(request, 'users/terms_and_conditions.html')

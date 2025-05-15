@@ -9,5 +9,7 @@ urlpatterns = [
     path('select-role/', views.select_role, name='select_role'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
+    path('mi-cuenta/', views.mi_cuenta_vendedor, name='mi_cuenta_vendedor'),
+    path('terminos/', views.terms_and_conditions, name='terms_and_conditions'),
 
 ]
