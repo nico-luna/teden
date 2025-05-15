@@ -1,0 +1,50 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Configuración de mi tienda</h2>
+
+  <form method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label for="id_name" class="form-label">Nombre de la tienda</label>
+      {{ form.name|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_description" class="form-label">Descripción</label>
+      {{ form.description|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Logo actual:</label><br>
+      {% if store.logo %}
+        <img src="{{ store.logo.url }}" alt="Logo" height="80"><br>
+      {% else %}
+        <em>No hay logo cargado</em><br>
+      {% endif %}
+      {{ form.logo|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Banner actual:</label><br>
+      {% if store.banner %}
+        <img src="{{ store.banner.url }}" alt="Banner" height="80"><br>
+      {% else %}
+        <em>No hay banner cargado</em><br>
+      {% endif %}
+      {{ form.banner|add_class:"form-control" }}
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-success">Guardar cambios</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

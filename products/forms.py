@@ -19,3 +19,38 @@ class ProductForm(forms.ModelForm):
             'stock': 'Stock',
             'image': 'Image',
         }  
+
+        # products/forms.py
+from django import forms
+from .models import Store
+
+class StoreForm(forms.ModelForm):
+    class Meta:
+        model = Store
+        fields = ['name', 'description', 'logo', 'banner']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'logo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'banner': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'name': 'Store Name',
+            'description': 'Description',
+            'logo': 'Logo',
+            'banner': 'Banner',
+        }       
+
+# from django import forms
+# from .models import Store
+#
+# class StoreForm(forms.ModelForm):
+#     class Meta:
+#         model = Store
+#         fields = ['name', 'description', 'logo', 'banner']
+#         widgets = {
+#             'name': forms.TextInput(attrs={'class': 'form-control'}),
+#             'description': forms.Textarea(attrs={'class': 'form-control'}),
+#             'logo': forms.ClearableFileInput(attrs={'class': 'form-control'}),    
+#             'banner': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+#         }     

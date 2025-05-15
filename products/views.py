@@ -94,3 +94,35 @@ def delete_product(request, product_id):
         return redirect('inventory')  # volver al inventario
 
     return redirect('inventory')  # seguridad: si no es POST, igual redirecciona
+
+@login_required
+def manage_store(request):
+    store, created = Store.objects.get_or_create(seller=request.user)
+    if request.method == 'POST':
+        form = StoreForm(request.POST, request.FILES, instance=store)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = StoreForm(instance=store)
+    return render(request, 'products/manage_store.html', {'form': form})
+
+# products/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .forms import StoreForm
+from .models import Store
+
+@login_required
+def manage_store(request):
+    store, created = Store.objects.get_or_create(seller=request.user)
+    
+    if request.method == 'POST':
+        form = StoreForm(request.POST, request.FILES, instance=store)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_store')  # o a una página de tienda
+    else:
+        form = StoreForm(instance=store)
+
+    return render(request, 'products/manage_store.html', {'form': form})

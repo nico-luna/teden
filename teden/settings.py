@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'products',
     'core',
+    'widget_tweaks',
     # 'cart',
     # 'orders',
     # 'payments',
@@ -141,3 +142,8 @@ STATIC_URL = '/static/'
 # STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+STATICFILES_DIRS = [
+    BASE_DIR / "core" / "static"
+]
