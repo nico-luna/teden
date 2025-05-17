@@ -1,0 +1,7 @@
+<h2>Agregar Categoría</h2>
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="name" placeholder="Nombre de la categoría">
+  <button type="submit">Agregar</button>
+</form>
+<a href="{% url 'category_list' %}">Volver a la lista de categorías</a>

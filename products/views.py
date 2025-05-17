@@ -126,3 +126,42 @@ def manage_store(request):
         form = StoreForm(instance=store)
 
     return render(request, 'products/manage_store.html', {'form': form})
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import get_user_model
+from .models import Store, Product
+
+User = get_user_model()
+
+def public_store_view(request, username):
+    user = get_object_or_404(User, username=username, role='seller')
+    store = get_object_or_404(Store, seller=user)
+    products = Product.objects.filter(seller=user)
+
+    return render(request, 'products/public_store.html', {
+        'store': store,
+        'products': products
+    })
+
+from .models import Category
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'products/category_list.html', {'categories': categories})
+
+@staff_member_required
+def add_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name:
+            Category.objects.create(name=name)
+            return redirect('category_list')
+    return render(request, 'products/add_category.html')
+
+@staff_member_required
+def delete_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.delete()
+    return redirect('category_list')

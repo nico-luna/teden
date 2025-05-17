@@ -1,0 +1,15 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Checkout</h2>
+  <h5>Total a pagar: ${{ cart.total_price }}</h5>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Pagar</button>
+  </form>
+</div>
+{% endblock %}

@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'products',
     'core',
     'widget_tweaks',
-    # 'cart',
+    'cart',
     # 'orders',
     # 'payments',
     # 'chat',
