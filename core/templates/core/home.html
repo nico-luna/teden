@@ -4,18 +4,17 @@
 {% include "partials/cart_modal.html" %}
 {% load static %}
 <!-- Hero / Carousel -->
- <p>esta es la home</p>
   <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       <div class="carousel-item active">
-          <img src="{% static 'banners/banner1.webp' %}" class="d-block w-100" alt="Promo 1">
+          <img src="{% static 'banners/image.png' %}" class="d-block w-100" alt="Promo 1">
         <!-- <div class="carousel-caption d-none d-md-block">
           <h5>Hot Sale</h5>
           <p>Hasta 45% OFF y 18 cuotas sin interés</p>
         </div> -->
       </div>
       <div class="carousel-item">
-          <img src="{% static 'banners/banner2.webp' %}" class="d-block w-100" alt="Promo 2">
+          <img src="{% static 'banners/image2.png' %}" class="d-block w-100" alt="Promo 2">
         <!-- <div class="carousel-caption d-none d-md-block">
           <h5>Promos Exclusivas</h5>
           <p>Solo por tiempo limitado</p>
@@ -108,6 +107,12 @@
             </p>
             <div class="mt-auto">
               <p class="h5 text-success mb-3">${{ producto.price }}</p>
+              <a href="{% url 'stripe_checkout' producto.id %}" class="btn btn-dark">
+  Pagar con Stripe
+</a>
+<a href="{% url 'pagar_con_mercadopago' producto.id %}" class="btn btn-primary">
+  Pagar con MercadoPago
+</a>
               <form method="post" action="{% url 'add_to_cart' producto.id %}">
                 {% csrf_token %}
                 <button type="submit"
@@ -116,6 +121,16 @@
                   Agregar al carrito
                 </button>
               </form>
+              
+
+              <button 
+                class="btn btn-outline-primary w-100 mt-2"
+                data-bs-toggle="modal"
+                data-bs-target="#productDetailModal"
+                data-product-id="{{ product.id }}"
+              >
+                Ver más
+              </button>
             </div>
           </div>
         </div>
@@ -124,4 +139,42 @@
   </div>
 </div>
 {% endblock %}
+<!-- Modal -->
+<div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productDetailLabel">Detalle del producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalProductImage" src="" alt="Imagen del producto" class="img-fluid mb-3 rounded">
+        <h3 id="modalProductName"></h3>
+        <p id="modalProductDescription" class="text-muted"></p>
+        <h4 class="text-success">$<span id="modalProductPrice"></span></h4>
+      </div>
+    </div>
+  </div>
+</div>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById('productDetailModal');
+
+  modal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const productId = button.getAttribute('data-product-id');
+
+    fetch(`/products/detalle/${productId}/`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('modalProductName').textContent = data.name;
+        document.getElementById('modalProductDescription').textContent = data.description;
+        document.getElementById('modalProductPrice').textContent = data.price;
+        document.getElementById('modalProductImage').src = data.image || '';
+      })
+      .catch(error => console.error('Error cargando el producto:', error));
+  });
+});
+</script>

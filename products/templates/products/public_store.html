@@ -26,6 +26,29 @@
           <div class="card-body">
             <h5 class="card-title">{{ product.name }}</h5>
             <p class="card-text">${{ product.price }}</p>
+             {% if product.id %}
+  <form method="post" action="{% url 'add_to_cart' product.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success w-100">
+      <i class="fas fa-shopping-cart me-1"></i> Agregar al carrito
+    </button>
+  </form>
+{% else %}
+  <div class="alert alert-warning">Producto inválido</div>
+{% endif %}
+<a href="{% url 'stripe_checkout' product.id %}" class="btn btn-dark">
+  Pagar con Stripe
+</a>
+
+<button 
+  class="btn btn-outline-primary w-100 mt-2"
+  data-bs-toggle="modal"
+  data-bs-target="#productDetailModal"
+  data-product-id="{{ product.id }}"
+>
+  Ver más
+</button>
+
           </div>
         </div>
       </div>
@@ -35,3 +58,42 @@
   </div>
 </div>
 {% endblock %}
+
+<!-- Modal -->
+<div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productDetailLabel">Detalle del producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalProductImage" src="" alt="Imagen del producto" class="img-fluid mb-3 rounded">
+        <h3 id="modalProductName"></h3>
+        <p id="modalProductDescription" class="text-muted"></p>
+        <h4 class="text-success">$<span id="modalProductPrice"></span></h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById('productDetailModal');
+
+  modal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const productId = button.getAttribute('data-product-id');
+
+    fetch(`/products/detalle/${productId}/`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('modalProductName').textContent = data.name;
+        document.getElementById('modalProductDescription').textContent = data.description;
+        document.getElementById('modalProductPrice').textContent = data.price;
+        document.getElementById('modalProductImage').src = data.image || '';
+      })
+      .catch(error => console.error('Error cargando el producto:', error));
+  });
+});
+</script>

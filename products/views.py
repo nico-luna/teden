@@ -165,3 +165,19 @@ def delete_category(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     category.delete()
     return redirect('category_list')
+
+from django.http import JsonResponse
+from .models import Product
+from django.shortcuts import get_object_or_404
+
+def product_detail_ajax(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    data = {
+        'name': product.name,
+        'description': product.description,
+        'price': str(product.price),
+        'image': product.image.url if product.image else '',
+    }
+    return JsonResponse(data)
+

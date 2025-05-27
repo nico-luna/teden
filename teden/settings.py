@@ -147,3 +147,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static"
 ]
+MERCADOPAGO_ACCESS_TOKEN = 'tu_access_token'
+
+STRIPE_SECRET_KEY = 'tu_secret_key'
