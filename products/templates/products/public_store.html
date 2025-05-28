@@ -60,6 +60,7 @@
 {% endblock %}
 
 <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -77,6 +78,7 @@
   </div>
 </div>
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById('productDetailModal');
@@ -88,12 +90,15 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/products/detalle/${productId}/`)
       .then(response => response.json())
       .then(data => {
-        document.getElementById('modalProductName').textContent = data.name;
-        document.getElementById('modalProductDescription').textContent = data.description;
-        document.getElementById('modalProductPrice').textContent = data.price;
-        document.getElementById('modalProductImage').src = data.image || '';
+        console.log('🔎 Data recibida del producto:', data);  // 👈 Log en consola
+        document.getElementById('modalProductName').textContent = data.name || 'Sin nombre';
+        document.getElementById('modalProductDescription').textContent = data.description || 'Sin descripción';
+        document.getElementById('modalProductPrice').textContent = data.price || '0.00';
+        document.getElementById('modalProductImage').src = data.image || 'https://via.placeholder.com/400x200?text=Sin+imagen';
       })
       .catch(error => console.error('Error cargando el producto:', error));
   });
 });
+
+
 </script>

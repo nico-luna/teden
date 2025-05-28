@@ -124,13 +124,13 @@
               
 
               <button 
-                class="btn btn-outline-primary w-100 mt-2"
-                data-bs-toggle="modal"
-                data-bs-target="#productDetailModal"
-                data-product-id="{{ product.id }}"
-              >
-                Ver más
-              </button>
+  class="btn btn-outline-primary" 
+  data-bs-toggle="modal" 
+  data-bs-target="#productDetailModal" 
+  data-product-id="{{ producto.id }}"
+>
+  Ver más
+</button>
             </div>
           </div>
         </div>
@@ -152,6 +152,12 @@
         <h3 id="modalProductName"></h3>
         <p id="modalProductDescription" class="text-muted"></p>
         <h4 class="text-success">$<span id="modalProductPrice"></span></h4>
+        <hr>
+        <div id="modalProductRating" class="mb-3 text-warning fw-bold"></div>
+        <div id="modalProductReviews" class="text-start mt-3">
+          <h5>Reseñas de clientes</h5>
+          <div id="reviewsContainer"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -169,12 +175,38 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/products/detalle/${productId}/`)
       .then(response => response.json())
       .then(data => {
-        document.getElementById('modalProductName').textContent = data.name;
-        document.getElementById('modalProductDescription').textContent = data.description;
-        document.getElementById('modalProductPrice').textContent = data.price;
-        document.getElementById('modalProductImage').src = data.image || '';
+        console.log('🔎 Data recibida del producto:', data);
+
+        document.getElementById('modalProductName').textContent = data.name || 'Sin nombre';
+        document.getElementById('modalProductDescription').textContent = data.description || 'Sin descripción';
+        document.getElementById('modalProductPrice').textContent = data.price || '0.00';
+        document.getElementById('modalProductImage').src = data.image || 'https://via.placeholder.com/400x200?text=Sin+imagen';
+        
+        // Promedio de valoraciones
+        document.getElementById('modalProductRating').textContent = data.avg_rating 
+          ? `⭐ ${data.avg_rating} / 5` 
+          : '⭐ Sin valoraciones';
+
+        // Cargar reseñas
+        const reviewsContainer = document.getElementById('reviewsContainer');
+        reviewsContainer.innerHTML = '';
+
+        if (data.reviews && data.reviews.length > 0) {
+          data.reviews.forEach(review => {
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = 'border rounded p-3 mb-2';
+            reviewDiv.innerHTML = `
+              <strong>${review.user}</strong> - ⭐ ${review.rating}/5<br>
+              <small class="text-muted">${review.date}</small>
+              <p class="mb-0">${review.comment}</p>
+            `;
+            reviewsContainer.appendChild(reviewDiv);
+          });
+        } else {
+          reviewsContainer.innerHTML = '<p class="text-muted">Sin reseñas aún.</p>';
+        }
       })
-      .catch(error => console.error('Error cargando el producto:', error));
+      .catch(error => console.error('❌ Error cargando el producto:', error));
   });
 });
 </script>

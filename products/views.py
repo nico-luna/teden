@@ -181,3 +181,13 @@ def product_detail_ajax(request, product_id):
     }
     return JsonResponse(data)
 
+
+from reviews.forms import ReviewForm
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    form = ReviewForm()
+    return render(request, 'products/product_detail.html', {
+        'product': product,
+        'form': form,
+    })

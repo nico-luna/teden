@@ -1,0 +1,40 @@
+
+<h4 class="mt-4">Reseñas</h4>
+
+{% for review in product.reviews.all %}
+  <div class="border rounded p-3 mb-2">
+    <strong>{{ review.user.username }}</strong> - ⭐ {{ review.rating }}/5<br>
+    <small class="text-muted">{{ review.created_at|date:"d/m/Y H:i" }}</small>
+    <p>{{ review.comment }}</p>
+  </div>
+{% empty %}
+  <p class="text-muted">Aún no hay reseñas para este producto.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+  <hr>
+  <h5>Dejá tu reseña</h5>
+  <form action="{% url 'add_review' product.id %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Enviar</button>
+  </form>
+{% else %}
+  <p><a href="{% url 'login' %}">Iniciá sesión</a> para dejar una reseña.</p>
+{% endif %}
+{% if user.is_authenticated and user.is_staff %}
+  <hr>
+  <h5>Administrar reseñas</h5>
+  <form action="{% url 'delete_review' product.id %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="review_id">Seleccioná una reseña para eliminar:</label>
+      <select name="review_id" id="review_id" class="form-control">
+        {% for review in product.reviews.all %}
+          <option value="{{ review.id }}">{{ review.user.username }} - {{ review.rating }}/5</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-danger">Eliminar Reseña</button>
+  </form>
+{% endif %}

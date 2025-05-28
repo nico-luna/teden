@@ -25,7 +25,7 @@ urlpatterns = [
     path('', include('users.urls')),        # 👈 Las rutas de users se cargan en la raíz
     path('cart/', include('cart.urls')),
     path('products/', include('products.urls')),
-    
+    path('reviews/', include('reviews.urls')),
 ]
 
 from django.conf import settings
