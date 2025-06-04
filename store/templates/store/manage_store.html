@@ -1,0 +1,37 @@
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+  <h2 class="mb-4">Constructor de tu tienda</h2>
+
+  <!-- Botón para agregar nuevo bloque -->
+  <form method="POST" action="{% url 'add_store_block' %}">
+    {% csrf_token %}
+    <div class="d-flex gap-2 align-items-center mb-3">
+      <select name="block_type" class="form-select" required>
+        <option value="" disabled selected>Elegí un bloque</option>
+        <option value="hero">Hero</option>
+        <option value="about">Sobre mí</option>
+        <option value="products">Productos</option>
+        <option value="testimonial">Testimonio</option>
+        <option value="contact">Contacto</option>
+      </select>
+      <button type="submit" class="btn btn-success">Agregar bloque</button>
+    </div>
+  </form>
+
+  <!-- Bloques existentes -->
+  {% for block in blocks %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ block.get_block_type_display }}</h5>
+        <p class="card-text">Orden: {{ block.order }}</p>
+        <a href="{% url 'edit_store_block' block.id %}" class="btn btn-primary btn-sm">Editar</a>
+        <a href="{% url 'delete_store_block' block.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+      </div>
+    </div>
+  {% empty %}
+    <p>No hay bloques creados aún.</p>
+  {% endfor %}
+</div>
+{% endblock %}

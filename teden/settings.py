@@ -53,12 +53,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'django.contrib.sites',
     'products',
     'core',
     'widget_tweaks',
     'cart',
     'reviews',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'store',
+    #'allauth.socialaccount',
+    #'allauth.socialaccount.providers.google',
     # 'orders',
     # 'payments',
     # 'chat',
@@ -72,6 +77,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Obligatorio para allauth:
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'teden.urls'
@@ -184,3 +192,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tucorreo@gmail.com'
 EMAIL_HOST_PASSWORD = 'tu_contraseña_o_clave_app'
 DEFAULT_FROM_EMAIL = 'no-reply@teden.com'
+
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

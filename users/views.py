@@ -143,3 +143,4 @@ def terms_and_conditions(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+

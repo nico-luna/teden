@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth.views import LoginView, LogoutView
 from . import views
-
+from store import views as store_views
 urlpatterns = [
     path('login/',
          LoginView.as_view(template_name='users/login.html'),
@@ -12,7 +12,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
 
     path('verificar-email/', views.verify_email, name='verify_email'),
-    
+
     path('select-role/', views.select_role, name='select_role'),
     path('dashboard/', views.dashboard, name='dashboard'),
 
@@ -27,4 +27,10 @@ urlpatterns = [
          name='mi_cuenta_vendedor'),
 
     path('terminos/', views.terms_and_conditions, name='terms_and_conditions'),
+
+    path('accounts/', include('allauth.urls')), 
+
+    path('store/', include('store.urls')),
+
+
 ]
