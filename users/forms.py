@@ -1,15 +1,57 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model  # ✅ Usamos el modelo configurado en settings.py
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
     accept_terms = forms.BooleanField(
         label='Acepto los términos y condiciones',
-        required=True
+        required=True,
+        error_messages={
+            'required': 'Debés aceptar los términos y condiciones para continuar.'
+        }
     )
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2', 'accept_terms']
+        labels = {
+            'username': 'Usuario',
+            'email': 'Correo electrónico',
+            'password1': 'Contraseña',
+            'password2': 'Confirmar contraseña',
+        }
+        error_messages = {
+            'username': {
+                'required': 'Este campo es obligatorio.',
+            },
+            'email': {
+                'required': 'Este campo es obligatorio.',
+                'invalid': 'Ingresá un correo electrónico válido.',
+            },
+            'password1': {
+                'required': 'Este campo es obligatorio.',
+            },
+            'password2': {
+                'required': 'Este campo es obligatorio.',
+            },
+        }
+
+class VerificationCodeForm(forms.Form):
+    code = forms.CharField(
+        label='Código de verificación',
+        max_length=6,
+        error_messages={
+            'required': 'Por favor ingresá el código que recibiste por correo.'
+        }
+    )
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+        labels = {
+            'username': 'Usuario',
+            'email': 'Correo electrónico',
+        }

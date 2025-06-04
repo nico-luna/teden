@@ -1,0 +1,36 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h2 class="mb-4">Verificá tu cuenta</h2>
+
+      <p>Ingresá el código de 6 dígitos que te enviamos por correo.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.code.label_tag }}
+          {{ form.code }}
+          {% if form.code.errors %}
+            <div class="text-danger small">
+              {{ form.code.errors.as_text }}
+            </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Verificar</button>
+      </form>
+
+      {% if messages %}
+        <div class="alert alert-info mt-3">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

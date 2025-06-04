@@ -6,11 +6,13 @@ urlpatterns = [
     path('login/',
          LoginView.as_view(template_name='users/login.html'),
          name='login'),
-    path('logout/',
-         LogoutView.as_view(next_page='login'),
-         name='logout'),
+    path('logout/', views.logout_view, name='logout'),
+
 
     path('register/', views.register, name='register'),
+
+    path('verificar-email/', views.verify_email, name='verify_email'),
+    
     path('select-role/', views.select_role, name='select_role'),
     path('dashboard/', views.dashboard, name='dashboard'),
 

@@ -6,3 +6,12 @@ def home(request):
     return render(request, 'core/home.html', {
         'productos': productos
     })
+
+from users.forms import CustomUserCreationForm
+
+def home(request):
+    form = CustomUserCreationForm()
+    return render(request, 'core/home.html', {
+        'form': form,
+        'show_register_modal': False  # o True si querés que se abra automáticamente
+    })
