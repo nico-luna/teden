@@ -31,6 +31,17 @@ ALLOWED_HOSTS = [
     'teden.onrender.com',  # <-- agregá esta línea
 ]
 
+import os
+
+# settings.py
+
+# Archivos estáticos (CSS, JS, imágenes de proyecto)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Archivos subidos por usuario (media)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 
@@ -155,3 +166,15 @@ STATICFILES_DIRS = [
 MERCADOPAGO_ACCESS_TOKEN = 'tu_access_token'
 
 STRIPE_SECRET_KEY = 'tu_secret_key'
+
+INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'tu_cloud_name',
+    'API_KEY': 'tu_api_key',
+    'API_SECRET': 'tu_api_secret',
+}
+
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'

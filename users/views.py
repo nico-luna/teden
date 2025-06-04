@@ -4,6 +4,7 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 
+
 @csrf_protect
 def register(request):
     if request.method == 'POST':
@@ -50,13 +51,13 @@ def mi_cuenta_vendedor(request):
         return redirect('dashboard')
 
     if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
+        form = CustomUserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Tus datos fueron actualizados correctamente.")
             return redirect('mi_cuenta_vendedor')
     else:
-        form = UserChangeForm(instance=request.user)
+        form = CustomUserChangeForm(instance=request.user)
 
     return render(request, 'users/mi_cuenta_vendedor.html', {'form': form})
 
