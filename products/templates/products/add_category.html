@@ -1,7 +1,26 @@
-<h2>Agregar Categoría</h2>
-<form method="post">
-  {% csrf_token %}
-  <input type="text" name="name" placeholder="Nombre de la categoría">
-  <button type="submit">Agregar</button>
-</form>
-<a href="{% url 'category_list' %}">Volver a la lista de categorías</a>
+{% extends 'users/base.html' %}
+{% block title %}Agregar Categoría{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow rounded p-4 mx-auto" style="max-width: 500px;">
+    <h3 class="mb-4 text-center">➕ Agregar nueva categoría</h3>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="name" class="form-label">Nombre de la categoría</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Ej: Electrónica" required>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Guardar categoría</button>
+      </div>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-sm">← Volver al listado</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

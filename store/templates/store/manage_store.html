@@ -1,37 +1,44 @@
-{% load static %}
+{% extends 'users/base.html' %}
 
 {% block content %}
-<div class="container my-4">
-  <h2 class="mb-4">Constructor de tu tienda</h2>
+<div class="container py-4">
+  <h2 class="mb-4">Constructor de Tienda</h2>
+{% if store %}
+      <a href="{% url 'public_store' store.slug %}" target="_blank" class="btn btn-outline-primary">
+        🌐 Ver tienda pública
+      </a>
+    {% endif %}
+  <div id="block-list" class="list-group">
+    {% for block in blocks %}
+      <div class="list-group-item mb-3 p-4 border" data-block-id="{{ block.id }}">
+        <div class="d-flex justify-content-between">
+          <strong>{{ block.block_type|title }}</strong>
+          <div>
+            <a href="{% url 'edit_block' block.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <a href="{% url 'delete_block' block.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+          </div>
+        </div>
+        <hr>
+        <p class="mb-0 text-muted">
+          {% if block.content.title %}{{ block.content.title }}{% else %}<em>Sin contenido</em>{% endif %}
+        </p>
+      </div>
+    {% endfor %}
+  </div>
 
-  <!-- Botón para agregar nuevo bloque -->
-  <form method="POST" action="{% url 'add_store_block' %}">
-    {% csrf_token %}
-    <div class="d-flex gap-2 align-items-center mb-3">
-      <select name="block_type" class="form-select" required>
-        <option value="" disabled selected>Elegí un bloque</option>
+  <div class="mt-4">
+    <form method="POST" action="{% url 'add_block' %}">
+      {% csrf_token %}
+      <label for="block_type">Agregar sección:</label>
+      <select name="block_type" id="block_type" class="form-select d-inline-block w-auto">
         <option value="hero">Hero</option>
         <option value="about">Sobre mí</option>
         <option value="products">Productos</option>
         <option value="testimonial">Testimonio</option>
         <option value="contact">Contacto</option>
       </select>
-      <button type="submit" class="btn btn-success">Agregar bloque</button>
-    </div>
-  </form>
-
-  <!-- Bloques existentes -->
-  {% for block in blocks %}
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">{{ block.get_block_type_display }}</h5>
-        <p class="card-text">Orden: {{ block.order }}</p>
-        <a href="{% url 'edit_store_block' block.id %}" class="btn btn-primary btn-sm">Editar</a>
-        <a href="{% url 'delete_store_block' block.id %}" class="btn btn-danger btn-sm">Eliminar</a>
-      </div>
-    </div>
-  {% empty %}
-    <p>No hay bloques creados aún.</p>
-  {% endfor %}
+      <button type="submit" class="btn btn-success">Agregar</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

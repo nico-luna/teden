@@ -62,11 +62,12 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'store',
+    'dashboard',
     #'allauth.socialaccount',
     #'allauth.socialaccount.providers.google',
     # 'orders',
     # 'payments',
-    # 'chat',
+    
 ]
 
 MIDDLEWARE = [
@@ -140,7 +141,7 @@ TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_I18N = True
 USE_L10N = True
 
-
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -198,7 +199,7 @@ SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 LOGIN_REDIRECT_URL = '/'

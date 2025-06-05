@@ -1,36 +1,17 @@
 <!-- store/public_store.html -->
-{% extends 'base.html' %}
+{% extends 'users/base.html' %}
+
+
 {% block content %}
 <div class="container py-4">
-  <h2>Tienda de {{ store.seller.username }}</h2>
+  <h1 class="text-center mb-5">Tienda de {{ store.name }}</h1>
 
   {% for block in blocks %}
-    <div class="my-4">
-      {% if block.block_type == 'hero' %}
-        <div class="bg-warning text-center py-5">
-          <h1>{{ block.content.text }}</h1>
-        </div>
-      {% elif block.block_type == 'about' %}
-        <div>
-          <h3>Sobre mí</h3>
-          <p>{{ block.content.text }}</p>
-        </div>
-      {% elif block.block_type == 'products' %}
-        <div>
-          <h3>Mis productos</h3>
-          <p>{{ block.content.text }}</p>
-        </div>
-      {% elif block.block_type == 'testimonial' %}
-        <blockquote class="blockquote">
-          <p>{{ block.content.text }}</p>
-        </blockquote>
-      {% elif block.block_type == 'contact' %}
-        <div>
-          <h4>Contacto</h4>
-          <p>{{ block.content.text }}</p>
-        </div>
-      {% endif %}
+    <div class="mb-5">
+      {% include "store/blocks/"|add:block.block_type|add:".html" with content=block.content only %}
     </div>
+  {% empty %}
+    <p>No hay bloques configurados en esta tienda todavía.</p>
   {% endfor %}
 </div>
 {% endblock %}

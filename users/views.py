@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+from store.models import Store
+from django.urls import reverse, NoReverseMatch
 
 from .forms import (
     CustomUserCreationForm,
@@ -57,6 +59,18 @@ def register(request):
     })
 
 
+# 🟢 SELECCIÓN DE ROL
+@login_required
+def select_role(request):
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        if role in ['buyer', 'seller']:
+            request.user.role = role
+            request.user.save()
+            return redirect('dashboard')
+    return render(request, 'users/select_role.html')
+
+
 # 🟢 VERIFICAR CORREO
 @login_required
 def verify_email(request):
@@ -87,27 +101,31 @@ def verify_email(request):
     return render(request, 'users/verify_email.html', {'form': form})
 
 
-# 🟢 SELECCIÓN DE ROL
-@login_required
-def select_role(request):
-    if request.method == 'POST':
-        role = request.POST.get('role')
-        if role in ['buyer', 'seller']:
-            request.user.role = role
-            request.user.save()
-            return redirect('dashboard')
-    return render(request, 'users/select_role.html')
+
 
 
 # 🟢 DASHBOARD SEGÚN ROL
 @login_required
 def dashboard(request):
     if request.user.role == 'buyer':
-        return render(request, 'users/dashboard_buyer.html')
+        return render(request, 'dashboard/dashboard_buyer.html')
+
     elif request.user.role == 'seller':
-        return render(request, 'users/dashboard_seller.html')
-    else:
-        return redirect('select_role')
+        store = Store.objects.filter(owner=request.user).first()
+
+        public_url = None
+        if store and store.slug:
+            try:
+                public_url = reverse('public_store', args=[store.slug])
+            except NoReverseMatch:
+                public_url = None
+
+        return render(request, 'dashboard/dashboard_seller.html', {
+            'store': store,
+            'public_url': public_url
+        })
+
+    return redirect('select_role')
 
 
 # 🟢 MI CUENTA (COMÚN)

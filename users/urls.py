@@ -14,7 +14,8 @@ urlpatterns = [
     path('verificar-email/', views.verify_email, name='verify_email'),
 
     path('select-role/', views.select_role, name='select_role'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/seller/', views.dashboard, name='dashboard_seller'),
+
 
     # Mi cuenta comprador
     path('mi-cuenta/',
@@ -31,6 +32,11 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')), 
 
     path('store/', include('store.urls')),
+    path('products/', include('products.urls')),
+    
+    path('dashboard/', include('dashboard.urls')),
+    path('dashboard/', views.dashboard, name='dashboard'),
 
+     
 
 ]

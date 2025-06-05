@@ -1,10 +1,45 @@
-<h2>Categorías</h2>
-<a href="{% url 'add_category' %}">Agregar nueva</a>
-<ul>
-  {% for c in categories %}
-    <li>
-      {{ c.name }}
-      <a href="{% url 'delete_category' c.id %}">Eliminar</a>
-    </li>
-  {% endfor %}
-</ul>
+{% extends 'users/base.html' %}
+
+{% block title %}Categorías{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">📂 Listado de Categorías</h3>
+    <a href="{% url 'add_category' %}" class="btn btn-success">➕ Nueva categoría</a>
+  </div>
+
+  {% if categories %}
+  <div class="card shadow-sm rounded">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in categories %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ c.name }}</td>
+            <td>
+              <a href="{% url 'delete_category' c.id %}" class="btn btn-sm btn-outline-danger">
+                🗑️ Eliminar
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-info mt-3">
+    Aún no hay categorías cargadas.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

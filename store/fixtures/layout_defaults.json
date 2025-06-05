@@ -1,0 +1,18 @@
+[
+  {
+    "type": "hero",
+    "props": {
+      "title": "¡Bienvenido a mi tienda!",
+      "subtitle": "Descubrí productos únicos",
+      "background_image": "/media/hero.jpg",
+      "text_color": "#ffffff"
+    }
+  },
+  {
+    "type": "product_carousel",
+    "props": {
+      "title": "Destacados",
+      "products": [1, 2, 3]
+    }
+  }
+]

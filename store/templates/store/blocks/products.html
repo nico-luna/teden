@@ -1,0 +1,21 @@
+<section class="container py-5">
+  <h2>{{ block.content.title|default:"Nuestros Productos" }}</h2>
+  <p>{{ block.content.subtitle|default:"Conocé lo que tenemos para vos." }}</p>
+
+  <div class="row">
+    {% for product in store.owner.products.all %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+            <p><strong>${{ product.price }}</strong></p>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No hay productos disponibles.</p>
+    {% endfor %}
+  </div>
+</section>

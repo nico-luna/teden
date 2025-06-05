@@ -1,15 +1,37 @@
 <!-- store/edit_block.html -->
-{% extends 'base.html' %}
 {% block content %}
-<div class="container py-4">
-  <h2>Editar bloque: {{ block.get_block_type_display }}</h2>
-  <form method="post">
+<div class="container my-4">
+  <h2 class="mb-3">Editar bloque: {{ block.get_block_type_display }}</h2>
+
+  <form method="POST">
     {% csrf_token %}
-    <div class="mb-3">
-      <label for="content" class="form-label">Contenido (JSON o texto)</label>
-      <textarea name="content" id="content" class="form-control" rows="6">{{ block.content.text }}</textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+
+    {% if block.block_type == "hero" %}
+      <div class="mb-3">
+        <label for="title" class="form-label">Título</label>
+        <input type="text" name="title" class="form-control" value="{{ block.content.title|default:'' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="subtitle" class="form-label">Subtítulo</label>
+        <input type="text" name="subtitle" class="form-control" value="{{ block.content.subtitle|default:'' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="background_image" class="form-label">Imagen de fondo (URL)</label>
+        <input type="text" name="background_image" class="form-control" value="{{ block.content.background_image|default:'' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="text_color" class="form-label">Color del texto</label>
+        <input type="color" name="text_color" class="form-control form-control-color" value="{{ block.content.text_color|default:'#000000' }}">
+      </div>
+    {% else %}
+      <p>Este tipo de bloque aún no tiene un editor personalizado.</p>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{% url 'edit_store' %}" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
 {% endblock %}

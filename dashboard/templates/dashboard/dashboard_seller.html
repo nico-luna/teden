@@ -1,0 +1,105 @@
+{% extends 'users/base.html' %}
+{% block title %}Dashboard Vendedor{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row" style="min-height: 100vh;">
+
+    <!-- Sidebar fijo y responsive -->
+    <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar text-white position-sticky top-0 p-3" style="height: 100vh;">
+      <div class="text-center mb-4">
+        <img src="{{ user.profile.image.url }}" alt="Foto de perfil" class="rounded-circle mb-2" style="width: 90px; height: 90px;">
+        <h5 class="mb-0">{{ user.username }}</h5>
+        <small class="text-muted">{{ user.email }}</small>
+      </div>
+
+      <hr class="border-secondary">
+
+      <h6 class="text-uppercase text-center mb-3">Mi Panel</h6>
+      <ul class="nav flex-column mb-4">
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'dashboard' %}">🏠 Inicio</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'mi_cuenta_vendedor' %}">⚙️ Mi cuenta</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'logout' %}">🚪 Cerrar sesión</a></li>
+      </ul>
+
+      <hr class="border-secondary">
+
+      {% if store %}
+        <div class="mb-3 text-center">
+          <h6 class="mb-1">Tienda: <strong>{{ store.name }}</strong></h6>
+          {% if public_url %}
+            <a href="{{ public_url }}" target="_blank" class="btn btn-outline-light btn-sm w-100">🌐 Ver tienda pública</a>
+          {% else %}
+            <p class="text-warning">Sin URL válida</p>
+          {% endif %}
+          <a href="{% url 'edit_store' %}" class="btn btn-warning btn-sm w-100 mt-2">🎨 Personalizar tienda</a>
+        </div>
+      {% else %}
+        <div class="text-center">
+          <p>¡Aún no creaste tu tienda!</p>
+          <a href="{% url 'crear_tienda' %}" class="btn btn-success btn-sm w-100">➕ Crear tienda</a>
+        </div>
+      {% endif %}
+
+      <hr class="border-secondary">
+
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_product' %}">➕ Cargar producto</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'inventory' %}">📦 Inventario</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_category' %}">📁 Agregar categoría</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'category_list' %}">📂 Ver categorías</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+      <h2 class="mb-3">Bienvenido, {{ user.username }}</h2>
+      <p class="lead">Desde aquí podés gestionar tu tienda, productos y cuenta de forma sencilla.</p>
+      <div class="row g-4">
+  <!-- Total productos -->
+      <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h6 class="card-title text-muted">📦 Productos cargados</h6>
+            <h3 class="card-text">{{ product_count }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total categorías -->
+      <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h6 class="card-title text-muted">📁 Categorías</h6>
+            <h3 class="card-text">{{ category_count }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado tienda -->
+      <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h6 class="card-title text-muted">🛒 Estado de tienda</h6>
+            <h5 class="card-text">
+              {% if store and public_url %} ✅ Activa {% else %} ❌ Inactiva {% endif %}
+            </h5>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ventas (placeholder) -->
+      <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h6 class="card-title text-muted">💰 Ventas totales</h6>
+            <h4 class="card-text">$0.00</h4> <!-- Podés reemplazar por variable en el futuro -->
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+
+  </div>
+</div>
+{% endblock %}

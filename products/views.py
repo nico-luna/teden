@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from .forms import ProductForm, StoreForm
-from .models import Product, Store, Category
+from .forms import ProductForm
+from .models import Product, Category
 from reviews.forms import ReviewForm
 from django.contrib.auth import get_user_model
 
@@ -73,29 +73,6 @@ def delete_product(request, product_id):
 
     return redirect('inventory')
 
-# Gestionar tienda personal
-@login_required
-def manage_store(request):
-    store, created = Store.objects.get_or_create(seller=request.user)
-    if request.method == 'POST':
-        form = StoreForm(request.POST, request.FILES, instance=store)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard')
-    else:
-        form = StoreForm(instance=store)
-    return render(request, 'products/manage_store.html', {'form': form})
-
-# Vista pública de tienda del vendedor
-def public_store_view(request, username):
-    user = get_object_or_404(User, username=username, role='seller')
-    store = get_object_or_404(Store, seller=user)
-    products = Product.objects.filter(seller=user)
-
-    return render(request, 'products/public_store.html', {
-        'store': store,
-        'products': products
-    })
 
 # Listado de categorías
 @login_required

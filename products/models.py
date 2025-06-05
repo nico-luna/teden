@@ -7,7 +7,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
 class Product(models.Model):
     seller = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -30,19 +29,3 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Store(models.Model):
-    seller = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=255)
-    logo = models.ImageField(upload_to='store_logos/', blank=True, null=True)
-    description = models.TextField(blank=True)
-    banner = models.ImageField(upload_to='store_banners/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
