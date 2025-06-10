@@ -22,7 +22,9 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
-                user = form.save()
+                user = form.save(commit=False)
+                user.role = 'buyer'  # 👈 Asignar rol comprador por defecto
+                user.save()
                 login(request, user)
 
                 # Enviar código de verificación
@@ -59,17 +61,24 @@ def register(request):
     })
 
 
-# 🟢 SELECCIÓN DE ROL
+# 🟢 CONVERTIRSE EN VENDEDOR
 @login_required
-def select_role(request):
-    if request.method == 'POST':
-        role = request.POST.get('role')
-        if role in ['buyer', 'seller']:
-            request.user.role = role
-            request.user.save()
-            return redirect('dashboard')
-    return render(request, 'users/select_role.html')
+def convertirse_en_vendedor(request):
+    if request.user.role != 'buyer':
+        return redirect('dashboard')
 
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = 'seller'
+            user.save()
+            messages.success(request, "¡Ahora sos vendedor en TEDEN!")
+            return redirect('dashboard')
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+
+    return render(request, 'users/convertirse_en_vendedor.html', {'form': form})
 
 # 🟢 VERIFICAR CORREO
 @login_required

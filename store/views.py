@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from .models import Store, StoreBlock
 from .utils import load_default_blocks
 from products.models import Product, Category  # ajustá imports si usás otra app

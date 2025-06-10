@@ -27,6 +27,7 @@ urlpatterns = [
     path('products/', include('products.urls')),
     path('reviews/', include('reviews.urls')),
     path('store/', include('store.urls')),
+    path('panel-admin/', include('admin_panel.urls')),
 
 ]
 

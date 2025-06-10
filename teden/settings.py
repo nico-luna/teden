@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'store',
     'dashboard',
+    'admin_panel',
     #'allauth.socialaccount',
     #'allauth.socialaccount.providers.google',
     # 'orders',
@@ -170,7 +171,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static"
 ]
-MERCADOPAGO_ACCESS_TOKEN = 'tu_access_token'
+MERCADOPAGO_ACCESS_TOKEN = 'TEST-6884953027292838-060710-c96a80c6a1da600ab77db1e4db2387ca-491899797'
 
 STRIPE_SECRET_KEY = 'tu_secret_key'
 
@@ -186,13 +187,13 @@ CLOUDINARY_STORAGE = {
 
 STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tucorreo@gmail.com'
-EMAIL_HOST_PASSWORD = 'tu_contraseña_o_clave_app'
-DEFAULT_FROM_EMAIL = 'no-reply@teden.com'
+EMAIL_HOST_USER = 'joaco246810@gmail.com'
+EMAIL_HOST_PASSWORD = 'pqnt dqbs ekvx abxf'
+DEFAULT_FROM_EMAIL = 'joaco246810@gmail.com'
 
 
 SITE_ID = 1

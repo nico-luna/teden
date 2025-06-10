@@ -8,6 +8,8 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    is_active = models.BooleanField(default=True)
+
     seller = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

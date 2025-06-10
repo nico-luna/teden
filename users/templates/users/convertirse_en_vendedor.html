@@ -1,0 +1,17 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Convertite en Vendedor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Convertite en vendedor</h2>
+  <p>Para empezar a vender en TEDEN, necesitamos algunos datos extra.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-success mt-3">Guardar y continuar</button>
+  </form>
+</div>
+{% endblock %}

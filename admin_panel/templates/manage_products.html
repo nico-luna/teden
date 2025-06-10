@@ -1,0 +1,38 @@
+{% extends "base_admin.html" %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+    <form method="get" class="mb-3">
+        <input type="text" name="q" class="form-control" placeholder="Buscar producto por nombre" value="{{ request.GET.q }}">
+    </form>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Vendedor</th>
+                <th>Precio</th>
+                <th>Publicado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.name }}</td>
+                    <td>{{ producto.seller.username }}</td>
+                    <td>${{ producto.price }}</td>
+                    <td>{% if producto.is_active %}✅{% else %}❌{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">No se encontraron productos.</td></tr>
+            {% endfor %}
+            <th>Acción</th>
+            <td>
+            {% if producto.is_active %}
+            <a href="{% url 'toggle_product' producto.id %}" class="btn btn-sm btn-danger">Desactivar</a>
+            {% else %}
+            <a href="{% url 'toggle_product' producto.id %}" class="btn btn-sm btn-success">Activar</a>
+            {% endif %}
+            </td>
+        </tbody>
+        
+    </table>
+{% endblock %}

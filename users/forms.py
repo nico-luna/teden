@@ -48,10 +48,22 @@ class VerificationCodeForm(forms.Form):
     )
 
 class CustomUserChangeForm(UserChangeForm):
+    password = None  # Para que no aparezca el campo de contraseña
+
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = [
+            'username', 'email',
+            'cuit_cuil', 'direccion', 'provincia',
+            'pais', 'codigo_postal', 'telefono'
+        ]
         labels = {
             'username': 'Usuario',
             'email': 'Correo electrónico',
+            'cuit_cuil': 'CUIT/CUIL',
+            'direccion': 'Dirección',
+            'provincia': 'Provincia',
+            'pais': 'País',
+            'codigo_postal': 'Código Postal',
+            'telefono': 'Teléfono',
         }

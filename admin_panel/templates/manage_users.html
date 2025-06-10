@@ -1,0 +1,61 @@
+{% extends "base_admin.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text" name="q" class="form-control" placeholder="Buscar..." value="{{ request.GET.q }}">
+        </div>
+        <div class="col-md-4">
+            <select name="role" class="form-select">
+                <option value="">Todos los roles</option>
+                <option value="buyer" {% if request.GET.role == 'buyer' %}selected{% endif %}>Compradores</option>
+                <option value="seller" {% if request.GET.role == 'seller' %}selected{% endif %}>Vendedores</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="verified" class="form-select">
+                <option value="">Todos</option>
+                <option value="yes" {% if request.GET.verified == 'yes' %}selected{% endif %}>Verificados</option>
+                <option value="no" {% if request.GET.verified == 'no' %}selected{% endif %}>No verificados</option>
+            </select>
+        </div>
+    </form>
+    <form method="get" class="mb-3">
+        <input type="text" name="q" class="form-control" placeholder="Buscar usuario por nombre o email" value="{{ request.GET.q }}">
+    </form>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Verificado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{% if user.is_verified %}✅{% else %}❌{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">No se encontraron usuarios.</td></tr>
+            {% endfor %}
+            <th>Acción</th>
+            <td>
+            {% if user.role == 'seller' %}
+                {% if user.is_verified %}
+                <a href="{% url 'toggle_verification' user.id %}" class="btn btn-sm btn-warning">Revocar</a>
+                {% else %}
+                <a href="{% url 'toggle_verification' user.id %}" class="btn btn-sm btn-success">Verificar</a>
+                {% endif %}
+            {% else %}
+                -
+            {% endif %}
+            </td>
+        </tbody>
+    </table>
+    
+{% endblock %}

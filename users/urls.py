@@ -12,8 +12,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
 
     path('verificar-email/', views.verify_email, name='verify_email'),
+    
+    path('convertirse-en-vendedor/', views.convertirse_en_vendedor, name='convertirse_en_vendedor'),
 
-    path('select-role/', views.select_role, name='select_role'),
     path('dashboard/seller/', views.dashboard, name='dashboard_seller'),
 
 
