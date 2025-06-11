@@ -87,11 +87,11 @@ def verify_email(request):
         verification = EmailVerificationCode.objects.get(user=request.user)
     except EmailVerificationCode.DoesNotExist:
         messages.error(request, "No se encontró ningún código de verificación.")
-        return redirect('dashboard')
+        return redirect('verify_email')
 
     if verification.verified:
         messages.info(request, "Tu correo ya fue verificado.")
-        return redirect('dashboard')
+        return redirect('home')
 
     if request.method == 'POST':
         form = VerificationCodeForm(request.POST)
@@ -101,7 +101,7 @@ def verify_email(request):
                 verification.verified = True
                 verification.save()
                 messages.success(request, "¡Correo verificado correctamente!")
-                return redirect('dashboard')
+                return redirect('home')
             else:
                 messages.error(request, "El código ingresado no es válido.")
     else:
