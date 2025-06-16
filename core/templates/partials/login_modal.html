@@ -24,5 +24,18 @@
         </form>
       </div>
     </div>
+    <p class="mt-2">
+      <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+    </p>
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        Usuario o contraseña incorrectos. ¿Querés <a href="{% url 'password_reset' %}">restablecer tu contraseña</a>?
+      </div>
+    {% endif %}
   </div>
+      {% if field.errors %}
+      <div class="form-text text-danger">
+        {{ field.errors.0 }}
+      </div>
+      {% endif %}
 </div>

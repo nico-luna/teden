@@ -19,4 +19,4 @@ def dashboard_buyer(request):
     if request.user.role != 'buyer':
         return redirect('dashboard_seller')
 
-    return render(request, 'dashboard/dashboard_buyer.html')
+    return render(request, 'core/home.html')

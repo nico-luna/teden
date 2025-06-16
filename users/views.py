@@ -7,6 +7,14 @@ from django.views.decorators.csrf import csrf_protect
 from store.models import Store
 from django.urls import reverse, NoReverseMatch
 
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
 from .forms import (
     CustomUserCreationForm,
     CustomUserChangeForm,
@@ -110,14 +118,11 @@ def verify_email(request):
     return render(request, 'users/verify_email.html', {'form': form})
 
 
-
-
-
 # 🟢 DASHBOARD SEGÚN ROL
 @login_required
 def dashboard(request):
     if request.user.role == 'buyer':
-        return render(request, 'dashboard/dashboard_buyer.html')
+        return render(request, 'core/home.html')
 
     elif request.user.role == 'seller':
         store = Store.objects.filter(owner=request.user).first()
@@ -171,3 +176,50 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+
+User = get_user_model()
+
+# 🟢 Solicitud de reseteo de contraseña
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            users = User.objects.filter(email=email)
+            if users.exists():
+                user = users.first()
+                token = default_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                reset_link = request.build_absolute_uri(
+                    reverse("password_reset_confirm", args=[uid, token])
+                )
+                send_mail(
+                    "Restablecé tu contraseña en TEDEN",
+                    f"Hola {user.username}, hacé clic en el siguiente enlace para restablecer tu contraseña: {reset_link}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                )
+            return redirect("password_reset_done")
+    else:
+        form = PasswordResetForm()
+    return render(request, "users/password_reset_form.html", {"form": form})
+
+# 🟢 Confirmar nueva contraseña
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect("password_reset_complete")
+        else:
+            form = SetPasswordForm(user)
+        return render(request, "users/password_reset_confirm.html", {"form": form})
+    else:
+        return render(request, "users/password_reset_invalid.html")

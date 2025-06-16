@@ -1,18 +1,64 @@
-<!-- {% extends 'users/base.html' %}
+<!-- register.html -->
+ {% extends 'users/base.html' %}
+ {% load form_tags %}
 
-{% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Registro</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Registrarme</button>
-  </form>
-</div>
-<div class="form-check mb-3">
-  {{ form.accept_terms }}
-  <label class="form-check-label" for="id_accept_terms">
-    Acepto los <a href="{% url 'terms_and_conditions' %}" target="_blank">términos y condiciones</a>
-  </label>
-</div>
-{% endblock %} -->
+<form method="post" class="needs-validation" novalidate>
+  {% csrf_token %}
+
+  <div class="mb-3">
+    {{ form.username.label_tag }}
+    {{ form.username }}
+    <div class="invalid-feedback">
+      Ingresá un nombre de usuario válido (letras, números o guiones bajos).
+    </div>
+  </div>
+
+  <div class="mb-3">
+    {{ form.email.label_tag }}
+    {{ form.email }}
+    <div class="invalid-feedback">
+      Ingresá un email válido.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    {{ form.password1.label_tag }}
+    {{ form.password1 }}
+    <div class="invalid-feedback">
+      Debe tener al menos 8 caracteres, una mayúscula y un número.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    {{ form.password2.label_tag }}
+    {{ form.password2 }}
+    <div class="invalid-feedback">
+      Repetí la contraseña.
+    </div>
+  </div>
+
+  <div class="mb-3 form-check">
+    {{ form.accept_terms }}
+    {{ form.accept_terms.label_tag }}
+    <div class="invalid-feedback">
+      Tenés que aceptar los términos para continuar.
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Registrarse</button>
+</form>
+<script>
+  (function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>

@@ -56,6 +56,20 @@ class StoreBlock(models.Model):
         ordering = ['order']
 
 
+from django.utils.text import slugify
+from .models import Store
+from django.db.models import Count
+
+def generar_slug_unico(nombre_base):
+    slug_base = slugify(nombre_base)
+    slug = slug_base
+    contador = 1
+    while Store.objects.filter(slug=slug).exists():
+        slug = f"{slug_base}-{contador}"
+        contador += 1
+    return slug
+
+
 from django.contrib.auth import get_user_model
 User = get_user_model()
 

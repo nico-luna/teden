@@ -9,7 +9,8 @@
       </div>
       <div class="modal-body px-4 pb-4">
 
-        <form method="post" action="{% url 'register' %}">
+        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+        <!-- Formulario de registro -->
           {% csrf_token %}
 
           {% for field in form.visible_fields %}

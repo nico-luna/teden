@@ -15,3 +15,12 @@ class StoreEditForm(forms.ModelForm):
         if Store.objects.filter(slug=slug).exclude(id=self.instance.id).exists():
             raise forms.ValidationError("Este slug ya está en uso. Elegí otro.")
         return slug
+    
+    from django import forms
+
+class StoreCreateForm(forms.Form):
+    name = forms.CharField(
+        label='Nombre de tu tienda',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Mi Tienda'})
+    )
