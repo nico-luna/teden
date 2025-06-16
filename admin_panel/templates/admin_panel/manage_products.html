@@ -1,4 +1,4 @@
-{% extends "base_admin.html" %}
+{% extends "admin_panel/base_admin.html" %}
 {% block title %}Productos{% endblock %}
 {% block content %}
     <form method="get" class="mb-3">
@@ -11,6 +11,7 @@
                 <th>Vendedor</th>
                 <th>Precio</th>
                 <th>Publicado</th>
+                <th>Acción</th>
             </tr>
         </thead>
         <tbody>
@@ -20,19 +21,19 @@
                     <td>{{ producto.seller.username }}</td>
                     <td>${{ producto.price }}</td>
                     <td>{% if producto.is_active %}✅{% else %}❌{% endif %}</td>
+                    <td>
+                        {% if producto.id %}
+                            <a href="{% url 'toggle_product' producto.id %}" class="btn btn-sm {% if producto.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                {% if producto.is_active %}Desactivar{% else %}Activar{% endif %}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Sin ID</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
-                <tr><td colspan="4">No se encontraron productos.</td></tr>
+                <tr><td colspan="5">No se encontraron productos.</td></tr>
             {% endfor %}
-            <th>Acción</th>
-            <td>
-            {% if producto.is_active %}
-            <a href="{% url 'toggle_product' producto.id %}" class="btn btn-sm btn-danger">Desactivar</a>
-            {% else %}
-            <a href="{% url 'toggle_product' producto.id %}" class="btn btn-sm btn-success">Activar</a>
-            {% endif %}
-            </td>
         </tbody>
-        
     </table>
 {% endblock %}

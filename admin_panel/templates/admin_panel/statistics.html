@@ -1,0 +1,11 @@
+{% extends "admin_panel/base_admin.html" %}
+{% block title %}Estadísticas{% endblock %}
+
+{% block content %}
+    <h2>📊 Estadísticas del sistema</h2>
+    <ul class="list-group">
+        <li class="list-group-item">Usuarios totales: <strong>{{ total_users }}</strong></li>
+        <li class="list-group-item">Productos totales: <strong>{{ total_products }}</strong></li>
+        <li class="list-group-item">Vendedores verificados: <strong>{{ verified_sellers }}</strong></li>
+    </ul>
+{% endblock %}
