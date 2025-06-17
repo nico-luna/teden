@@ -11,3 +11,12 @@ def home(request):
         'form': form,
         'show_register_modal': False
     })
+
+from django.http import HttpResponse
+from django.core.management import call_command
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def run_collectstatic(request):
+    call_command('collectstatic', interactive=False)
+    return HttpResponse("✅ Archivos estáticos recolectados.")
