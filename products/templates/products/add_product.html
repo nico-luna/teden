@@ -30,6 +30,15 @@
       <label for="{{ form.stock.id_for_label }}" class="form-label">Stock disponible</label>
       {{ form.stock|add_class:"form-control" }}
     </div>
+    
+    <div class="mb-3">
+      <label for="{{ form.file.id_for_label }}" class="form-label">Archivo descargable</label>
+      {{ form.file|add_class:"form-control" }}
+      <small class="form-text text-muted">
+        Permitidos: .pdf, .zip, .mp3, .wav (máx. 25MB)
+      </small>
+    </div>
+
 
     <div class="mb-3">
       <label for="{{ form.image.id_for_label }}" class="form-label">Imagen del producto</label>

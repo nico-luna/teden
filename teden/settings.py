@@ -66,8 +66,8 @@ INSTALLED_APPS = [
     'admin_panel',
     #'allauth.socialaccount',
     #'allauth.socialaccount.providers.google',
-    # 'orders',
-    # 'payments',
+    'orders',
+    'payments',
     
 ]
 
@@ -171,7 +171,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_DIRS = [
     BASE_DIR / "core" / "static"
 ]
-MERCADOPAGO_ACCESS_TOKEN = 'TEST-6884953027292838-060710-c96a80c6a1da600ab77db1e4db2387ca-491899797'
+MERCADOPAGO_ACCESS_TOKEN = 'TEST-3479281247201721-061619-ed800695334c87adde3970f868bce658-488351234'
 
 STRIPE_SECRET_KEY = 'tu_secret_key'
 

@@ -48,6 +48,13 @@
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'inventory' %}">📦 Inventario</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_category' %}">📁 Agregar categoría</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'category_list' %}">📂 Ver categorías</a></li>
+
+        <!-- Botón para visualizar órdenes -->
+        <li class="nav-item mt-3">
+          <a class="btn btn-primary w-100" href="{% url 'seller_orders' %}">
+            📦 Ver Órdenes
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -56,48 +63,48 @@
       <h2 class="mb-3">Bienvenido, {{ user.username }}</h2>
       <p class="lead">Desde aquí podés gestionar tu tienda, productos y cuenta de forma sencilla.</p>
       <div class="row g-4">
-  <!-- Total productos -->
-      <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h6 class="card-title text-muted">📦 Productos cargados</h6>
-            <h3 class="card-text">{{ product_count }}</h3>
+        <!-- Total productos -->
+        <div class="col-md-6 col-xl-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted">📦 Productos cargados</h6>
+              <h3 class="card-text">{{ product_count }}</h3>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Total categorías -->
-      <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h6 class="card-title text-muted">📁 Categorías</h6>
-            <h3 class="card-text">{{ category_count }}</h3>
+        <!-- Total categorías -->
+        <div class="col-md-6 col-xl-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted">📁 Categorías</h6>
+              <h3 class="card-text">{{ category_count }}</h3>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Estado tienda -->
-      <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h6 class="card-title text-muted">🛒 Estado de tienda</h6>
-            <h5 class="card-text">
-              {% if store and public_url %} ✅ Activa {% else %} ❌ Inactiva {% endif %}
-            </h5>
+        <!-- Estado tienda -->
+        <div class="col-md-6 col-xl-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted">🛒 Estado de tienda</h6>
+              <h5 class="card-text">
+                {% if store and public_url %} ✅ Activa {% else %} ❌ Inactiva {% endif %}
+              </h5>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Ventas (placeholder) -->
-      <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h6 class="card-title text-muted">💰 Ventas totales</h6>
-            <h4 class="card-text">$0.00</h4> <!-- Podés reemplazar por variable en el futuro -->
+        <!-- Ventas (placeholder) -->
+        <div class="col-md-6 col-xl-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted">💰 Ventas totales</h6>
+              <h4 class="card-text">$0.00</h4> <!-- Reemplazá por variable dinámica a futuro -->
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </main>
 
   </div>

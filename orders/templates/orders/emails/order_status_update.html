@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Actualización de estado de orden</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f6f6f6; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #2d89ef;">Hola {{ user.username }},</h2>
+    <p>Te informamos que tu orden <strong>#{{ order.order_number }}</strong> ha cambiado de estado.</p>
+
+    <p><strong>Nuevo estado:</strong> {{ order.get_status_display }}</p>
+
+    <hr style="margin: 20px 0;">
+
+    <p><strong>Producto:</strong> {{ order.product.name }}</p>
+    <p><strong>Total:</strong> ${{ order.total_price }}</p>
+    <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+
+    {% if order.status == 'completed' and order.product.file %}
+      <p>
+        <strong>Descarga:</strong>
+        <a href="{{ domain }}{{ order.product.file.url }}" style="color: #2d89ef;">Haz clic aquí para descargar tu archivo</a>
+      </p>
+    {% endif %}
+
+    <p style="margin-top: 30px;">Gracias por confiar en <strong>TEDEN</strong>.<br>Estamos a tu disposición para cualquier consulta.</p>
+
+    <p style="font-size: 13px; color: #888;">Este es un mensaje automático. Por favor no respondas directamente este correo.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<h2>Órdenes Recibidas</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Pedido</th>
+            <th>Fecha</th>
+            <th>Comprador</th>
+            <th>Estado</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>#{{ order.order_number }}</td>
+            <td>{{ order.created_at }}</td>
+            <td>{{ order.buyer.get_full_name }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.total_price }}</td>
+            {% if order.status == 'completed' and order.product.file %}
+                <p><strong>Descarga:</strong> 
+                <a href="{{ order.product.file.url }}" class="btn btn-sm btn-outline-primary" download>
+                    📥 Descargar archivo
+                </a>
+                </p>
+            {% elif order.status != 'completed' and order.product.file %}
+                <p><strong>Descarga:</strong> <span class="text-muted">El archivo se habilita cuando la orden esté completada ✅</span></p>
+            {% endif %}
+            <td>
+                <a href="{% url 'order_detail' order.order_number %}">Ver detalles</a> 
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No hay órdenes aún.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

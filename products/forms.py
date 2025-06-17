@@ -1,36 +1,70 @@
-# products/forms.py
 from django import forms
-from .models import Product # Importá todo arriba, no dentro de clases
-from .models import Category
-
+from .models import Product, Category
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'stock', 'image']
+        fields = ['name', 'description', 'price', 'stock', 'image', 'file', 'category']
+
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
         }
+
         labels = {
-            'name': 'Product Name',
-            'description': 'Description',
-            'price': 'Price',
+            'name': 'Nombre del producto',
+            'description': 'Descripción',
+            'price': 'Precio',
             'stock': 'Stock',
-            'image': 'Image',
+            'image': 'Imagen',
+            'file': 'Archivo descargable',
+            'category': 'Categoría',
         }
 
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
 
-class ProductSearchForm(forms.Form):   
-    query = forms.CharField(max_length=100, label="Search for products", required=False)
-    category = forms.ChoiceField(choices=[('', 'All Categories')], required=False)
-    min_price = forms.DecimalField(label="Min Price", required=False, decimal_places=2)
-    max_price = forms.DecimalField(label="Max Price", required=False, decimal_places=2)
+        if file:
+            # Tamaño máximo: 25 MB
+            max_size = 25 * 1024 * 1024
+            if file.size > max_size:
+                raise forms.ValidationError("El archivo supera el tamaño máximo de 25 MB.")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['category'].choices += [(category.id, category.name) for category in Category.objects.all()]
+            # Tipos de archivo permitidos
+            valid_extensions = ['.pdf', '.zip', '.mp3', '.wav']
+            import os
+            ext = os.path.splitext(file.name)[1].lower()
+
+            if ext not in valid_extensions:
+                raise forms.ValidationError("Solo se permiten archivos PDF, ZIP o de audio (.mp3, .wav).")
+
+        return file
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+        labels = {
+            'name': 'Nombre de la categoría',
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if Category.objects.filter(name__iexact=name).exists():
+            raise forms.ValidationError("Ya existe una categoría con este nombre.")
+        return name
+    def save(self, commit=True):
+        category = super().save(commit=False)
+        category.name = category.name.strip()
+        if commit:
+            category.save()
+            return category

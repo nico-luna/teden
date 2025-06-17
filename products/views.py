@@ -19,6 +19,7 @@ def add_product(request):
         if form.is_valid():
             product = form.save(commit=False)
             product.seller = request.user
+            product.owner = request.user  # ✅ NECESARIO para evitar IntegrityError
             product.save()
             return redirect('dashboard')
     else:
