@@ -1,0 +1,55 @@
+{% extends 'users/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg border-0 rounded-4">
+    <div class="card-body p-5">
+      <h2 class="mb-4"><i class="bi bi-calendar-check"></i> Reservar turno para: <span class="text-primary">{{ service.title }}</span></h2>
+
+      <form method="get" class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label for="date" class="form-label fw-semibold"><i class="bi bi-calendar-event"></i> Seleccioná una fecha:</label>
+          <input type="date" name="date" value="{{ selected_date }}" class="form-control shadow-sm rounded-3">
+        </div>
+        <div class="col-md-6 align-self-end">
+          <button type="submit" class="btn btn-outline-primary w-100 rounded-3">
+            <i class="bi bi-search"></i> Buscar horarios
+          </button>
+        </div>
+      </form>
+
+      {% if selected_date %}
+        <h4 class="mb-3"><i class="bi bi-clock-history"></i> Horarios disponibles para <strong>{{ selected_date }}</strong></h4>
+
+        {% if selected_date not in available_dates %}
+          <div class="alert alert-warning rounded-3">No hay horarios disponibles para esta fecha.</div>
+        {% endif %}
+
+        {% if not available_times %}
+          <div class="alert alert-info rounded-3">Por favor, seleccioná una fecha válida.</div>
+        {% endif %}
+
+        {% if available_times %}
+          <form method="post">
+            {% csrf_token %}
+            <div class="list-group">
+              {% for time in available_times %}
+                <label class="list-group-item d-flex align-items-center">
+                  <input type="radio" name="time" value="{{ time }}" class="form-check-input me-2">
+                  {{ time }}
+                </label>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success mt-4 rounded-3">
+              <i class="bi bi-check-circle"></i> Reservar turno
+            </button>
+          </form>
+        {% else %}
+          <p>No hay horarios disponibles.</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -22,6 +22,9 @@ from .forms import (
 )
 from .models import EmailVerificationCode
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.contrib import messages
 
 # 🟢 REGISTRO
 @csrf_protect
@@ -223,3 +226,14 @@ def password_reset_confirm(request, uidb64, token):
         return render(request, "users/password_reset_confirm.html", {"form": form})
     else:
         return render(request, "users/password_reset_invalid.html")
+
+# 🟢 Activar servicios para vendedores
+
+@login_required
+def activar_servicios(request):
+    if request.method == 'POST':
+        user = request.user
+        user.ofrece_servicios = True
+        user.save()
+        messages.success(request, "¡Ahora podés ofrecer servicios!")
+    return redirect('seller_dashboard')

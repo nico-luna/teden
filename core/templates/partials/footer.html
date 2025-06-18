@@ -1,0 +1,38 @@
+<footer class="bg-dark text-white mt-5 pt-4 pb-3">
+  <div class="container">
+    <div class="row">
+
+      <!-- Branding -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold">TEDEN</h5>
+        <p class="small">Tu espacio para vender, crear y conectar. 💡</p>
+        <p class="small mb-0">Hecho en 🇦🇷 con 💻 + ❤️</p>
+      </div>
+
+      <!-- Enlaces -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase">Enlaces útiles</h6>
+        <ul class="list-unstyled small">
+          <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Inicio</a></li>
+          <li><a href="{% url 'ver_servicios' %}" class="text-white text-decoration-none">Servicios</a></li>
+          <li><a href="{% url 'ayuda' %}" class="text-white text-decoration-none">Ayuda</a></li>
+          <li><a href="{% url 'terminos' %}" class="text-white text-decoration-none">Términos y condiciones</a></li>
+        </ul>
+      </div>
+
+      <!-- Contacto -->
+      <div class="col-md-4 mb-4">
+        <h6 class="text-uppercase">Contacto</h6>
+        <p class="small mb-1">📧 contacto@teden.com</p>
+        <p class="small mb-1">📱 WhatsApp: <a href="https://wa.me/5491123456789" target="_blank" class="text-white text-decoration-underline">+54 9 11 2345-6789</a></p>
+        <p class="small mb-0">📍 Buenos Aires, Argentina</p>
+      </div>
+
+    </div>
+
+    <hr class="border-light">
+    <div class="text-center small">
+      © {{ now|date:"Y" }} TEDEN – Todos los derechos reservados.
+    </div>
+  </div>
+</footer>

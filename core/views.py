@@ -20,3 +20,18 @@ from django.contrib.admin.views.decorators import staff_member_required
 def run_collectstatic(request):
     call_command('collectstatic', interactive=False)
     return HttpResponse("✅ Archivos estáticos recolectados.")
+
+from appointments.models import Service
+
+def home(request):
+    services = Service.objects.filter(is_active=True)
+    return render(request, 'core/home.html', {'services': services})
+
+from django.shortcuts import render
+
+def ayuda(request):
+    return render(request, 'core/ayuda.html')
+
+
+def terminos(request):
+    return render(request, 'core/terminos.html')

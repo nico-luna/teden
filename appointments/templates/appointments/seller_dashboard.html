@@ -1,0 +1,55 @@
+{% extends 'users/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Mis Turnos</h2>
+
+  {% if appointments %}
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Servicio</th>
+          <th>Cliente</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in appointments %}
+        <tr>
+          <td>{{ app.date }}</td>
+          <td>{{ app.time }}</td>
+          <td>{{ app.service.title }}</td>
+          <td>{{ app.user.username }}</td>
+          <td>
+            <span class="badge 
+              {% if app.status == 'pending' %}bg-warning text-dark
+              {% elif app.status == 'confirmed' %}bg-success
+              {% elif app.status == 'cancelled' %}bg-danger
+              {% else %}bg-secondary
+              {% endif %}">
+              {{ app.get_status_display }}
+            </span>
+          </td>
+          <td>
+            {% if app.status == 'pending' %}
+              <a href="{% url 'change_appointment_status' app.id 'confirmed' %}" class="btn btn-sm btn-success">Confirmar</a>
+              <a href="{% url 'change_appointment_status' app.id 'cancelled' %}" class="btn btn-sm btn-danger">Cancelar</a>
+            {% elif app.status == 'confirmed' %}
+              <a href="{% url 'change_appointment_status' app.id 'completed' %}" class="btn btn-sm btn-secondary">Finalizar</a>
+              <a href="{% url 'change_appointment_status' app.id 'cancelled' %}" class="btn btn-sm btn-danger">Cancelar</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">Aún no tenés turnos agendados.</div>
+  {% endif %}
+</div>
+{% endblock %}

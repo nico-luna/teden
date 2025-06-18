@@ -33,5 +33,5 @@ urlpatterns = [
      path('password-reset/confirm/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
      path('password-reset/complete/', lambda r: render(r, 'users/password_reset_complete.html'), name='password_reset_complete'),
      
-
+     path('activar-servicios/', views.activar_servicios, name='activar_servicios'),
 ]

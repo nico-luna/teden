@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),         # Página pública (home)
@@ -29,10 +30,12 @@ urlpatterns = [
     path('store/', include('store.urls')),
     path('panel-admin/', include('admin_panel.urls')),
     path('', include('orders.urls')),
-
+    path('turnos/', include('appointments.urls')),
+    
 ]
 
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

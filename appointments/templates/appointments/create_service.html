@@ -1,0 +1,41 @@
+{% extends 'users/base.html' %}
+{% load widget_tweaks %}
+{{ form.title|add_class:"form-control" }}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <h3 class="card-title mb-4">🛠️ Crear nuevo servicio</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_title" class="form-label">Título del servicio</label>
+          {{ form.title|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          <label for="id_description" class="form-label">Descripción</label>
+          {{ form.description|add_class:"form-control" }}
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="id_duration_minutes" class="form-label">Duración (minutos)</label>
+            {{ form.duration_minutes|add_class:"form-control" }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="id_price" class="form-label">Precio ($ ARS)</label>
+            {{ form.price|add_class:"form-control" }}
+          </div>
+          <div class="col-md-4 mb-3 d-flex align-items-end">
+            <div class="form-check">
+              {{ form.is_active }}
+              <label class="form-check-label" for="id_is_active">Activo</label>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary mt-3 w-100">Guardar y configurar disponibilidad</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

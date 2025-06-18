@@ -48,14 +48,20 @@
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'inventory' %}">📦 Inventario</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_category' %}">📁 Agregar categoría</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'category_list' %}">📂 Ver categorías</a></li>
+      </ul>
 
         <!-- Botón para visualizar órdenes -->
-        <li class="nav-item mt-3">
-          <a class="btn btn-primary w-100" href="{% url 'seller_orders' %}">
-            📦 Ver Órdenes
-          </a>
-        </li>
+      <hr class="border-secondary">
+      <ul class="nav flex-column">
+        <li class="nav-item mt-3"><a class="btn btn-primary w-100" href="{% url 'seller_orders' %}">📦 Ver Órdenes</a></li>  
+      <hr class="border-secondary">
+        <li class="nav-item mt-3"><a class="nav-link text-white" href="{% url 'create_service' %}">➕ Crear servicio con turnos</a></li>
+        <li class="nav-item"><a class="btn btn-secondary w-100" href="{% url 'seller_appointments' %}">📅 Mis turnos</a></li>
       </ul>
+
+
+      
+
     </nav>
 
     <!-- Main -->
@@ -105,8 +111,42 @@
           </div>
         </div>
       </div>
-    </main>
 
+        <!-- Turnos (placeholder) -->
+
+      {% if not request.user.ofrece_servicios %}
+        <form method="post" action="{% url 'activar_servicios' %}">
+          {% csrf_token %}
+          <button class="btn btn-outline-success">✅ Quiero ofrecer servicios</button>
+        </form>
+      {% else %}
+        <div class="alert alert-success mt-3">
+          Estás habilitado para ofrecer servicios. 
+          <a href="{% url 'create_service' %}" class="btn btn-sm btn-primary ms-2">➕ Crear servicio</a>
+        </div>
+      {% endif %}
+
+      <div class="col-md-6 col-xl-3 mt-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+              <h3>Agenda de Turnos</h3>
+              <p>Creá servicios y configurá horarios para que tus clientes puedan reservarte.</p>
+              <a href="{% url 'create_service' %}" class="btn btn-primary">Configurar Servicios</a>
+              <a href="{% url 'seller_appointments' %}" class="btn btn-secondary">Ver Turnos</a>
+          </div>
+        </div>
+      </div>
+
+        <!-- Órdenes (placeholder) -->
+
+      <div class="col-md-6 col-xl-3 mt-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+              <h3>Últimas Órdenes</h3>
+              <p>Revisá las últimas órdenes de tus clientes.</p>
+              <a href="{% url 'seller_orders' %}" class="btn btn-primary">Ver Órdenes</a>
+        </div>
+      </div>
   </div>
 </div>
 {% endblock %}

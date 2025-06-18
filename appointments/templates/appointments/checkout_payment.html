@@ -1,0 +1,29 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">💳 Confirmación de Pago</h4>
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><strong>Servicio:</strong> {{ appointment.service.title }}</p>
+          <p class="mb-2"><strong>Fecha:</strong> {{ appointment.date }}</p>
+          <p class="mb-2"><strong>Hora:</strong> {{ appointment.time }}</p>
+          <p class="mb-3"><strong>Total a pagar:</strong> ${{ appointment.service.price }}</p>
+
+          <a href="{% url 'pay_with_mercadopago' appointment.id %}" class="btn btn-success w-100">
+            Pagar con MercadoPago
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

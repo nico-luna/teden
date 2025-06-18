@@ -1,0 +1,78 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">❓ Preguntas Frecuentes sobre TEDEN</h2>
+
+  <div class="accordion" id="faqAccordion">
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="q1">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+          ¿Qué es TEDEN?
+        </button>
+      </h2>
+      <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          TEDEN es un marketplace donde podés vender y comprar productos digitales o reservar servicios. Es una plataforma pensada para creadores, freelancers, técnicos, profesionales y emprendedores.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="q2">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+          ¿Cómo reservo un turno con un vendedor?
+        </button>
+      </h2>
+      <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Ingresá a la sección <strong>Servicios</strong>, elegí el servicio que te interese, seleccioná fecha y horario, y confirmá tu turno. Podés pagar desde la misma plataforma.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="q3">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+          Soy vendedor, ¿cómo empiezo a ofrecer servicios?
+        </button>
+      </h2>
+      <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Desde tu panel de vendedor podés activar la opción <strong>“Ofrecer servicios”</strong>. Una vez activada, podés cargar tus servicios, precios, duración y disponibilidad horaria.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="q4">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a4">
+          ¿Qué métodos de pago acepta TEDEN?
+        </button>
+      </h2>
+      <div id="a4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Actualmente podés pagar con <strong>MercadoPago</strong> o <strong>Stripe</strong> (tarjeta de crédito/débito). El sistema elige según tu país y el tipo de producto o servicio.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="q5">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a5">
+          ¿Cómo contacto a un vendedor?
+        </button>
+      </h2>
+      <div id="a5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Cada vendedor tiene su perfil con medios de contacto. Si el servicio es con turno, podés enviar notas al reservar. En el futuro también podrás chatear directamente desde TEDEN.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

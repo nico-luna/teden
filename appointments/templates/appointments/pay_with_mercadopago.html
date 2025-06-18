@@ -1,0 +1,17 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center">
+    <h2>🔄 Redirigiendo a MercadoPago...</h2>
+    <p>Estás por pagar el servicio: <strong>{{ appointment.service.title }}</strong></p>
+    <p>Fecha: {{ appointment.date }} – Hora: {{ appointment.time }}</p>
+    <p><strong>Total: ${{ appointment.service.price }}</strong></p>
+    <p>Si no sos redirigido automáticamente, hacé clic en el botón de abajo.</p>
+    <a href="{{ mercadopago_url }}" class="btn btn-primary mt-3">Ir a MercadoPago</a>
+  </div>
+</div>
+{% endblock %}

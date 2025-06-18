@@ -38,6 +38,9 @@ import os
 # Archivos estáticos (CSS, JS, imágenes de proyecto)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    BASE_DIR / "core" / "static"
+]
 
 # Archivos subidos por usuario (media)
 MEDIA_URL = '/media/'
@@ -55,7 +58,6 @@ INSTALLED_APPS = [
     'users',
     'products',
     'core',
-    'widget_tweaks',
     'cart',
     'reviews',
     'django.contrib.sites',
@@ -64,11 +66,12 @@ INSTALLED_APPS = [
     'store',
     'dashboard',
     'admin_panel',
-    #'allauth.socialaccount',
-    #'allauth.socialaccount.providers.google',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'orders',
     'payments',
-    
+    'appointments',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -147,7 +150,6 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -164,13 +166,13 @@ STATIC_URL = '/static/'
 
 # (Solo si estás usando una carpeta común como "static/")
 # STATICFILES_DIRS = [BASE_DIR / "static"]
+DEBUG = True
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / "core" / "static"
-]
+
 MERCADOPAGO_ACCESS_TOKEN = 'TEST-3479281247201721-061619-ed800695334c87adde3970f868bce658-488351234'
 
 STRIPE_SECRET_KEY = 'tu_secret_key'
