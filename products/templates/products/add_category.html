@@ -6,11 +6,16 @@
   <div class="card shadow rounded p-4 mx-auto" style="max-width: 500px;">
     <h3 class="mb-4 text-center">➕ Agregar nueva categoría</h3>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">  {# 👈 NECESARIO para subir archivos #}
       {% csrf_token %}
       <div class="mb-3">
         <label for="name" class="form-label">Nombre de la categoría</label>
         <input type="text" class="form-control" id="name" name="name" placeholder="Ej: Electrónica" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="image" class="form-label">Imagen de la categoría</label>
+        <input type="file" class="form-control" id="image" name="image">
       </div>
 
       <div class="d-grid">
@@ -18,6 +23,45 @@
       </div>
     </form>
 
+    {% if form.errors %}
+      <div class="alert alert-danger mt-3">
+        Por favor, corregí los errores del formulario.
+      </div>
+    {% endif %}
+
+    {% if success %}
+      <div class="alert alert-success mt-3">
+        Categoría agregada exitosamente.
+      </div>
+    {% endif %}
+    {% if error %}
+      <div class="alert alert-danger mt-3">
+        {{ error }}
+      </div>
+    {% endif %}
+    {% if not categories %}
+      <div class="alert alert-info mt-3">
+        Aún no hay categorías creadas.
+      </div>
+    {% endif %}
+    {% if categories %}
+      <div class="mt-4">
+        <h5>Categorías existentes:</h5>
+        <ul class="list-group">
+          {% for category in categories %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ category.name }}
+              {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+              {% else %}
+                <span class="text-muted">Sin imagen</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    
     <div class="text-center mt-3">
       <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-sm">← Volver al listado</a>
     </div>

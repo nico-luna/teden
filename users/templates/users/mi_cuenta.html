@@ -1,9 +1,81 @@
 {% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
-  <div class="container mt-5">
-    <h1>Mi Cuenta</h1>
-    <p>¡Bienvenido, {{ user.username }}!</p>
-    <p>Aquí vas a poder ver y editar tu información personal.</p>
+<div class="container mt-5">
+  <h2 class="mb-4">Mi cuenta</h2>
+
+  <div class="card shadow rounded p-4">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row g-3">
+
+        <div class="col-md-6">
+          <label class="form-label">Nombre de usuario</label>
+          {{ form.username|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          {{ form.email|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Biografía</label>
+          {{ form.bio|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Foto de perfil</label>
+          {{ form.profile_picture|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">CUIT/CUIL</label>
+          {{ form.cuit_cuil|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Dirección</label>
+          {{ form.direccion|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Provincia</label>
+          {{ form.provincia|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">País</label>
+          {{ form.pais|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Código Postal</label>
+          {{ form.codigo_postal|add_class:"form-control" }}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Teléfono</label>
+          {{ form.telefono|add_class:"form-control" }}
+        </div>
+
+        <div class="col-12 d-flex justify-content-between mt-4">
+          <button type="submit" class="btn btn-primary">
+            💾 Guardar cambios
+          </button>
+
+          <a href="{% url 'eliminar_cuenta' %}" class="btn btn-outline-danger"
+             onclick="return confirm('¿Estás seguro de que querés eliminar tu cuenta? Esta acción no se puede deshacer.')">
+            🗑️ Eliminar cuenta
+          </a>
+        </div>
+      </div>
+    </form>
   </div>
+</div>
 {% endblock %}

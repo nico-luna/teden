@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 # Agregar producto
+
 @login_required
 def add_product(request):
     if request.user.role != 'seller':
@@ -20,12 +21,18 @@ def add_product(request):
             product = form.save(commit=False)
             product.seller = request.user
             product.owner = request.user  # ✅ NECESARIO para evitar IntegrityError
+
+            # Si no se seleccionó categoría, asignar "Sin categorizar"
+            if not product.category:
+                product.category = Category.get_default_category()
+
             product.save()
             return redirect('dashboard')
     else:
         form = ProductForm()
 
     return render(request, 'products/add_product.html', {'form': form})
+
 
 # Inventario del vendedor
 @login_required
@@ -127,3 +134,4 @@ def product_detail(request, product_id):
         'product': product,
         'form': form,
     })
+

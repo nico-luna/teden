@@ -88,4 +88,42 @@ class CustomUserChangeForm(UserChangeForm):
             raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.")
         return password
     
+
+class EditProfileForm(forms.ModelForm):
+    widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
     
+    profile_picture = forms.ImageField(
+        required=False,
+        label='Foto de perfil',
+        help_text='Subí una imagen para tu perfil (opcional).'
+    )
+    class Meta:
+        model = User
+        fields = [
+            'profile_picture', 'username', 'bio', 'email',
+            'cuit_cuil', 'direccion', 'provincia', 'pais',
+            'codigo_postal', 'telefono'
+        ]
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
+            'cuit_cuil': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'provincia': forms.TextInput(attrs={'class': 'form-control'}),
+            'pais': forms.TextInput(attrs={'class': 'form-control'}),
+            'codigo_postal': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.get('instance')
+        super().__init__(*args, **kwargs)
+
+        if user.role != 'seller':
+            # Ocultar campos de vendedor si es buyer
+            for field in ['cuit_cuil', 'direccion', 'provincia', 'pais', 'codigo_postal', 'telefono']:
+                self.fields[field].widget = forms.HiddenInput()

@@ -26,6 +26,35 @@ class ProductForm(forms.ModelForm):
             'category': 'Categoría',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Ordenar las categorías dejando "Sin categorizar" al final
+        categorias = list(Category.objects.all())
+        categorias_ordenadas = sorted(categorias, key=lambda c: c.name.lower() == "sin categorizar")
+        self.fields['category'].queryset = Category.objects.filter(id__in=[c.id for c in categorias_ordenadas])
+
+        # Si es un formulario nuevo, setear "Sin categorizar" como valor inicial
+        if not self.instance.pk:
+            try:
+                sin_cat = Category.objects.get(name__iexact="Sin categorizar")
+                self.fields['category'].initial = sin_cat.id
+            except Category.DoesNotExist:
+                pass  # Si no existe, no pasa nada
+
+class FileUploadForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['file']
+
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+        labels = {
+            'file': 'Archivo (PDF, ZIP, MP3, WAV)',
+        }
+
     def clean_file(self):
         file = self.cleaned_data.get('file')
 
@@ -44,27 +73,31 @@ class ProductForm(forms.ModelForm):
                 raise forms.ValidationError("Solo se permiten archivos PDF, ZIP o de audio (.mp3, .wav).")
 
         return file
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name']
+        fields = ['name', 'image']  # 👉 agregamos el campo image
 
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),  # 🆕
         }
 
         labels = {
             'name': 'Nombre de la categoría',
+            'image': 'Imagen representativa',  # 🆕
         }
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
         if Category.objects.filter(name__iexact=name).exists():
             raise forms.ValidationError("Ya existe una categoría con este nombre.")
-        return name
+        return name.strip()
+
     def save(self, commit=True):
         category = super().save(commit=False)
         category.name = category.name.strip()
         if commit:
             category.save()
-            return category
+        return category

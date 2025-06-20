@@ -3,9 +3,15 @@ from django.conf import settings
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)  # 🆕 Campo
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_default_category(cls):
+            return cls.objects.get_or_create(name="Sin categorizar")[0]
+    
 
 class Product(models.Model):
     is_active = models.BooleanField(default=True)

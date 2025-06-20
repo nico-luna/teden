@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.urls import path, include
 from django.contrib.auth.views import LoginView, LogoutView
+
+from orders.views import mis_compras
 from . import views
 from store import views as store_views
 urlpatterns = [
@@ -12,11 +14,10 @@ urlpatterns = [
      path('dashboard/seller/', views.dashboard, name='dashboard_seller'),
 
 
-    # Mi cuenta comprador
+    # Mi cuenta
      path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
-
-    # Mi cuenta vendedor
-     path('mi-cuenta-vendedor/', views.mi_cuenta_vendedor, name='mi_cuenta_vendedor'),
+     path('mi-cuenta/editar/', views.mi_cuenta, name='mi_cuenta_edit'),
+     path('eliminar-cuenta/', views.eliminar_cuenta, name='eliminar_cuenta'),
 
      path('terminos/', views.terms_and_conditions, name='terms_and_conditions'),
 
@@ -34,4 +35,6 @@ urlpatterns = [
      path('password-reset/complete/', lambda r: render(r, 'users/password_reset_complete.html'), name='password_reset_complete'),
      
      path('activar-servicios/', views.activar_servicios, name='activar_servicios'),
+
+     path('mis-compras/', mis_compras, name='mis_compras'),
 ]

@@ -109,3 +109,5 @@ def public_store(request, slug):
         'store': store,
         'blocks': blocks
     })
+
+

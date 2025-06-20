@@ -1,0 +1,37 @@
+{% load static %}
+
+{% load widget_tweaks %}
+
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4">Detalle de tu compra #{{ order.order_number }}</h2>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+      <p><strong>Estado:</strong> {{ order.get_status_display }}</p>
+      <p><strong>Total:</strong> ${{ order.total_price }}</p>
+    </div>
+  </div>
+
+  <h5>Productos comprados:</h5>
+  <ul class="list-group mb-4">
+    {% for item in order.history.all %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ item.product.name }}
+        <span>Cantidad: {{ item.quantity }}</span>
+      </li>
+    {% empty %}
+      <li class="list-group-item">No hay productos en esta compra.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'mis_compras' %}" class="btn btn-outline-primary">← Volver a mis compras</a>
+</div>
+{% endblock %}
+
+{% include "partials/footer.html" %}    

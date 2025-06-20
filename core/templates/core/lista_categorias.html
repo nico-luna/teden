@@ -1,0 +1,30 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Categorías disponibles</h2>
+  <div class="row">
+    {% for categoria in categorias %}
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ categoria.name }}</h5>
+            <p class="card-text">{{ categoria.description }}</p>
+            {% if categoria.image %}
+              <img src="{{ categoria.image.url }}" class="img-fluid mb-3" alt="{{ categoria.name }}">
+            {% else %}
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px;">Sin imagen</div>
+            {% endif %}
+            <a href="{% url 'productos_por_categoria' categoria.id %}" class="btn btn-primary">Ver productos</a>  
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No hay categorías con productos disponibles.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% include "partials/footer.html" %}

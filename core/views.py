@@ -35,3 +35,21 @@ def ayuda(request):
 
 def terminos(request):
     return render(request, 'core/terminos.html')
+
+from django.shortcuts import render, get_object_or_404
+from products.models import Category, Product
+
+def productos_por_categoria(request, category_id):
+    categoria = get_object_or_404(Category, id=category_id)
+    productos = Product.objects.filter(category=categoria, is_active=True)
+
+    return render(request, 'core/productos_por_categoria.html', {
+        'categoria': categoria,
+        'productos': productos
+    })
+
+from products.models import Category
+
+def lista_categorias(request):
+    categorias = Category.objects.all()
+    return render(request, 'core/lista_categorias.html', {'categorias': categorias})

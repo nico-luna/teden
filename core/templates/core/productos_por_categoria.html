@@ -1,0 +1,28 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Productos en la categoría: {{ categoria.name }}</h2>
+  <div class="row">
+    {% for producto in productos %}
+      <div class="col-md-4 mb-3">
+        <div class="card h-100">
+          {% if producto.image %}
+            <img src="{{ producto.image.url }}" class="card-img-top" alt="{{ producto.name }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ producto.name }}</h5>
+            <p class="card-text">${{ producto.price }}</p>
+            <a href="{% url 'product_detail_ajax' producto.id %}" class="btn btn-primary">Ver detalle</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No hay productos disponibles en esta categoría.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% include "partials/footer.html" %}

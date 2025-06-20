@@ -66,3 +66,14 @@ def update_order_status(request, order_number, status):
             notificar_estado_orden(order)
 
     return redirect('seller_orders')
+
+@login_required
+def mis_compras(request):
+    compras = Order.objects.filter(buyer=request.user).order_by('-created_at')
+    return render(request, 'core/mis_compras.html', {'compras': compras})
+
+@login_required
+@login_required
+def detalle_compra(request, pk):
+    compra = get_object_or_404(Order, pk=pk, buyer=request.user)
+    return render(request, 'orders/detalle_compra.html', {'compra': compra})

@@ -18,13 +18,10 @@ from django.contrib.auth import get_user_model
 from .forms import (
     CustomUserCreationForm,
     CustomUserChangeForm,
+    EditProfileForm,
     VerificationCodeForm,
 )
 from .models import EmailVerificationCode
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.contrib import messages
 
 # 🟢 REGISTRO
 @csrf_protect
@@ -34,14 +31,11 @@ def register(request):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                user.role = 'buyer'  # 👈 Asignar rol comprador por defecto
+                user.role = 'buyer'
                 user.save()
                 login(request, user)
 
-                # Enviar código de verificación
                 import random
-                from django.core.mail import send_mail
-
                 code = str(random.randint(100000, 999999))
                 EmailVerificationCode.objects.create(user=user, code=code)
 
@@ -64,7 +58,6 @@ def register(request):
             'show_register_modal': True
         })
 
-    # GET
     form = CustomUserCreationForm()
     return render(request, 'core/home.html', {
         'form': form,
@@ -79,7 +72,7 @@ def convertirse_en_vendedor(request):
         return redirect('dashboard')
 
     if request.method == 'POST':
-        form = CustomUserChangeForm(request.POST, instance=request.user)
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             user = form.save(commit=False)
             user.role = 'seller'
@@ -90,6 +83,7 @@ def convertirse_en_vendedor(request):
         form = CustomUserChangeForm(instance=request.user)
 
     return render(request, 'users/convertirse_en_vendedor.html', {'form': form})
+
 
 # 🟢 VERIFICAR CORREO
 @login_required
@@ -145,29 +139,33 @@ def dashboard(request):
     return redirect('select_role')
 
 
-# 🟢 MI CUENTA (COMÚN)
+# 🟢 MI CUENTA (UNIFICADA)
 @login_required
 def mi_cuenta(request):
-    return render(request, 'users/mi_cuenta.html')
-
-
-# 🟢 MI CUENTA VENDEDOR (EDICIÓN)
-@login_required
-def mi_cuenta_vendedor(request):
-    if request.user.role != 'seller':
-        return redirect('dashboard')
-
     if request.method == 'POST':
-        form = CustomUserChangeForm(request.POST, instance=request.user)
+        form = EditProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Tus datos fueron actualizados correctamente.")
-            return redirect('mi_cuenta_vendedor')
+            return redirect('home')
     else:
-        form = CustomUserChangeForm(instance=request.user)
+        form = EditProfileForm(instance=request.user)
 
-    return render(request, 'users/mi_cuenta_vendedor.html', {'form': form})
+    return render(request, 'users/mi_cuenta.html', {
+        'form': form,
+        'es_vendedor': request.user.role == 'seller',
+    })
 
+
+
+# 🟢 ELIMINAR CUENTA
+@login_required
+def eliminar_cuenta(request):
+    user = request.user
+    logout(request)
+    user.delete()
+    messages.success(request, "Tu cuenta fue eliminada correctamente.")
+    return redirect('home')
 
 # 🟢 TÉRMINOS Y CONDICIONES
 def terms_and_conditions(request):
@@ -207,6 +205,7 @@ def password_reset_request(request):
         form = PasswordResetForm()
     return render(request, "users/password_reset_form.html", {"form": form})
 
+
 # 🟢 Confirmar nueva contraseña
 def password_reset_confirm(request, uidb64, token):
     try:
@@ -227,8 +226,8 @@ def password_reset_confirm(request, uidb64, token):
     else:
         return render(request, "users/password_reset_invalid.html")
 
-# 🟢 Activar servicios para vendedores
 
+# 🟢 Activar servicios para vendedores
 @login_required
 def activar_servicios(request):
     if request.method == 'POST':
