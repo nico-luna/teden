@@ -1,3 +1,4 @@
+
 {% load static %}
 {% include "partials/header.html" %}
 {% include "partials/login_modal.html" %}
@@ -44,7 +45,7 @@
         </div>
       {% endif %}
     </div>
-
+{% endblock %}
     <!-- 🧾 Resumen del pedido -->
     <div class="col-md-6">
       {% if cart.items %}
@@ -70,6 +71,10 @@
                 <span>Envío</span>
                 <span class="text-muted">Gratis</span>
               </li>
+              <!-- <li class="list-group-item d-flex justify-content-between">
+                <span>Impuestos</span>
+                <span class="text-muted">$0.00</span>
+              </li> -->
               <li class="list-group-item d-flex justify-content-between fw-bold">
                 <span>Total</span>
                 <span class="text-success">${{ cart.total_price }}</span>
