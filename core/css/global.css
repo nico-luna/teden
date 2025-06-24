@@ -1,0 +1,57 @@
+    html, body {
+    height: 100%;
+    margin: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-color: #fff;
+    }
+
+    main {
+    flex: 1;  /* Empuja el footer al fondo */
+    }
+
+    .navbar {
+      background-color: #fcb900;
+    }
+    .hero {
+      background: linear-gradient(90deg, #fcb900 0%, #fffacd 100%);
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #000;
+    }
+    .category-icons img {
+      max-width: 60px;
+      margin-bottom: 0.5rem;
+    }
+    .category-icons p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .carousel-caption {
+      background: rgba(0,0,0,0.6);
+      border-radius: 5px;
+    }
+    .category-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    }
+    .category-box:hover {
+      transform: translateY(-4px);
+    }
+    .discount {
+      font-size: 0.85rem;
+      color: #d90000;
+      font-weight: bold;
+    }
+    .cuotas {
+      font-size: 0.8rem;
+      color: #555;
+    }

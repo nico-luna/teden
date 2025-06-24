@@ -53,3 +53,15 @@ from products.models import Category
 def lista_categorias(request):
     categorias = Category.objects.all()
     return render(request, 'core/lista_categorias.html', {'categorias': categorias})
+
+from users.forms import CustomUserCreationForm
+
+def home(request):
+    productos = Product.objects.all()
+    form = CustomUserCreationForm()
+
+    return render(request, 'core/home.html', {
+        'productos': productos,
+        'form': form,
+        'show_register_modal': request.GET.get('register') == '1'
+    })

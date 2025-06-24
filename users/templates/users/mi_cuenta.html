@@ -6,6 +6,7 @@
 {% load widget_tweaks %}
 
 {% block content %}
+<main>
 <div class="container mt-5">
   <h2 class="mb-4">Mi cuenta</h2>
 
@@ -14,55 +15,40 @@
       {% csrf_token %}
       <div class="row g-3">
 
-        <div class="col-md-6">
-          <label class="form-label">Nombre de usuario</label>
-          {{ form.username|add_class:"form-control" }}
+        <!-- 🔹 Datos generales -->
+        <div class="col-12">
+          <h5 class="text-primary mb-3">🔹 Datos generales</h5>
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label">Email</label>
-          {{ form.email|add_class:"form-control" }}
-        </div>
+        {% for field in form.visible_fields %}
+          {% if field.name in "username,email,bio,profile_picture" %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field|add_class:"form-control" }}
+              {% if field.errors %}
+                <div class="form-text text-danger">{{ field.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
 
-        <div class="col-md-12">
-          <label class="form-label">Biografía</label>
-          {{ form.bio|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Foto de perfil</label>
-          {{ form.profile_picture|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">CUIT/CUIL</label>
-          {{ form.cuit_cuil|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Dirección</label>
-          {{ form.direccion|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Provincia</label>
-          {{ form.provincia|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">País</label>
-          {{ form.pais|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Código Postal</label>
-          {{ form.codigo_postal|add_class:"form-control" }}
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Teléfono</label>
-          {{ form.telefono|add_class:"form-control" }}
-        </div>
+        <!-- 🟡 Datos como vendedor -->
+        {% for field in form.visible_fields %}
+          {% if field.name in "cuit_cuil,direccion,provincia,pais,codigo_postal,telefono" %}
+            {% if forloop.first %}
+              <div class="col-12 mt-4">
+                <h5 class="text-warning mb-3">🟡 Datos como vendedor</h5>
+              </div>
+            {% endif %}
+            <div class="col-md-6">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field|add_class:"form-control" }}
+              {% if field.errors %}
+                <div class="form-text text-danger">{{ field.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
 
         <div class="col-12 d-flex justify-content-between mt-4">
           <button type="submit" class="btn btn-primary">
@@ -76,6 +62,18 @@
         </div>
       </div>
     </form>
+    {% if not es_vendedor %}
+  <div class="col-12 mt-4">
+    <div class="alert alert-info">
+      ¿Querés ofrecer servicios o vender productos? 
+      <a href="{% url 'convertirse_en_vendedor' %}" class="fw-bold">Convertite en vendedor</a>.
+    </div>
+  </div>
+{% endif %}
   </div>
 </div>
+</main>
+
 {% endblock %}
+
+{% include "partials/footer.html" %}

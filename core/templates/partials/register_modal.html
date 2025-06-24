@@ -1,5 +1,6 @@
 {% load form_tags %}
 
+<div>
 <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -11,6 +12,7 @@
 
         <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
         <!-- Formulario de registro -->
+
           {% csrf_token %}
 
           {% for field in form.visible_fields %}
@@ -18,6 +20,21 @@
               <div class="mb-3">
                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
                 {{ field|add_class:"form-control" }}
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %} 
+                {% if field.errors %}
+                  <div class="form-text text-danger">
+                    {{ field.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="form-check mb-3">
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                
                 {% if field.errors %}
                   <div class="form-text text-danger">
                     {{ field.errors.0 }}

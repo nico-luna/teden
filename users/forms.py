@@ -127,3 +127,59 @@ class EditProfileForm(forms.ModelForm):
             # Ocultar campos de vendedor si es buyer
             for field in ['cuit_cuil', 'direccion', 'provincia', 'pais', 'codigo_postal', 'telefono']:
                 self.fields[field].widget = forms.HiddenInput()
+
+
+import re
+from django import forms
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class SellerRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            'cuit_cuil', 'direccion', 'provincia', 'pais',
+            'codigo_postal', 'telefono'
+        ]
+        labels = {
+            'cuit_cuil': 'CUIT/CUIL',
+            'direccion': 'Dirección',
+            'provincia': 'Provincia',
+            'pais': 'País',
+            'codigo_postal': 'Código Postal',
+            'telefono': 'Teléfono',
+        }
+        widgets = {
+            'cuit_cuil': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'provincia': forms.TextInput(attrs={'class': 'form-control'}),
+            'pais': forms.TextInput(attrs={'class': 'form-control'}),
+            'codigo_postal': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_cuit_cuil(self):
+        cuit = self.cleaned_data.get('cuit_cuil')
+        if not re.match(r'^\d{11}$', cuit):
+            raise forms.ValidationError("El CUIT/CUIL debe tener exactamente 11 dígitos.")
+        return cuit
+
+    def clean_codigo_postal(self):
+        cp = self.cleaned_data.get('codigo_postal')
+        if not re.match(r'^\d{4,5}$', cp):
+            raise forms.ValidationError("El código postal debe tener entre 4 y 5 dígitos.")
+        return cp
+
+    def clean_telefono(self):
+        tel = self.cleaned_data.get('telefono')
+        if not re.match(r'^\+?54\d{10}$', tel):
+            raise forms.ValidationError("El teléfono debe tener el formato +54 seguido del número sin espacios.")
+        return tel
+
+    def clean(self):
+        cleaned_data = super().clean()
+        campos = ['cuit_cuil', 'direccion', 'provincia', 'pais', 'codigo_postal', 'telefono']
+        for campo in campos:
+            if not cleaned_data.get(campo):
+                self.add_error(campo, "Este campo es obligatorio.")
+        return cleaned_data

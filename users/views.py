@@ -53,37 +53,44 @@ def register(request):
         else:
             messages.error(request, "Revisá los campos del formulario.")
 
+        # 🔁 En todos los casos con POST, volvemos al home con el modal abierto
         return render(request, 'core/home.html', {
             'form': form,
             'show_register_modal': True
         })
 
+    # 🟢 Si es GET, mostramos el modal vacío o cerrado, pero con el form igual
     form = CustomUserCreationForm()
     return render(request, 'core/home.html', {
         'form': form,
-        'show_register_modal': False
+        'show_register_modal': request.GET.get('register', False)  # Por si querés mostrarlo desde un GET
     })
 
+# 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
+from .forms import SellerRegistrationForm  # asegurate de importar el form
 
-# 🟢 CONVERTIRSE EN VENDEDOR
 @login_required
 def convertirse_en_vendedor(request):
-    if request.user.role != 'buyer':
+    user = request.user
+
+    # Si ya es vendedor, lo redirigimos al dashboard de vendedor
+    if user.role == 'seller':
+        messages.info(request, "Ya sos vendedor.")
         return redirect('dashboard')
 
     if request.method == 'POST':
-        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
+        form = SellerRegistrationForm(request.POST, instance=user)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'seller'
-            user.save()
+            vendedor = form.save(commit=False)
+            vendedor.role = 'seller'
+            vendedor.ofrece_servicios = True
+            vendedor.save()
             messages.success(request, "¡Ahora sos vendedor en TEDEN!")
             return redirect('dashboard')
     else:
-        form = CustomUserChangeForm(instance=request.user)
+        form = SellerRegistrationForm(instance=user)
 
     return render(request, 'users/convertirse_en_vendedor.html', {'form': form})
-
 
 # 🟢 VERIFICAR CORREO
 @login_required

@@ -1,14 +1,17 @@
-{% include "partials/header.html" %}
+<body>
+  {% include "partials/header.html" %}
 {% include "partials/login_modal.html" %}
 {% include "partials/register_modal.html" %}
 {% include "partials/cart_modal.html" %}
 <!-- Cargar archivos estáticos -->
 {% load static %}
 <link rel="icon" href="{% static 'img/favicon.ico' %}">
-<!-- Hero / Carousel -->
+
 
 {% block content %}
-<!-- Hero / Carousel -->
+
+ <main>
+  <!-- Hero / Carousel -->
 <div id="mainCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active">
@@ -26,14 +29,18 @@
   </button>
 </div>
 
-<!-- Categorías ficticias -->
-<section class="container py-4">
-  <div class="row text-center category-icons">
+<!-- Sección de beneficios -->
+<section class="container py-5">
+  <h2 class="text-center mb-4">¿Por qué elegir TEDEN?</h2>
+  <div class="row text-center g-4">
     {% for i in "1234" %}
-    <div class="col">
-      <img src="{% static 'icons/facebook.png' %}" alt="">
-      <p>Beneficio {{ forloop.counter }}</p>
-    </div>
+      <div class="col-6 col-md-3">
+        <div class="p-3 border rounded shadow-sm h-100 hover-zoom transition">
+          <img src="{% static 'icons/icon{{ forloop.counter }}.svg' %}" alt="Beneficio {{ forloop.counter }}" class="mb-3" width="50">
+          <h6 class="fw-semibold">Beneficio {{ forloop.counter }}</h6>
+          <p class="small text-muted">Texto breve que explica este beneficio con claridad.</p>
+        </div>
+      </div>
     {% endfor %}
   </div>
 </section>
@@ -65,6 +72,11 @@
     {% endfor %}
   </div>
 </section>
+</main>
+
+{% include "partials/footer.html" %}
+
+
 
 <!-- Modal de detalles -->
 {% include "partials/product_modal.html" with product=product %}
@@ -127,5 +139,4 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 {% endif %}
 
-
-{% include "partials/footer.html" %}
+</body>
