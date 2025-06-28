@@ -112,19 +112,7 @@
         </div>
       </div>
 
-        <!-- Turnos (placeholder) -->
 
-      {% if not request.user.ofrece_servicios %}
-        <form method="post" action="{% url 'activar_servicios' %}">
-          {% csrf_token %}
-          <button class="btn btn-outline-success">✅ Quiero ofrecer servicios</button>
-        </form>
-      {% else %}
-        <div class="alert alert-success mt-3">
-          Estás habilitado para ofrecer servicios. 
-          <a href="{% url 'create_service' %}" class="btn btn-sm btn-primary ms-2">➕ Crear servicio</a>
-        </div>
-      {% endif %}
 
       <div class="col-md-6 col-xl-3 mt-4">
         <div class="card shadow-sm border-0 h-100">

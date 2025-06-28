@@ -18,3 +18,15 @@ def get_available_times(service, selected_date):
             current_time += duration
 
     return available_times
+
+def get_available_dates(service, days_ahead=30):
+    today = datetime.today().date()
+    available_dates = []
+
+    for offset in range(days_ahead):
+        current_date = today + timedelta(days=offset)
+        times = get_available_times(service, current_date)
+        if times:  # si hay al menos un horario disponible
+            available_dates.append(current_date)
+
+    return available_dates

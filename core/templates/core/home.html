@@ -15,10 +15,16 @@
 <div id="mainCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active">
-      <img src="{% static 'banners/banner1.webp' %}" class="d-block w-100" alt="Promo 1">
+      <img src="{% static 'banners/1.png' %}" class="d-block w-100" alt="Promo 1">
+    </div>
+    <div class="carousel-item active">
+      <img src="{% static 'banners/2.png' %}" class="d-block w-100" alt="Promo 1">
     </div>
     <div class="carousel-item">
-      <img src="{% static 'banners/banner2.webp' %}" class="d-block w-100" alt="Promo 2">
+      <img src="{% static 'banners/3.png' %}" class="d-block w-100" alt="Promo 2">
+    </div>
+    <div class="carousel-item">
+      <img src="{% static 'banners/4.png' %}" class="d-block w-100" alt="Promo 2">
     </div>
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
@@ -36,7 +42,7 @@
     {% for i in "1234" %}
       <div class="col-6 col-md-3">
         <div class="p-3 border rounded shadow-sm h-100 hover-zoom transition">
-          <img src="{% static 'icons/icon{{ forloop.counter }}.svg' %}" alt="Beneficio {{ forloop.counter }}" class="mb-3" width="50">
+          <img src="{% static 'icons/facebook.png' %}" alt="Beneficio {{ forloop.counter }}" class="mb-3" width="50">
           <h6 class="fw-semibold">Beneficio {{ forloop.counter }}</h6>
           <p class="small text-muted">Texto breve que explica este beneficio con claridad.</p>
         </div>
@@ -44,6 +50,74 @@
     {% endfor %}
   </div>
 </section>
+
+
+
+<!-- Sección de planes -->
+<section class="container py-5">
+  <h2 class="text-center mb-4">Elegí el plan ideal para vos</h2>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+
+    <!-- Starter -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-start border-4 border-primary">
+        <div class="card-body">
+          <h5 class="card-title">TEDEN Starter <span class="badge bg-secondary">Gratis</span></h5>
+          <p class="text-muted">Ideal para quienes están comenzando en el mundo digital.</p>
+          <ul class="list-unstyled">
+            <li>✅ Hasta 3 productos digitales</li>
+            <li>✅ 1 servicio o trabajo publicado</li>
+            <li>✅ Tienda digital solo personal</li>
+            <li>✅ Mensajería entre usuarios</li>
+            <li>💸 Comisión: 20%</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plus -->
+    <div class="col">
+      <div class="card h-100 shadow border-start border-4 border-success">
+        <div class="card-body">
+          <h5 class="card-title">TEDEN Plus <span class="badge bg-success">USD 9,99 / mes</span></h5>
+          <p class="text-muted">Más herramientas para creadores en expansión.</p>
+          <ul class="list-unstyled">
+            <li>✅ Hasta 20 productos/archivos/licencias</li>
+            <li>✅ Servicios y trabajos ilimitados</li>
+            <li>✅ Hasta 3 tiendas digitales activas</li>
+            <li>🚀 1 producto promocionado</li>
+            <li>💸 Comisión: 13%</li>
+            <li>🔰 Creador verificado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro -->
+    <div class="col">
+      <div class="card h-100 shadow-lg border-start border-4 border-warning">
+        <div class="card-body">
+          <h5 class="card-title">TEDEN Pro <span class="badge bg-warning text-dark">USD 20 / mes</span></h5>
+          <p class="text-muted">Para profesionales, agencias y vendedores de alto volumen.</p>
+          <ul class="list-unstyled">
+            <li>✅ Publicaciones ilimitadas</li>
+            <li>✅ Tiendas ilimitadas por nicho</li>
+            <li>✅ Hasta 3 productos promocionados</li>
+            <li>❌ Sin anuncios internos</li>
+            <li>⚡ Soporte prioritario</li>
+            <li>💸 Comisión: 7%</li>
+            <li>🔰 Creador verificado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
 
 <!-- Catálogo de productos -->
 <section class="container py-5">

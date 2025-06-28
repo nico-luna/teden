@@ -1,16 +1,69 @@
 {% extends 'users/base.html' %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-5">
   <div class="card shadow-lg border-0 rounded-4">
     <div class="card-body p-5">
-      <h2 class="mb-4"><i class="bi bi-calendar-check"></i> Reservar turno para: <span class="text-primary">{{ service.title }}</span></h2>
+      <h2 class="mb-4">
+        <i class="bi bi-calendar-check"></i> Reservar turno para:
+        <span class="text-primary">{{ service.title }}</span>
+      </h2>
 
       <form method="get" class="row g-3 mb-4">
         <div class="col-md-6">
-          <label for="date" class="form-label fw-semibold"><i class="bi bi-calendar-event"></i> Seleccioná una fecha:</label>
-          <input type="date" name="date" value="{{ selected_date }}" class="form-control shadow-sm rounded-3">
+          <label for="datePicker" class="form-label fw-semibold">
+            <i class="bi bi-calendar-event"></i> Seleccioná una fecha:
+          </label>
+        <input type="text" id="datePicker"
+              name="date"
+              class="form-control shadow-sm rounded-3"
+              placeholder="Seleccioná una fecha"
+              data-available-dates='{{ available_dates|safe }}'>
+{% block extra_js %}
+
+<script id="availableDatesJson" type="application/json">
+  {{ available_dates|safe }}
+</script>
+<!-- Primero flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Después el idioma -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/es.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.querySelector("#datePicker");
+
+  const availableDates = JSON.parse(input.dataset.availableDates.replace(/'/g, '"'));
+
+  flatpickr.localize(flatpickr.l10ns.es);  // ✅ Esto asegura el idioma español
+
+  flatpickr(input, {
+  dateFormat: "Y-m-d",
+  enable: availableDates,
+  locale: {
+    weekdays: {
+      shorthand: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+      longhand: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    },
+    months: {
+      shorthand: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      longhand: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    },
+    firstDayOfWeek: 1,
+    rangeSeparator: ' a ',
+    weekAbbreviation: 'Sem',
+    scrollTitle: 'Desplazarse para aumentar',
+    toggleTitle: 'Click para alternar',
+    time_24hr: true
+  }
+});
+});
+</script>
+{% endblock %}
+              
         </div>
         <div class="col-md-6 align-self-end">
           <button type="submit" class="btn btn-outline-primary w-100 rounded-3">
@@ -33,11 +86,11 @@
         {% if available_times %}
           <form method="post">
             {% csrf_token %}
-            <div class="list-group">
+            <div class="d-flex flex-wrap gap-2">
               {% for time in available_times %}
-                <label class="list-group-item d-flex align-items-center">
-                  <input type="radio" name="time" value="{{ time }}" class="form-check-input me-2">
-                  {{ time }}
+                <input type="radio" class="btn-check" name="time" id="time-{{ forloop.counter }}" value="{{ time }}" autocomplete="off">
+                <label class="btn btn-outline-primary rounded-pill px-3 py-2" for="time-{{ forloop.counter }}">
+                  {{ time|slice:":5" }} hs
                 </label>
               {% endfor %}
             </div>
@@ -45,11 +98,10 @@
               <i class="bi bi-check-circle"></i> Reservar turno
             </button>
           </form>
-        {% else %}
-          <p>No hay horarios disponibles.</p>
         {% endif %}
       {% endif %}
     </div>
   </div>
 </div>
 {% endblock %}
+

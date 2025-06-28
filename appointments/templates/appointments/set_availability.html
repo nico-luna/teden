@@ -46,10 +46,16 @@
             </li>
           {% endfor %}
         </ul>
+          <div class="mt-4 text-end">
+            <a href="{% url 'ver_servicios' %}" class="btn btn-primary rounded-3">
+              Siguiente <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
       {% else %}
         <div class="alert alert-info mt-3 rounded-3">Todavía no cargaste horarios para este servicio.</div>
       {% endif %}
     </div>
+
   </div>
 </div>
 {% endblock %}
