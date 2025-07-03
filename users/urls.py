@@ -12,6 +12,8 @@ urlpatterns = [
      path('verificar-email/', views.verify_email, name='verify_email'),
      path('convertirse-en-vendedor/', views.convertirse_en_vendedor, name='convertirse_en_vendedor'),
      path('dashboard/seller/', views.dashboard, name='dashboard_seller'),
+     path('elegir-plan/', views.elegir_plan, name='elegir_plan'),
+     path('cambiar-plan/', views.cambiar_plan, name='cambiar_plan'),
 
 
     # Mi cuenta

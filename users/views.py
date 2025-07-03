@@ -69,6 +69,8 @@ def register(request):
 
 # 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
 from .forms import SellerRegistrationForm  # asegurate de importar el form
+from plans.models import SellerProfile
+from .models import EmailVerificationCode
 
 
 @login_required
@@ -88,12 +90,11 @@ def convertirse_en_vendedor(request):
             vendedor.save()
 
             # 🚀 Crear SellerProfile con plan Starter si no existe
-            if not hasattr(user, 'sellerprofile'):
+            if not hasattr(vendedor, 'sellerprofile'):
                 starter_plan = SellerPlan.objects.get(name='starter')
-                SellerProfile.objects.create(user=user, plan=starter_plan)
-
+                SellerProfile.objects.get_or_create(user=vendedor, defaults={'plan': starter_plan})
             messages.success(request, "¡Ahora sos vendedor en TEDEN!")
-            return redirect('dashboard')
+            return redirect('elegir_plan')
     else:
         form = SellerRegistrationForm(instance=user)
 
@@ -168,6 +169,7 @@ def mi_cuenta(request):
     return render(request, 'users/mi_cuenta.html', {
         'form': form,
         'es_vendedor': request.user.role == 'seller',
+        'planes': SellerPlan.objects.all(),
     })
 
 
@@ -250,3 +252,61 @@ def activar_servicios(request):
         user.save()
         messages.success(request, "¡Ahora podés ofrecer servicios!")
     return redirect('seller_dashboard')
+
+# 🟢 ELEGIR PLAN   
+@login_required
+def elegir_plan(request):
+    user = request.user
+    vendedor = user if user.role == 'seller' else None
+
+    # ⚠️ Si ya tiene perfil con plan asignado, lo redirigimos
+    if not hasattr(vendedor, 'sellerprofile'):
+        starter_plan = SellerPlan.objects.get(name='starter')
+        SellerProfile.objects.get_or_create(user=vendedor, defaults={'plan': starter_plan})
+
+    planes = SellerPlan.objects.all()
+
+    if request.method == 'POST':
+        plan_id = request.POST.get('plan_id')
+        try:
+            plan = SellerPlan.objects.get(id=plan_id)
+
+            # Crear perfil si no existe
+            if not hasattr(user, 'sellerprofile'):
+                SellerProfile.objects.create(user=user, plan=plan)
+            else:
+                user.sellerprofile.plan = plan
+                user.sellerprofile.save()
+
+            messages.success(request, f"Elegiste el plan {plan.name}.")
+            return redirect('dashboard')
+        except SellerPlan.DoesNotExist:
+            messages.error(request, "El plan seleccionado no existe.")
+
+    return render(request, 'users/elegir_plan.html', {'planes': planes})
+
+# 🟢 CAMBIAR PLAN
+
+def ensure_seller_profile(user):
+    if not hasattr(user, 'sellerprofile'):
+        # Si no tiene perfil de vendedor, creamos uno con el plan Starter
+        starter_plan = SellerPlan.objects.get(name='starter')
+        SellerProfile.objects.create(user=user, plan=starter_plan)
+@login_required
+def cambiar_plan(request):
+    user = request.user
+    ensure_seller_profile(user)
+    planes = SellerPlan.objects.all()
+
+    if request.method == 'POST':
+        plan_id = request.POST.get('plan_id')
+        try:
+            plan = SellerPlan.objects.get(id=plan_id)
+            user.sellerprofile.plan = plan
+            user.sellerprofile.save()
+            messages.success(request, f"Cambiaste al plan {plan.name}.")
+            return redirect('dashboard')
+        except SellerPlan.DoesNotExist:
+            messages.error(request, "El plan seleccionado no existe.")
+
+    return render(request, 'users/elegir_plan.html', {'planes': planes})

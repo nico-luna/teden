@@ -3,19 +3,18 @@
 
 {% block content %}
 <div class="container-fluid">
-  <div class="row" style="min-height: 100vh;">
+  <div class="row" style="max-height: 100vh;">
 
     <!-- Sidebar fijo y responsive -->
     <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar text-white position-sticky top-0 p-3" style="height: 100vh;">
-      <div class="text-center mb-4">
+      <!-- <div class="text-center mb-4">
         <img src="{{ user.profile.image.url }}" alt="Foto de perfil" class="rounded-circle mb-2" style="width: 90px; height: 90px;">
         <h5 class="mb-0">{{ user.username }}</h5>
         <small class="text-muted">{{ user.email }}</small>
-      </div>
+      </div> -->
 
       <hr class="border-secondary">
 
-      <h6 class="text-uppercase text-center mb-3">Mi Panel</h6>
       <ul class="nav flex-column mb-4">
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'dashboard' %}">🏠 Inicio</a></li>
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'mi_cuenta' %}">⚙️ Mi cuenta</a></li>
@@ -68,6 +67,15 @@
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
       <h2 class="mb-3">Bienvenido, {{ user.username }}</h2>
       <p class="lead">Desde aquí podés gestionar tu tienda, productos y cuenta de forma sencilla.</p>
+            {% if request.user.sellerprofile %}
+        <div class="alert alert-info d-flex justify-content-between align-items-center mt-4">
+          <div>
+            🧾 Estás usando el plan <strong>{{ request.user.sellerprofile.plan.get_name_display }}</strong>
+            (Comisión: {{ request.user.sellerprofile.plan.commission_percent }}%)
+          </div>
+          <a href="{% url 'elegir_plan' %}" class="btn btn-sm btn-outline-secondary">Cambiar plan</a>
+        </div>
+      {% endif %}
       <div class="row g-4">
         <!-- Total productos -->
         <div class="col-md-6 col-xl-3">
@@ -127,14 +135,14 @@
 
         <!-- Órdenes (placeholder) -->
 
-      <div class="col-md-6 col-xl-3 mt-4">
+      <!-- <div class="col-md-6 col-xl-3 mt-4">
         <div class="card shadow-sm border-0 h-100">
           <div class="card-body">
               <h3>Últimas Órdenes</h3>
               <p>Revisá las últimas órdenes de tus clientes.</p>
               <a href="{% url 'seller_orders' %}" class="btn btn-primary">Ver Órdenes</a>
         </div>
-      </div>
+      </div> -->
   </div>
 </div>
 {% endblock %}

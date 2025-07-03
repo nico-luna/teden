@@ -49,6 +49,29 @@
             </div>
           {% endif %}
         {% endfor %}
+              {% if es_vendedor and request.user.sellerprofile %}
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">🧾 Tu plan actual</h5>
+            <p>Estás en el plan <strong>TEDEN {{ request.user.sellerprofile.plan.name|title }}</strong> 
+            (comisión: {{ request.user.sellerprofile.plan.commission_percent }}%)</p>
+
+            <form method="post" action="{% url 'cambiar_plan' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="plan_id">Cambiar plan:</label>
+                <select name="plan_id" class="form-control" required>
+                  <option value="">Seleccioná un plan</option>
+                  {% for plan in planes %}
+                    <option value="{{ plan.id }}">{{ plan.name|title }} ({{ plan.commission_percent }}% comisión)</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary mt-2">Actualizar plan</button>
+            </form>
+          </div>
+        </div>
+      {% endif %}
 
         <div class="col-12 d-flex justify-content-between mt-4">
           <button type="submit" class="btn btn-primary">
@@ -69,9 +92,13 @@
       <a href="{% url 'convertirse_en_vendedor' %}" class="fw-bold">Convertite en vendedor</a>.
     </div>
   </div>
-{% endif %}
+    {% endif %}
+
+
   </div>
 </div>
+
+
 </main>
 
 {% endblock %}
