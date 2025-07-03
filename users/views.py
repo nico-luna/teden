@@ -14,6 +14,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from plans.models import SellerPlan
 
 from .forms import (
     CustomUserCreationForm,
@@ -69,11 +70,11 @@ def register(request):
 # 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
 from .forms import SellerRegistrationForm  # asegurate de importar el form
 
+
 @login_required
 def convertirse_en_vendedor(request):
     user = request.user
 
-    # Si ya es vendedor, lo redirigimos al dashboard de vendedor
     if user.role == 'seller':
         messages.info(request, "Ya sos vendedor.")
         return redirect('dashboard')
@@ -85,6 +86,12 @@ def convertirse_en_vendedor(request):
             vendedor.role = 'seller'
             vendedor.ofrece_servicios = True
             vendedor.save()
+
+            # 🚀 Crear SellerProfile con plan Starter si no existe
+            if not hasattr(user, 'sellerprofile'):
+                starter_plan = SellerPlan.objects.get(name='starter')
+                SellerProfile.objects.create(user=user, plan=starter_plan)
+
             messages.success(request, "¡Ahora sos vendedor en TEDEN!")
             return redirect('dashboard')
     else:

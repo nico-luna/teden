@@ -1,0 +1,31 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container">
+  <h2>Tu plan actual: <strong>{{ perfil.plan.get_name_display }}</strong></h2>
+  <hr>
+  <div class="row">
+    {% for plan in planes %}
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title">{{ plan.get_name_display }}</h4>
+          <p class="card-text">{{ plan.description }}</p>
+          <ul>
+            <li>Productos: {{ plan.max_products|default:"Ilimitados" }}</li>
+            <li>Servicios: {{ plan.max_services|default:"Ilimitados" }}</li>
+            <li>Tiendas: {{ plan.max_stores|default:"Ilimitadas" }}</li>
+            <li>Promociones: {{ plan.promoted_products }}</li>
+            <li>Comisión: {{ plan.commission_percent }}%</li>
+          </ul>
+          {% if perfil.plan == plan %}
+            <button class="btn btn-secondary" disabled>Plan activo</button>
+          {% else %}
+            <a href="{% url 'cambiar_plan' plan.name %}" class="btn btn-primary">Elegir este plan</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

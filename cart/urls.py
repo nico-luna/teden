@@ -15,7 +15,9 @@ urlpatterns = [
     path('checkout/mercadopago/', views.pagar_con_mercadopago_checkout, name='pagar_con_mercadopago_checkout'),
     path('checkout/stripe/', views.stripe_checkout_checkout, name='pagar_con_stripe_checkout'),
 
+
     # 🎯 Resultados pagos
+    path('checkout/mercadopago/links/', views.checkout_links_mp, name='checkout_links_mp'),
     path('checkout/mercadopago/success/', views.checkout_success, name='checkout_success'),
     path('checkout/mercadopago/failure/', views.checkout_failure, name='checkout_failure'),
     path('checkout/mercadopago/pending/', views.checkout_pending, name='checkout_pending'),

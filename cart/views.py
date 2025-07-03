@@ -16,10 +16,12 @@ from .forms import BillingForm
 from .models import BillingInfo
 from django.db.models import Max
 
+# Utilidad para obtener o crear el carrito de un usuario
 def get_user_cart(user):
     cart, _ = Cart.objects.get_or_create(user=user)
     return cart
 
+# Agrega un producto al carrito del usuario
 @login_required
 def add_to_cart(request):
     if request.method == 'POST':
@@ -33,17 +35,20 @@ def add_to_cart(request):
         return redirect('cart_detail')
     return redirect('home')
 
+# Vista que muestra el detalle del carrito
 @login_required
 def cart_detail(request):
     cart = get_user_cart(request.user)
     return render(request, 'cart/cart.html', {'cart': cart})
 
+# Elimina un item del carrito
 @login_required
 def remove_from_cart(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     item.delete()
     return redirect('cart_detail')
 
+# Vista de checkout donde se completan los datos de facturación
 @login_required
 def checkout(request):
     cart = get_user_cart(request.user)
@@ -59,7 +64,6 @@ def checkout(request):
             billing_info = form.save(commit=False)
             billing_info.user = request.user
             billing_info.save()
-
             request.session['billing_info_id'] = billing_info.id
             return redirect('checkout_payment')
     else:
@@ -67,6 +71,7 @@ def checkout(request):
 
     return render(request, 'cart/checkout.html', {'cart': cart, 'form': form})
 
+# Vista intermedia para mostrar la info antes del pago
 @login_required
 def checkout_payment(request):
     cart = get_user_cart(request.user)
@@ -82,10 +87,13 @@ def checkout_payment(request):
         'billing': billing_info,
     })
 
+# Vista de éxito post pago
 @login_required
 def checkout_success(request):
     last_orders = Order.objects.filter(buyer=request.user).order_by('-created_at')[:10]
     return render(request, 'cart/checkout_success.html', {'orders': last_orders})
+
+# Otras vistas simples de resultado
 
 def checkout_failure(request):
     return render(request, 'cart/checkout_failure.html')
@@ -107,46 +115,50 @@ def checkout_return(request):
 def checkout_cancel(request):
     return render(request, 'cart/checkout_cancel.html')
 
+# Checkout de MercadoPago (actualmente sin application_fee ni separación por vendedor)
+from collections import defaultdict
+from payments.utils import crear_preferencia_para_vendedor
+
 @login_required
 def pagar_con_mercadopago_checkout(request):
     cart = get_user_cart(request.user)
-
     if not cart.items.exists():
-        return HttpResponse("⚠️ El carrito está vacío.")
+        messages.error(request, "El carrito está vacío.")
+        return redirect('cart_detail')
 
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    productos_por_vendedor = defaultdict(list)
 
-    items = []
     for item in cart.items.all():
-        items.append({
+        seller = item.product.seller
+        productos_por_vendedor[seller].append({
             "title": item.product.name,
             "quantity": item.quantity,
             "unit_price": float(item.product.price),
-            "currency_id": "ARS",
+            "currency_id": "ARS"
         })
 
-    preference_data = {
-        "items": items,
-        "back_urls": {
-            "success": "https://teden.onrender.com/cart/checkout/mercadopago/success/",
-            "failure": "https://teden.onrender.com/cart/checkout/mercadopago/failure/",
-            "pending": "https://teden.onrender.com/cart/checkout/mercadopago/pending/"
-        },
-        "auto_return": "approved",
-    }
+    preferencias = []
 
     try:
-        preference_response = sdk.preference().create(preference_data)
-        payment_url = preference_response.get("response", {}).get("init_point")
+        for vendedor, items in productos_por_vendedor.items():
+            link_pago = crear_preferencia_para_vendedor(
+                seller=vendedor,
+                items=items,
+                buyer_email=request.user.email
+            )
+            preferencias.append({
+                "vendedor": vendedor,
+                "link": link_pago
+            })
 
-        if not payment_url:
-            return HttpResponse(f"❌ No se pudo obtener el enlace de pago. Detalle: {preference_response}")
-
-        return redirect(payment_url)
+        # Guardar en sesión y mostrar en nueva vista
+        request.session['links_de_pago'] = preferencias
+        return redirect('checkout_links_mp')
 
     except Exception as e:
-        return HttpResponse(f"❌ Error al generar preferencia: {str(e)}")
+        return HttpResponse(f"❌ Error: {e}")
 
+# Checkout con Stripe (modo test)
 @login_required
 def stripe_checkout_checkout(request):
     cart = get_user_cart(request.user)
@@ -181,6 +193,7 @@ def stripe_checkout_checkout(request):
     except Exception as e:
         return HttpResponse(f"⚠️ Error al generar sesión de Stripe: {str(e)}")
 
+# Confirmación final del pedido (luego del pago)
 @login_required
 def confirm_order(request):
     cart = get_user_cart(request.user)
@@ -211,8 +224,7 @@ def confirm_order(request):
 
     return redirect('checkout_success')
 
-#pago en efectivo (prueba)
-
+# Pago en efectivo para testing
 @login_required
 def pagar_en_efectivo(request):
     cart = get_user_cart(request.user)
@@ -224,9 +236,7 @@ def pagar_en_efectivo(request):
 
     billing_info = get_object_or_404(BillingInfo, id=billing_id, user=request.user)
 
-    from django.db.models import Max
-    for item in cart.items.all():
-            last_order_id = Order.objects.count() + 1
+    last_order_id = Order.objects.count() + 1
     for item in cart.items.all():
         new_number = f"TEDEN-{last_order_id}-{item.product.id}"
 
@@ -245,3 +255,14 @@ def pagar_en_efectivo(request):
     messages.success(request, "Orden generada en modo prueba (pago en efectivo).")
 
     return redirect('checkout_success')
+
+# Vista para mostrar los links de pago generados
+@login_required
+def checkout_links_mp(request):
+    links = request.session.get('links_de_pago', [])
+
+    if not links:
+        messages.error(request, "No hay enlaces de pago disponibles.")
+        return redirect('cart_detail')
+
+    return render(request, 'cart/checkout_links_mp.html', {'links': links})

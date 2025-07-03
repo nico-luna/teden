@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'orders',
     'payments',
     'appointments',
-
+    'plans',
     # Utilidades
     'widget_tweaks',
     'cloudinary',

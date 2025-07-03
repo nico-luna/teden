@@ -31,6 +31,8 @@ urlpatterns = [
     path('panel-admin/', include('admin_panel.urls')),
     path('', include('orders.urls')),
     path('turnos/', include('appointments.urls')),
+    path('planes/', include('plans.urls')),
+
     
 ]
 
