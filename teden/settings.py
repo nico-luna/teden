@@ -1,23 +1,18 @@
-import logging
-from pathlib import Path
 import os
 import logging
-
-
+from pathlib import Path
 
 # === BASE DIR ===
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # === SEGURIDAD ===
 SECRET_KEY = 'django-insecure-_6v9pf)cpa_)rg^ia&yt9w=h@9=hb0(iqmhpk9fayx&_kdl!19'
-DEBUG = True  # ⚠️ Desactivar en producción
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com', ]
-
+DEBUG = False  # En producción siempre False
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com']
 
 # === APPS INSTALADAS ===
 INSTALLED_APPS = [
-    # Django default apps
+    # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,14 +20,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Sitio y cuentas (allauth)
+    # Allauth
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # Apps personalizadas
+    # Tus apps
     'users',
     'products',
     'core',
@@ -44,6 +39,7 @@ INSTALLED_APPS = [
     'orders',
     'payments',
     'appointments',
+
     # Utilidades
     'widget_tweaks',
     'cloudinary',
@@ -51,10 +47,10 @@ INSTALLED_APPS = [
     'plans.apps.PlansConfig',
 ]
 
-
 # === MIDDLEWARE ===
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',        # ← WhiteNoise aquí
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,15 +58,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # Middleware de allauth
+    # Allauth
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-
-# === URLS & WSGI ===
+# === URL & WSGI ===
 ROOT_URLCONF = 'teden.urls'
 WSGI_APPLICATION = 'teden.wsgi.application'
-
 
 # === TEMPLATES ===
 TEMPLATES = [
@@ -88,7 +82,6 @@ TEMPLATES = [
     },
 ]
 
-
 # === BASE DE DATOS ===
 DATABASES = {
     'default': {
@@ -96,7 +89,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # === VALIDADORES DE CONTRASEÑA ===
 AUTH_PASSWORD_VALIDATORS = [
@@ -106,53 +98,25 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# === CONFIGURACIÓN REGIONAL ===
+# === LOCALIZACIÓN ===
 LANGUAGE_CODE = 'es-ar'
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_I18N = True
 USE_L10N = True
+USE_TZ = True
 
-
-# === USUARIO PERSONALIZADO ===
+# === USUARIO ===
 AUTH_USER_MODEL = 'users.User'
 
-
-# === STATIC FILES ===
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-
-# === MEDIA FILES ===
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-
-# === CLOUDINARY ===
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dp2yymrpq',
-    'API_KEY': '485295755515372',
-    'API_SECRET': 'huDgtEeXRCHyOWDNTKyGBW_aA9Q',
-}
-
-
-# === AUTENTICACIÓN ===
+# === ALLAUTH ===
 SITE_ID = 1
-
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    # Si activás allauth, descomentá esta línea:
     'allauth.account.auth_backends.AuthenticationBackend',
 )
-
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
 
 # === EMAIL ===
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -160,45 +124,47 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'joaco246810@gmail.com'
-EMAIL_HOST_PASSWORD = 'pqnt dqbs ekvx abxf'  # ⚠️ Usar variables de entorno en producción
+EMAIL_HOST_PASSWORD = 'pqnt dqbs ekvx abxf'
 DEFAULT_FROM_EMAIL = 'joaco246810@gmail.com'
 
+# === STATIC FILES ===
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# === MEDIA FILES (Cloudinary) ===
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dp2yymrpq',
+    'API_KEY': '485295755515372',
+    'API_SECRET': 'huDgtEeXRCHyOWDNTKyGBW_aA9Q',
+}
 
 # === MERCADOPAGO ===
 MP_CLIENT_ID = os.getenv("MP_CLIENT_ID")
 MP_CLIENT_SECRET = os.getenv("MP_CLIENT_SECRET")
-MP_REDIRECT_URI = "https://teden.onrender.com/oauth/mercadopago/callback/" #local
+MP_REDIRECT_URI = "https://teden.onrender.com/oauth/mercadopago/callback/"
 MERCADOPAGO_ACCESS_TOKEN = 'TEST-6884953027292838-060710-c96a80c6a1da600ab77db1e4db2387ca-491899797'
-
 
 # === STRIPE ===
 STRIPE_SECRET_KEY = 'tu_secret_key'
 
-
-# === ID POR DEFECTO PARA PRIMARY KEY ===
+# === PK POR DEFECTO ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
+# === LOGGING ===
 logging.basicConfig(level=logging.DEBUG)
-
 LOGGING = {
     'version': 1,
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
+        'console': {'class': 'logging.StreamHandler'},
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django.urls': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
+        'django.request': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': True},
+        'django.urls':   {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
     }
 }
