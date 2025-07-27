@@ -32,12 +32,12 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
-                # 1️⃣ Guardamos el usuario, seteamos rol y persistimos
+                # 1️⃣ Creamos al usuario sin loguearlo todavía
                 user = form.save(commit=False)
                 user.role = 'buyer'
                 user.save()
 
-                # 2️⃣ Autenticamos para que Django asigne user.backend
+                # 2️⃣ Autenticamos para obtener user.backend
                 username = form.cleaned_data['username']
                 raw_password = form.cleaned_data['password1']
                 user = authenticate(request, username=username, password=raw_password)
@@ -45,19 +45,18 @@ def register(request):
                     messages.error(request, "Hubo un error autenticando tu cuenta.")
                     return redirect('home')
 
-                # 3️⃣ Ahora el login ya funcionará sin ValueError
-                login(request, user)
+                # 3️⃣ Forzamos el uso del ModelBackend al loguear
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-                # 4️⃣ Código de verificación y mail
+                # 4️⃣ Generamos y enviamos el código de verificación
                 import random
                 code = str(random.randint(100000, 999999))
                 EmailVerificationCode.objects.create(user=user, code=code)
-                send_mail(
+                user.email_user(
                     subject='Verificá tu cuenta en TEDEN',
-                    message=f'Tu código de verificación es: {code}',
-                    from_email='no-reply@teden.com',
-                    recipient_list=[user.email],
+                    message=f'Tu código de verificación es: {code}'
                 )
+
                 return redirect('verify_email')
 
             except IntegrityError:
@@ -70,6 +69,7 @@ def register(request):
             'show_register_modal': True
         })
 
+    # GET: mostramos el formulario en modal si corresponde
     form = CustomUserCreationForm()
     return render(request, 'core/home.html', {
         'form': form,
