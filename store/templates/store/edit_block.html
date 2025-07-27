@@ -1,37 +1,36 @@
 <!-- store/edit_block.html -->
+{% extends "users/base.html" %}
+
 {% block content %}
-<div class="container my-4">
-  <h2 class="mb-3">Editar bloque: {{ block.get_block_type_display }}</h2>
+<div class="container py-5">
+  <h2 class="mb-4">Editar sección: {{ block.block_type|title }}</h2>
 
-  <form method="POST">
+  {% if error %}
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post" class="card shadow p-4">
     {% csrf_token %}
-
-    {% if block.block_type == "hero" %}
+    
+    {% for field in form %}
       <div class="mb-3">
-        <label for="title" class="form-label">Título</label>
-        <input type="text" name="title" class="form-control" value="{{ block.content.title|default:'' }}">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
       </div>
+    {% endfor %}
 
-      <div class="mb-3">
-        <label for="subtitle" class="form-label">Subtítulo</label>
-        <input type="text" name="subtitle" class="form-control" value="{{ block.content.subtitle|default:'' }}">
-      </div>
-
-      <div class="mb-3">
-        <label for="background_image" class="form-label">Imagen de fondo (URL)</label>
-        <input type="text" name="background_image" class="form-control" value="{{ block.content.background_image|default:'' }}">
-      </div>
-
-      <div class="mb-3">
-        <label for="text_color" class="form-label">Color del texto</label>
-        <input type="color" name="text_color" class="form-control form-control-color" value="{{ block.content.text_color|default:'#000000' }}">
-      </div>
-    {% else %}
-      <p>Este tipo de bloque aún no tiene un editor personalizado.</p>
-    {% endif %}
-
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a href="{% url 'edit_store' %}" class="btn btn-secondary">Cancelar</a>
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{% url 'store:edit_store' %}" class="btn btn-outline-secondary">← Volver</a>
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </div>
   </form>
 </div>
 {% endblock %}

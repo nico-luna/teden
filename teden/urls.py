@@ -27,12 +27,11 @@ urlpatterns = [
     path('cart/', include('cart.urls')),
     path('products/', include('products.urls')),
     path('reviews/', include('reviews.urls')),
-    path('store/', include('store.urls')),
     path('panel-admin/', include('admin_panel.urls')),
     path('', include('orders.urls')),
     path('turnos/', include('appointments.urls')),
     path('planes/', include('plans.urls')),
-
+    path('store/', include('store.urls', namespace='store')),
     
 ]
 

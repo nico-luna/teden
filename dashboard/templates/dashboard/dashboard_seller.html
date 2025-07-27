@@ -13,7 +13,8 @@
         <small class="text-muted">{{ user.email }}</small>
       </div> -->
 
-      <hr class="border-secondary">
+
+      
 
       <ul class="nav flex-column mb-4">
         <li class="nav-item"><a class="nav-link text-white" href="{% url 'dashboard' %}">🏠 Inicio</a></li>
@@ -26,17 +27,17 @@
       {% if store %}
         <div class="mb-3 text-center">
           <h6 class="mb-1">Tienda: <strong>{{ store.name }}</strong></h6>
-          {% if public_url %}
-            <a href="{{ public_url }}" target="_blank" class="btn btn-outline-light btn-sm w-100">🌐 Ver tienda pública</a>
+          {% if request.user.store_profile %}
+            <a href="{% url 'store:public_store' request.user.store_profile.slug %}" target="_blank" class="btn btn-outline-light btn-sm w-100">🌐 Ver tienda pública</a>
           {% else %}
             <p class="text-warning">Sin URL válida</p>
           {% endif %}
-          <a href="{% url 'edit_store' %}" class="btn btn-warning btn-sm w-100 mt-2">🎨 Personalizar tienda</a>
+          <a href="{% url 'store:edit_store' %}" class="btn btn-warning btn-sm w-100 mt-2">🎨 Personalizar tienda</a>
         </div>
       {% else %}
         <div class="text-center">
           <p>¡Aún no creaste tu tienda!</p>
-          <a href="{% url 'crear_tienda' %}" class="btn btn-success btn-sm w-100">➕ Crear tienda</a>
+          <a href="{% url 'store:crear_tienda' %}">Crear tienda</a>
         </div>
       {% endif %}
 

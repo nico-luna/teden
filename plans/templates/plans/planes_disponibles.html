@@ -1,4 +1,9 @@
-{% extends 'users/base.html' %}
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% load static %}
+{% load widget_tweaks %}
 {% block content %}
 <div class="container">
   <h2>Tu plan actual: <strong>{{ perfil.plan.get_name_display }}</strong></h2>
@@ -20,7 +25,9 @@
           {% if perfil.plan == plan %}
             <button class="btn btn-secondary" disabled>Plan activo</button>
           {% else %}
-            <a href="{% url 'cambiar_plan' plan.name %}" class="btn btn-primary">Elegir este plan</a>
+            <a href="{% url 'confirmar_cambio_plan' plan.name %}" class="btn btn-primary">
+              Elegir este plan
+            </a>
           {% endif %}
         </div>
       </div>

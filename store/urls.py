@@ -1,38 +1,20 @@
 from django.urls import path
 from . import views
+app_name = "store"
 
 urlpatterns = [
+    path('tienda/ordenar-bloques/', views.update_block_order, name='update_block_order'),  # ← PRIMERO
     path('crear/', views.crear_tienda, name='crear_tienda'),
     path('mi-tienda/', views.edit_store, name='edit_store'),
     path('mi-tienda/agregar/', views.add_block, name='add_block'),
     path('mi-tienda/bloque/<int:block_id>/editar/', views.edit_block, name='edit_block'),
     path('mi-tienda/bloque/<int:block_id>/eliminar/', views.delete_block, name='delete_block'),
-    path('tienda/<slug:slug>/', views.public_store, name='public_store'),
-    # path('tienda/<slug:slug>/productos/', views.store_products, name='store_products'),
-    # path('tienda/<slug:slug>/reviews/', views.store_reviews, name='store_reviews'),
-    # path('tienda/<slug:slug>/owner/', views.store_owner_profile, name='store_owner_profile'),
-    # path('tienda/<slug:slug>/contacto/', views.store_contact, name='store_contact'),
-    # path('tienda/<slug:slug>/about/', views.store_about, name='store_about'),
     # path('tienda/<slug:slug>/hero/', views.store_hero, name='store_hero'),
-    # path('tienda/<slug:slug>/testimonial/', views.store_testimonial, name='store_testimonial'),
-    # path('tienda/<slug:slug>/products/', views.store_products, name='store_products'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/', views.store_product_detail, name='store_product_detail'),
-    # path('tienda/<slug:slug>/reviews/', views.store_reviews, name='store_reviews'),
-    # path('tienda/<slug:slug>/reviews/<int:review_id>/', views.store_review_detail, name='store_review_detail'),
-    # path('tienda/<slug:slug>/contact/', views.store_contact, name='store_contact'),
-    # path('tienda/<slug:slug>/about/', views.store_about, name='store_about'),
-    # path('tienda/<slug:slug>/hero/', views.store_hero, name='store_hero'),
-    # path('tienda/<slug:slug>/testimonial/', views.store_testimonial, name='store_testimonial'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/', views.store_product_reviews, name='store_product_reviews'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/', views.store_product_review_detail, name='store_product_review_detail'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/add/', views.store_add_product_review, name='store_add_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/edit/', views.store_edit_product_review, name='store_edit_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/delete/', views.store_delete_product_review, name='store_delete_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/add/', views.store_add_product_review, name='store_add_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/edit/', views.store_edit_product_review, name='store_edit_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/delete/', views.store_delete_product_review, name='store_delete_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/add/', views.store_add_product_review, name='store_add_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/edit/', views.store_edit_product_review, name='store_edit_product_review'),
-    # path('tienda/<slug:slug>/products/<int:product_id>/reviews/<int:review_id>/delete/', views.store_delete_product_review, name='store_delete_product_review'),
-    
+    path('tienda/<slug:slug>/', views.public_store, name='public_store'),  # ← DEJÁ ESTA AL FINAL SIEMPRE
+]
+
+from django.http import HttpResponse
+
+urlpatterns += [
+    path('debug-test/', lambda r: HttpResponse("Funciona la ruta!")),
 ]

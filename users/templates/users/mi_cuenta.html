@@ -7,100 +7,127 @@
 
 {% block content %}
 <main>
-<div class="container mt-5">
-  <h2 class="mb-4">Mi cuenta</h2>
+  <div class="container mt-5">
+    <h2 class="mb-4">Mi cuenta</h2>
 
-  <div class="card shadow rounded p-4">
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="row g-3">
+    <div class="card shadow rounded p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
 
-        <!-- 🔹 Datos generales -->
-        <div class="col-12">
-          <h5 class="text-primary mb-3">🔹 Datos generales</h5>
-        </div>
-
-        {% for field in form.visible_fields %}
-          {% if field.name in "username,email,bio,profile_picture" %}
-            <div class="col-md-6">
-              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field|add_class:"form-control" }}
-              {% if field.errors %}
-                <div class="form-text text-danger">{{ field.errors.0 }}</div>
-              {% endif %}
-            </div>
-          {% endif %}
-        {% endfor %}
-
-        <!-- 🟡 Datos como vendedor -->
-        {% for field in form.visible_fields %}
-          {% if field.name in "cuit_cuil,direccion,provincia,pais,codigo_postal,telefono" %}
-            {% if forloop.first %}
-              <div class="col-12 mt-4">
-                <h5 class="text-warning mb-3">🟡 Datos como vendedor</h5>
+          <!-- 🔹 Datos generales -->
+          <div class="col-12">
+            <h5 class="text-primary mb-3">🔹 Datos generales</h5>
+          </div>
+          {% for field in form.visible_fields %}
+            {% if field.name in "username,email,bio,profile_picture" %}
+              <div class="col-md-6">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field|add_class:"form-control" }}
+                {% if field.errors %}
+                  <div class="form-text text-danger">{{ field.errors.0 }}</div>
+                {% endif %}
               </div>
             {% endif %}
-            <div class="col-md-6">
-              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field|add_class:"form-control" }}
-              {% if field.errors %}
-                <div class="form-text text-danger">{{ field.errors.0 }}</div>
+          {% endfor %}
+
+          <!-- 🟡 Datos como vendedor -->
+          {% for field in form.visible_fields %}
+            {% if field.name in "cuit_cuil,direccion,provincia,pais,codigo_postal,telefono" %}
+              {% if forloop.first %}
+                <div class="col-12 mt-4">
+                  <h5 class="text-warning mb-3">🟡 Datos como vendedor</h5>
+                </div>
               {% endif %}
+              <div class="col-md-6">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field|add_class:"form-control" }}
+                {% if field.errors %}
+                  <div class="form-text text-danger">{{ field.errors.0 }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% if es_vendedor and seller_profile %}
+            <h3>Integración con MercadoPago</h3>
+            {% if seller_profile.mercadopagocredential %}
+              <div class="alert alert-success">
+                ✅ Cuenta conectada (ID: {{ seller_profile.mercadopagocredential.user_id }})
+              </div>
+              <a href="{% url 'mp_desconectar' %}" class="btn btn-danger">Desconectar MercadoPago</a>
+            {% else %}
+              <div class="alert alert-warning">
+                ⚠️ No tenés una cuenta de MercadoPago conectada.
+              </div>
+              <a href="{% url 'mp_conectar' %}" class="btn btn-primary">Conectar con MercadoPago</a>
+            {% endif %}
+
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+
+            <div class="card mt-4">
+              <div class="card-body">
+                <h5 class="card-title">🧾 Tu plan actual</h5>
+                <p>Estás en el plan 
+                  <strong>TEDEN {{ seller_profile.plan.name|title }}</strong> 
+                  (comisión: {{ seller_profile.plan.commission_percent }}%)
+                </p>
+
+                <div class="form-group">
+                  <label for="planSelector">Cambiar plan:</label>
+                  <select id="planSelector" class="form-control" required>
+                    <option value="">Seleccioná un plan</option>
+                    {% for plan in planes %}
+                      <option value="{{ plan.name }}">
+                        {{ plan.name|title }} ({{ plan.commission_percent }}% comisión)
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <button type="button" onclick="redirigirACambioDePlan()" class="btn btn-primary mt-2">
+                  Actualizar plan
+                </button>
+
+                <script>
+                  function redirigirACambioDePlan() {
+                    const planName = document.getElementById("planSelector").value;
+                    if (planName) {
+                      window.location.href = `/planes/confirmar-cambio/${planName}/`;
+                    } else {
+                      alert("Seleccioná un plan para continuar.");
+                    }
+                  }
+                </script>
+              </div>
             </div>
           {% endif %}
-        {% endfor %}
-              {% if es_vendedor and request.user.sellerprofile %}
-        <div class="card mt-4">
-          <div class="card-body">
-            <h5 class="card-title">🧾 Tu plan actual</h5>
-            <p>Estás en el plan <strong>TEDEN {{ request.user.sellerprofile.plan.name|title }}</strong> 
-            (comisión: {{ request.user.sellerprofile.plan.commission_percent }}%)</p>
 
-            <form method="post" action="{% url 'cambiar_plan' %}">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="plan_id">Cambiar plan:</label>
-                <select name="plan_id" class="form-control" required>
-                  <option value="">Seleccioná un plan</option>
-                  {% for plan in planes %}
-                    <option value="{{ plan.id }}">{{ plan.name|title }} ({{ plan.commission_percent }}% comisión)</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <button type="submit" class="btn btn-primary mt-2">Actualizar plan</button>
-            </form>
+          <div class="col-12 d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">💾 Guardar cambios</button>
+            <a href="{% url 'eliminar_cuenta' %}" class="btn btn-outline-danger"
+               onclick="return confirm('¿Estás seguro de que querés eliminar tu cuenta? Esta acción no se puede deshacer.')">
+              🗑️ Eliminar cuenta
+            </a>
+          </div>
+        </div>
+      </form>
+
+      {% if not es_vendedor %}
+        <div class="col-12 mt-4">
+          <div class="alert alert-info">
+            ¿Querés ofrecer servicios o vender productos? 
+            <a href="{% url 'convertirse_en_vendedor' %}" class="fw-bold">Convertite en vendedor</a>.
           </div>
         </div>
       {% endif %}
-
-        <div class="col-12 d-flex justify-content-between mt-4">
-          <button type="submit" class="btn btn-primary">
-            💾 Guardar cambios
-          </button>
-
-          <a href="{% url 'eliminar_cuenta' %}" class="btn btn-outline-danger"
-             onclick="return confirm('¿Estás seguro de que querés eliminar tu cuenta? Esta acción no se puede deshacer.')">
-            🗑️ Eliminar cuenta
-          </a>
-        </div>
-      </div>
-    </form>
-    {% if not es_vendedor %}
-  <div class="col-12 mt-4">
-    <div class="alert alert-info">
-      ¿Querés ofrecer servicios o vender productos? 
-      <a href="{% url 'convertirse_en_vendedor' %}" class="fw-bold">Convertite en vendedor</a>.
     </div>
   </div>
-    {% endif %}
-
-
-  </div>
-</div>
-
-
 </main>
-
 {% endblock %}
 
 {% include "partials/footer.html" %}

@@ -39,13 +39,13 @@ def set_availability(request, service_id):
     service = get_object_or_404(Service, id=service_id, vendor=request.user)
 
     if request.method == 'POST':
-        form = AvailabilitySlotForm(request.POST)
+        form = AvailabilitySlotForm(request.POST, duracion=service.duration_minutes)
         if form.is_valid():
             slot = form.save(commit=False)
             slot.service = service
             slot.save()
     else:
-        form = AvailabilitySlotForm()
+        form = AvailabilitySlotForm(duracion=service.duration_minutes)
 
     slots = service.availability_slots.all()
 

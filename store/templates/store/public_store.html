@@ -1,17 +1,27 @@
 <!-- store/public_store.html -->
-{% extends 'users/base.html' %}
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
 
 
 {% block content %}
 <div class="container py-4">
   <h1 class="text-center mb-5">Tienda de {{ store.name }}</h1>
 
-  {% for block in blocks %}
-    <div class="mb-5">
-      {% include "store/blocks/"|add:block.block_type|add:".html" with content=block.content only %}
-    </div>
-  {% empty %}
-    <p>No hay bloques configurados en esta tienda todavía.</p>
-  {% endfor %}
-</div>
+{% for block in blocks %}
+  {% if block.type == 'hero' %}
+    <section class="hero-section" style="background-image: url('{{ block.content.background_image }}'); background-size: cover; background-position: center;">
+      <div class="text-center py-5">
+        <h1>{{ block.content.title|default:"¡Bienvenido a mi tienda!" }}</h1>
+        <p>{{ block.content.subtitle|default:"Explorá nuestros productos y servicios" }}</p>
+        {% if block.content.button_text and block.content.button_url %}
+          <a href="{{ block.content.button_url }}" class="btn btn-primary mt-3">
+            {{ block.content.button_text }}
+          </a>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endfor %}
 {% endblock %}

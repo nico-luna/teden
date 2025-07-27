@@ -1,0 +1,105 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">🎨 Personalizá tu tienda</h2>
+
+  {% if request.user.store_profile %}
+    <div class="mb-4">
+      <a href="{% url 'store:public_store' request.user.store_profile.slug %}" target="_blank" class="btn btn-outline-primary">
+        🌐 Ver tienda pública
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- Botón para agregar bloques -->
+  <form method="post" action="{% url 'store:add_block' %}" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+      <select name="block_type" class="form-select" required>
+        <option value="" disabled selected>Elegí un tipo de bloque</option>
+        <option value="hero">Hero</option>
+        <option value="products">Productos</option>
+        <option value="about">Sobre Nosotros</option>
+        <option value="testimonial">Testimonios</option>
+        <option value="contact">Contacto</option>
+      </select>
+      <button class="btn btn-success" type="submit">➕ Agregar bloque</button>
+    </div>
+  </form>
+
+<!-- Lista de bloques arrastrables -->
+<ul id="sortable-blocks" class="list-group">
+  {% for block in request.user.store_profile.blocks.all %}
+    <li class="list-group-item d-flex justify-content-between align-items-center" data-block-id="{{ block.id }}">
+      🧩 <strong>{{ block.get_block_type_display|default:block.block_type }}</strong>
+      <div class="d-flex gap-2">
+        <a href="{% url 'store:edit_block' block.id %}" class="btn btn-sm btn-primary">✏️ Editar</a>
+
+        <!-- Formulario para eliminar con POST -->
+        <form action="{% url 'store:delete_block' block.id %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+        </form>
+      </div>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No hay bloques todavía. ¡Agregá uno! 👇</li>
+  {% endfor %}
+</ul>
+
+  <!-- Botón para guardar cambios de orden -->
+  <div class="mt-3">
+    <button id="save-order-btn" class="btn btn-primary" disabled>💾 Guardar cambios</button>
+  </div>
+</div>
+
+<!-- Sortable.js -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+  console.log("Enviando orden a:", "{% url 'store:update_block_order' %}");
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  let currentOrder = [];
+
+  const sortable = new Sortable(document.getElementById('sortable-blocks'), {
+    animation: 150,
+    onEnd: function () {
+      currentOrder = [...document.querySelectorAll('#sortable-blocks li')].map(el => el.dataset.blockId);
+      document.getElementById('save-order-btn').disabled = false;
+    }
+  });
+
+  document.getElementById('save-order-btn').addEventListener('click', function () {
+    if (currentOrder.length === 0) return;
+
+    fetch("{% url 'store:update_block_order' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie('csrftoken'),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ order: currentOrder })
+    }).then(res => {
+      if (res.ok) {
+        alert("✅ El orden fue actualizado correctamente.");
+        this.disabled = true;
+      } else {
+        alert("❌ Error al guardar el orden.");
+      }
+    });
+  });
+</script>
+{% endblock %}

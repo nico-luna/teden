@@ -116,7 +116,8 @@ class EditProfileForm(forms.ModelForm):
             'provincia': forms.TextInput(attrs={'class': 'form-control'}),
             'pais': forms.TextInput(attrs={'class': 'form-control'}),
             'codigo_postal': forms.TextInput(attrs={'class': 'form-control'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control','id': 'id_telefono','placeholder': 'Ej: 11 2345 6789'
+}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -172,8 +173,8 @@ class SellerRegistrationForm(forms.ModelForm):
 
     def clean_telefono(self):
         tel = self.cleaned_data.get('telefono')
-        if not re.match(r'^\+?54\d{10}$', tel):
-            raise forms.ValidationError("El teléfono debe tener el formato +54 seguido del número sin espacios.")
+        if not re.match(r'^\+?\d{10,15}$', tel):
+            raise forms.ValidationError("Ingresá un número de teléfono válido con prefijo internacional.")
         return tel
 
     def clean(self):

@@ -1,8 +1,19 @@
 {% extends 'users/base.html' %}
 
+
+
+
 {% block title %}Convertite en Vendedor{% endblock %}
 
 {% block content %}
+
+<!-- CSS de intl-tel-input -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css"/>
+
+<!-- JS de intl-tel-input -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+
 <div class="container mt-5">
   <h2 class="mb-4">Convertite en vendedor</h2>
   <p>Para empezar a vender en TEDEN, necesitamos algunos datos extra.</p>
@@ -14,4 +25,26 @@
     <button type="submit" class="btn btn-success mt-3">Guardar y continuar</button>
   </form>
 </div>
+
+<script>
+  const input = document.querySelector("#id_telefono");
+  const iti = window.intlTelInput(input, {
+    initialCountry: "ar",
+    preferredCountries: ["ar", "br", "uy", "cl", "mx"],
+    separateDialCode: true,
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+  });
+
+  const form = document.querySelector("form");
+  form.addEventListener("submit", function(e) {
+    const number = iti.getNumber();
+    if (!iti.isValidNumber()) {
+      e.preventDefault();
+      alert("Ingresá un número de teléfono válido.");
+    } else {
+      input.value = number;  // Reemplazá el input con el número en formato internacional
+    }
+  });
+</script>
 {% endblock %}
+

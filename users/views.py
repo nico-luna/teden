@@ -14,15 +14,16 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from plans.models import SellerPlan
+from plans.models import SellerPlan, SellerProfile
 
 from .forms import (
     CustomUserCreationForm,
-    CustomUserChangeForm,
     EditProfileForm,
     VerificationCodeForm,
 )
 from .models import EmailVerificationCode
+
+from django.contrib.auth import authenticate, login
 
 # 🟢 REGISTRO
 @csrf_protect
@@ -31,22 +32,32 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
+                # 1️⃣ Guardamos el usuario, seteamos rol y persistimos
                 user = form.save(commit=False)
                 user.role = 'buyer'
                 user.save()
+
+                # 2️⃣ Autenticamos para que Django asigne user.backend
+                username = form.cleaned_data['username']
+                raw_password = form.cleaned_data['password1']
+                user = authenticate(request, username=username, password=raw_password)
+                if user is None:
+                    messages.error(request, "Hubo un error autenticando tu cuenta.")
+                    return redirect('home')
+
+                # 3️⃣ Ahora el login ya funcionará sin ValueError
                 login(request, user)
 
+                # 4️⃣ Código de verificación y mail
                 import random
                 code = str(random.randint(100000, 999999))
                 EmailVerificationCode.objects.create(user=user, code=code)
-
                 send_mail(
                     subject='Verificá tu cuenta en TEDEN',
                     message=f'Tu código de verificación es: {code}',
                     from_email='no-reply@teden.com',
                     recipient_list=[user.email],
                 )
-
                 return redirect('verify_email')
 
             except IntegrityError:
@@ -54,17 +65,15 @@ def register(request):
         else:
             messages.error(request, "Revisá los campos del formulario.")
 
-        # 🔁 En todos los casos con POST, volvemos al home con el modal abierto
         return render(request, 'core/home.html', {
             'form': form,
             'show_register_modal': True
         })
 
-    # 🟢 Si es GET, mostramos el modal vacío o cerrado, pero con el form igual
     form = CustomUserCreationForm()
     return render(request, 'core/home.html', {
         'form': form,
-        'show_register_modal': request.GET.get('register', False)  # Por si querés mostrarlo desde un GET
+        'show_register_modal': request.GET.get('register', False)
     })
 
 # 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
@@ -84,21 +93,47 @@ def convertirse_en_vendedor(request):
     if request.method == 'POST':
         form = SellerRegistrationForm(request.POST, instance=user)
         if form.is_valid():
-            vendedor = form.save(commit=False)
-            vendedor.role = 'seller'
-            vendedor.ofrece_servicios = True
-            vendedor.save()
+            try:
+                vendedor = form.save(commit=False)
+                vendedor.role = 'seller'
+                vendedor.ofrece_servicios = True
+                vendedor.save()
 
-            # 🚀 Crear SellerProfile con plan Starter si no existe
-            if not hasattr(vendedor, 'sellerprofile'):
-                starter_plan = SellerPlan.objects.get(name='starter')
-                SellerProfile.objects.get_or_create(user=vendedor, defaults={'plan': starter_plan})
-            messages.success(request, "¡Ahora sos vendedor en TEDEN!")
-            return redirect('elegir_plan')
+                # 🚀 Obtener o crear el plan 'starter'
+                starter_plan, created = SellerPlan.objects.get_or_create(
+                    name='starter',
+                    defaults={
+                        # Asegurate de rellenar con los campos obligatorios de tu modelo
+                        'price': 15000,
+                        'commission_percent': 20,
+                        # 'monthly_fee': 0,
+                        # …
+                    }
+                )
+
+                # 🚀 Asociar o actualizar el perfil de vendedor
+                SellerProfile.objects.update_or_create(
+                    user=vendedor,
+                    defaults={'plan': starter_plan}
+                )
+
+                messages.success(
+                    request,
+                    "¡Ahora sos vendedor y tenés el plan Starter automáticamente asignado!"
+                )
+                return redirect('dashboard')
+
+            except IntegrityError:
+                messages.error(request, "Ocurrió un error guardando tus datos. Intentá de nuevo.")
+        else:
+            messages.error(request, "Revisá los campos del formulario.")
+
     else:
         form = SellerRegistrationForm(instance=user)
 
-    return render(request, 'users/convertirse_en_vendedor.html', {'form': form})
+    return render(request, 'users/convertirse_en_vendedor.html', {
+        'form': form
+    })
 
 # 🟢 VERIFICAR CORREO
 @login_required
@@ -157,19 +192,49 @@ def dashboard(request):
 # 🟢 MI CUENTA (UNIFICADA)
 @login_required
 def mi_cuenta(request):
+    user = request.user
+
+    # 🚀 Si es seller, garantizo perfil + plan starter
+    if user.role == 'seller':
+        # 1) Creo o tomo el plan starter
+        starter_plan, _ = SellerPlan.objects.get_or_create(
+            name='starter',
+            defaults={
+                'description': 'Plan base Starter de TEDEN',
+                'monthly_price': 0.00,
+                'max_products': None,
+                'max_services': None,
+                'max_stores': None,
+                'promoted_products': 0,
+                'commission_percent': 20.0,
+            }
+        )
+        # 2) Creo o tomo el perfil asociado
+        seller_profile, _ = SellerProfile.objects.get_or_create(
+            user=user,
+            defaults={'plan': starter_plan}
+        )
+    else:
+        seller_profile = None
+
+    # manejo de POST/GET de formulario
     if request.method == 'POST':
-        form = EditProfileForm(request.POST, request.FILES, instance=request.user)
+        form = EditProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             messages.success(request, "Tus datos fueron actualizados correctamente.")
-            return redirect('home')
+            return redirect('mi_cuenta')
     else:
-        form = EditProfileForm(instance=request.user)
+        form = EditProfileForm(instance=user)
+
+    # obtengo todos los planes para el selector
+    planes = SellerPlan.objects.all()
 
     return render(request, 'users/mi_cuenta.html', {
         'form': form,
-        'es_vendedor': request.user.role == 'seller',
-        'planes': SellerPlan.objects.all(),
+        'es_vendedor': user.role == 'seller',
+        'planes': planes,
+        'seller_profile': seller_profile,
     })
 
 
@@ -310,3 +375,78 @@ def cambiar_plan(request):
             messages.error(request, "El plan seleccionado no existe.")
 
     return render(request, 'users/elegir_plan.html', {'planes': planes})
+
+#CONECTAR CUENTA CON MP
+from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def conectar_mercadopago(request):
+    client_id = settings.MP_CLIENT_ID
+    redirect_uri = settings.MP_REDIRECT_URI
+    return redirect(
+        f"https://auth.mercadopago.com.ar/authorization?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
+    )
+
+import requests
+from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from plans.models import MercadoPagoCredential
+
+# 🔗 Redirige al OAuth de MercadoPago
+@login_required
+def conectar_mercadopago(request):
+    client_id = settings.MP_CLIENT_ID
+    redirect_uri = settings.MP_REDIRECT_URI
+    return redirect(
+        f"https://auth.mercadopago.com.ar/authorization?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
+    )
+
+# ✅ Guarda las credenciales luego del OAuth
+@csrf_exempt
+@login_required
+def mp_callback(request):
+    code = request.GET.get("code")
+
+    if not code:
+        messages.error(request, "❌ No se pudo conectar con MercadoPago. Código no recibido.")
+        return redirect("mi_cuenta")
+
+    data = {
+        "grant_type": "authorization_code",
+        "client_id": settings.MP_CLIENT_ID,
+        "client_secret": settings.MP_CLIENT_SECRET,
+        "code": code,
+        "redirect_uri": settings.MP_REDIRECT_URI,
+    }
+
+    try:
+        r = requests.post("https://api.mercadopago.com/oauth/token", data=data)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        messages.error(request, f"❌ Error al conectar con MercadoPago: {e}")
+        return redirect("mi_cuenta")
+
+    tokens = r.json()
+    perfil = request.user.sellerprofile
+    cred, _ = MercadoPagoCredential.objects.get_or_create(seller_profile=perfil)
+    cred.access_token = tokens.get("access_token")
+    cred.refresh_token = tokens.get("refresh_token")
+    cred.user_id = tokens.get("user_id")
+    cred.live_mode = tokens.get("live_mode", False)
+    cred.save()
+
+    messages.success(request, "✅ Tu cuenta de MercadoPago fue conectada con éxito.")
+    return redirect("mi_cuenta")
+
+# ❌ Elimina las credenciales del vendedor
+@login_required
+def desconectar_mercadopago(request):
+    perfil = request.user.sellerprofile
+    MercadoPagoCredential.objects.filter(seller_profile=perfil).delete()
+    messages.success(request, "🔌 Desconectaste tu cuenta de MercadoPago.")
+    return redirect("mi_cuenta")

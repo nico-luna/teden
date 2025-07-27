@@ -1,6 +1,9 @@
+# plans/apps.py
 from django.apps import AppConfig
 
-
 class PlansConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
     name = 'plans'
+
+    def ready(self):
+        # importa para que se suscriba a post_migrate
+        import plans.signals  # noqa

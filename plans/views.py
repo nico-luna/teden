@@ -1,7 +1,11 @@
+# plans/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import SellerPlan, SellerProfile
+from django.http import HttpResponse
+
+from .models import SellerPlan
+from payments.utils import crear_preferencia_para_plan
 
 @login_required
 def ver_planes_disponibles(request):
@@ -21,21 +25,58 @@ def ver_planes_disponibles(request):
 
 
 @login_required
-def cambiar_plan(request, plan_name):
+def confirmar_cambio_plan(request, plan_name):
     user = request.user
 
-    if not hasattr(user, 'sellerprofile'):
-        messages.error(request, "No tenés un perfil de vendedor.")
-        return redirect('ver_planes')
+    # 1) Verifico que tenga perfil y credencial de MP
+    if not hasattr(user, 'sellerprofile') or not user.sellerprofile.mercadopagocredential:
+        messages.error(request, "Debés conectar tu cuenta de MercadoPago antes de cambiar de plan.")
+        return redirect('mp_conectar')
 
-    nuevo_plan = get_object_or_404(SellerPlan, name=plan_name)
-    perfil = user.sellerprofile
+    # 2) Busco el plan o muestro 404
+    plan = get_object_or_404(SellerPlan, name=plan_name)
 
-    if perfil.plan == nuevo_plan:
+    # 3) Evito re-seleccionar el mismo plan
+    if plan == user.sellerprofile.plan:
         messages.info(request, "Ya tenés este plan activo.")
-    else:
-        perfil.plan = nuevo_plan
-        perfil.save()
-        messages.success(request, f"¡Tu plan fue actualizado a {nuevo_plan.get_name_display()}!")
+        return redirect('plans:ver_planes_disponibles')
 
-    return redirect('ver_planes')
+    # 4) Genero la preferencia de pago y redirijo
+    try:
+        preference_url = crear_preferencia_para_plan(user, plan, user.email)
+        return redirect(preference_url)
+    except Exception as e:
+        messages.error(request, f"Error al generar el link de pago: {e}")
+        return redirect('plans:ver_planes_disponibles')
+
+
+def checkout_success(request):
+    return HttpResponse("✅ ¡Pago realizado con éxito! Tu plan se ha actualizado correctamente.")
+
+
+def checkout_failure(request):
+    return HttpResponse("❌ Hubo un error con el pago. No se actualizó el plan.")
+
+
+def checkout_pending(request):
+    return HttpResponse("⏳ El pago está pendiente. Cuando se confirme, actualizaremos tu plan.")
+
+
+def calcular_comision_por_venta(seller_profile, monto_total):
+    try:
+        porcentaje = seller_profile.plan.commission_percent
+        if porcentaje is None:
+            raise ValueError("Porcentaje de comisión no definido.")
+    except Exception:
+        porcentaje = 20.0  # fallback al 20%
+    return round(monto_total * (porcentaje / 100), 2)
+
+# Vistas callback de MercadoPago
+def checkout_success(request):
+    return HttpResponse("✅ ¡Pago realizado con éxito! Tu plan se ha actualizado correctamente.")
+
+def checkout_failure(request):
+    return HttpResponse("❌ Hubo un error con el pago. No se actualizó el plan.")
+
+def checkout_pending(request):
+    return HttpResponse("⏳ El pago está pendiente. Cuando se confirme, actualizaremos tu plan.")

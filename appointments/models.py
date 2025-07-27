@@ -70,6 +70,7 @@ class Appointment(models.Model):
 
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='appointments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    vendor = models.ForeignKey( User, on_delete=models.CASCADE, related_name='vendor_appointments', null=True, blank=True ) # Vendedor que ofrece el servicio
     date = models.DateField()
     time = models.TimeField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')

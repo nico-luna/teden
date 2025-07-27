@@ -1,7 +1,6 @@
-from django.db import models
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
+from django.db import models
+from users.models import User
 
 class SellerPlan(models.Model):
     PLAN_CHOICES = [
@@ -24,7 +23,32 @@ class SellerPlan(models.Model):
 
 class SellerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    plan = models.ForeignKey(SellerPlan, on_delete=models.SET_NULL, null=True)
+    plan = models.ForeignKey(SellerPlan, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # 👇 Relación con MercadoPagoCredential (usamos related_name para evitar el conflicto)
+    mercadopagocredential = models.OneToOneField(
+        'plans.MercadoPagoCredential',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='seller_profile_reverse'  # 🔑 clave para que no choque con reverso automático
+    )
 
     def __str__(self):
-        return f"Perfil de {self.user.username}"
+        return f"Perfil de vendedor: {self.user.username}"
+
+class MercadoPagoCredential(models.Model):
+    # 🔄 También puedes usar related_name si querés acceder desde SellerProfile a MP Credential
+    seller_profile = models.OneToOneField(
+        SellerProfile,
+        on_delete=models.CASCADE,
+        related_name='mercado_cred'
+    )
+    access_token = models.CharField(max_length=255)
+    public_key = models.CharField(max_length=255, blank=True, null=True)
+    refresh_token = models.CharField(max_length=255, blank=True, null=True)
+    user_id = models.CharField(max_length=100, blank=True, null=True)
+    live_mode = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Credenciales MP para {self.seller_profile.user.username}"

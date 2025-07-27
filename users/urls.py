@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.urls import path, include
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 
 from orders.views import mis_compras
 from . import views
-from store import views as store_views
+from users.views import conectar_mercadopago, mp_callback, desconectar_mercadopago
 urlpatterns = [
      path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
      path('logout/', views.logout_view, name='logout'),
@@ -25,7 +25,6 @@ urlpatterns = [
 
      path('accounts/', include('allauth.urls')), 
 
-     path('store/', include('store.urls')),
      path('products/', include('products.urls')),
     
      path('dashboard/', include('dashboard.urls')),
@@ -39,4 +38,8 @@ urlpatterns = [
      path('activar-servicios/', views.activar_servicios, name='activar_servicios'),
 
      path('mis-compras/', mis_compras, name='mis_compras'),
+
+     path("mercadopago/oauth/", conectar_mercadopago, name="mp_conectar"),
+     path("mercadopago/oauth/callback/", mp_callback, name="mp_callback"),
+     path("mercadopago/desconectar/", desconectar_mercadopago, name="mp_desconectar"),
 ]

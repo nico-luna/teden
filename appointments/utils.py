@@ -1,6 +1,22 @@
 from datetime import datetime, timedelta, time
 from .models import Appointment
 
+def generar_horas_disponibles(bloque_minutos=30):
+    """
+    Genera bloques horarios según la duración de turnos.
+    Ejemplo: si bloque_minutos=20 => ['08:00', '08:20', '08:40', ...]
+    """
+    horas = []
+    inicio = datetime.strptime("00:00", "%H:%M")
+    fin = datetime.strptime("23:30", "%H:%M")
+
+    while inicio <= fin:
+        hora = inicio.strftime("%H:%M")
+        horas.append((hora, hora))
+        inicio += timedelta(minutes=bloque_minutos)
+
+    return horas
+
 def get_available_times(service, selected_date):
     weekday = selected_date.weekday()
     duration = timedelta(minutes=service.duration_minutes)

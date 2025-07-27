@@ -1,5 +1,9 @@
+import logging
 from pathlib import Path
 import os
+import logging
+
+
 
 # === BASE DIR ===
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # === SEGURIDAD ===
 SECRET_KEY = 'django-insecure-_6v9pf)cpa_)rg^ia&yt9w=h@9=hb0(iqmhpk9fayx&_kdl!19'
 DEBUG = True  # ⚠️ Desactivar en producción
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com', ]
 
 
 # === APPS INSTALADAS ===
@@ -40,11 +44,11 @@ INSTALLED_APPS = [
     'orders',
     'payments',
     'appointments',
-    'plans',
     # Utilidades
     'widget_tweaks',
     'cloudinary',
     'cloudinary_storage',
+    'plans.apps.PlansConfig',
 ]
 
 
@@ -163,8 +167,8 @@ DEFAULT_FROM_EMAIL = 'joaco246810@gmail.com'
 # === MERCADOPAGO ===
 MP_CLIENT_ID = os.getenv("MP_CLIENT_ID")
 MP_CLIENT_SECRET = os.getenv("MP_CLIENT_SECRET")
-MP_REDIRECT_URI = "https://teden.com/oauth/mercadopago/callback/"
-MERCADOPAGO_ACCESS_TOKEN = 'TEST-3479281247201721-061619-ed800695334c87adde3970f868bce658-488351234'
+MP_REDIRECT_URI = "https://teden.onrender.com/oauth/mercadopago/callback/" #local
+MERCADOPAGO_ACCESS_TOKEN = 'TEST-6884953027292838-060710-c96a80c6a1da600ab77db1e4db2387ca-491899797'
 
 
 # === STRIPE ===
@@ -173,3 +177,28 @@ STRIPE_SECRET_KEY = 'tu_secret_key'
 
 # === ID POR DEFECTO PARA PRIMARY KEY ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+logging.basicConfig(level=logging.DEBUG)
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.urls': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}

@@ -51,6 +51,7 @@ class StoreBlock(models.Model):
     ], max_length=50)
     content = models.JSONField(default=dict)
     order = models.PositiveIntegerField(default=0)
+    visible = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['order']
@@ -72,5 +73,6 @@ def generar_slug_unico(nombre_base):
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
 
 
