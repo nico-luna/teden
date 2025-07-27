@@ -16,6 +16,7 @@ COPY pyproject.toml poetry.lock* /app/
 
 # Instalar dependencias del proyecto
 RUN poetry config virtualenvs.create false && poetry install --no-root
+RUN python manage.py collectstatic --noinput
 
 
 # Ahora sí, copiar todo el código
