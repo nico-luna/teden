@@ -37,7 +37,7 @@ urlpatterns = [
     path('mis-compras/', mis_compras, name='mis_compras'),
 
     # MercadoPago conexión
-    path("mercadopago/oauth/", conectar_mercadopago, name="conectar_mercadopago"),
+    path("mercadopago/oauth/", conectar_mercadopago, name="mp_conectar"),
     path("mercadopago/oauth/callback/", mp_callback, name="mp_callback"),
     path("mercadopago/desconectar/", desconectar_mercadopago, name="desconectar_mercadopago"),
 ]
