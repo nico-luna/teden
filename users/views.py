@@ -217,6 +217,13 @@ def mi_cuenta(request):
     else:
         seller_profile = None
 
+    credenciales_mp = None
+    if user.role == 'seller':
+        try:
+            credenciales_mp = user.sellerprofile.mercadopagocredential
+        except:
+            pass
+        
     # manejo de POST/GET de formulario
     if request.method == 'POST':
         form = EditProfileForm(request.POST, request.FILES, instance=user)

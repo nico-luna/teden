@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # === SEGURIDAD ===
 SECRET_KEY = 'django-insecure-_6v9pf)cpa_)rg^ia&yt9w=h@9=hb0(iqmhpk9fayx&_kdl!19'
-DEBUG = False  # En producción siempre False
+DEBUG = True  # En producción siempre False
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com']
 
 # === APPS INSTALADAS ===

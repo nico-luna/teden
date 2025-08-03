@@ -32,6 +32,7 @@ urlpatterns = [
     path('turnos/', include('appointments.urls')),
     path('planes/', include('plans.urls')),
     path('store/', include('store.urls', namespace='store')),
+    path('payments/', include('payments.urls')),
     
     # redirect de /favicon.ico → /static/favicon.ico
     path(
