@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('modalProductId').value = productId;
 
     // ✅ Actualiza los links de Stripe y MercadoPago
-    document.getElementById('btnMercadoPago').href = `/cart/checkout/mercadopago/${productId}/`;
+    document.getElementById('btnMercadoPago').href = `/cart/checkout/mercadopago/pagar-producto/${productId}/`;
     document.getElementById('btnStripe').href = `/cart/checkout/stripe/${productId}/`;
 
     // ✅ DEBUG VISUAL

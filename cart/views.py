@@ -151,12 +151,22 @@ def pagar_con_mercadopago_checkout(request):
                 "link": link_pago
             })
 
-        # Guardar en sesión y mostrar en nueva vista
         request.session['links_de_pago'] = preferencias
         return redirect('checkout_links_mp')
 
     except Exception as e:
         return HttpResponse(f"❌ Error: {e}")
+
+# Vista de pago directo por producto desde modal
+@login_required
+def pagar_producto_individual(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    cart = get_user_cart(request.user)
+    cart.items.all().delete()
+    CartItem.objects.create(cart=cart, product=product, quantity=1)
+
+    return redirect('pagar_con_mercadopago_checkout')
 
 # Checkout con Stripe (modo test)
 @login_required
