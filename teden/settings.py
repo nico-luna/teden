@@ -145,9 +145,9 @@ CLOUDINARY_STORAGE = {
 }
 
 # === MERCADOPAGO ===
-MP_CLIENT_ID = '6884953027292838',
+MP_CLIENT_ID = ('6884953027292838',)
 MP_CLIENT_SECRET = 'HvyZl4cH1lMP2bb72NuYNmVuY7CPu9YU',
-MP_REDIRECT_URI = "https://teden.onrender.com/oauth/mercadopago/callback/"
+MP_REDIRECT_URI = "https://teden.onrender.com/mercadopago/oauth/callback/"
 MERCADOPAGO_ACCESS_TOKEN = 'TEST-3479281247201721-061619-ed800695334c87adde3970f868bce658-488351234'
 
 # === STRIPE ===
