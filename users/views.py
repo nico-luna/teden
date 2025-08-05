@@ -70,7 +70,7 @@ def register(request):
                             'Si no solicitaste este correo, podés ignorarlo.'
 
                 # 4. Cargar la plantilla HTML con CSS inline
-                html_content = render_to_string('users/verifify_email.html', {
+                html_content = render_to_string('users/verify_email.html', {
                     'user': user,
                     'code': code,
                     'current_year': timezone.now().year,
