@@ -1,68 +1,28 @@
 {% extends 'users/base.html' %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <style>
-      /* Lo ideal es inline, pero muchos clientes respetan este bloque: */
-      body {
-        background-color: #f4f4f4;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        background: #ffffff;
-        max-width: 600px;
-        margin: 30px auto;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      h1 {
-        color: #333333;
-      }
-      .code {
-        display: inline-block;
-        background-color: #007bff;
-        color: #ffffff !important;
-        padding: 10px 20px;
-        font-size: 1.5rem;
-        border-radius: 4px;
-        text-decoration: none;
-        margin: 15px 0;
-      }
-      .footer {
-        font-size: 0.8rem;
-        color: #777777;
-        margin-top: 20px;
-        text-align: center;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Verificación de cuenta TEDEN</h1>
-      <p>Hola {{ user.get_full_name|default:user.username }},</p>
-      <p>Tu código de verificación es:</p>
-      <!-- Ejemplo de inline style por si el cliente no respeta el bloque <style> -->
-      <p class="code" style="background-color:#007bff;color:#fff;padding:10px 20px;border-radius:4px;">
-        {{ code }}
-      </p>
-      <p>Si no fuiste vos quien lo solicitó, simplemente ignorá este correo.</p>
-      <div class="footer">
-        &copy; TEDEN {{ current_year }}. Todos los derechos reservados.
-      </div>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h2 class="mb-4">Verificá tu cuenta</h2>
+
+      <p>Ingresá el código de 6 dígitos que te enviamos por correo.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.code.label_tag }}
+          {{ form.code }}
+          {% if form.code.errors %}
+            <div class="text-danger small">
+              {{ form.code.errors.as_text }}
+            </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Verificar</button>
+      </form>
     </div>
-  </body>
-</html>
-  {% load static %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const currentYear = new Date().getFullYear();
-      document.querySelector('.footer').innerHTML = `&copy; TEDEN ${currentYear}. Todos los derechos reservados.`;
-    });
-  </script>
+  </div>
+</div>
 {% endblock %}
