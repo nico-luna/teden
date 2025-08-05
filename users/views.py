@@ -89,9 +89,8 @@ def register(request):
         else:
             messages.error(request, "Revisá los campos del formulario.")
 
-        return render(request, 'core/home.html', {
+        return render(request, 'users/register.html', {
             'form': form,
-            'show_register_modal': True
         })
 
     # GET: mostramos el formulario en modal si corresponde
