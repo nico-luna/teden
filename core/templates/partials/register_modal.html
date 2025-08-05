@@ -9,7 +9,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body px-4 pb-4">
-
         <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
         <!-- Formulario de registro -->
 
@@ -80,5 +79,19 @@
     </div>
   </div>
 </div>
-
+<script>
+  (function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
 
