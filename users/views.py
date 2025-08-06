@@ -50,37 +50,12 @@ def register(request):
 
                 # 4️⃣ Generamos y enviamos el código de verificación
                 import random
-                from django.conf import settings
-                from django.core.mail import EmailMultiAlternatives
-                from django.template.loader import render_to_string
-                from django.utils import timezone
-
-                # 1. Generar y guardar el código
                 code = str(random.randint(100000, 999999))
                 EmailVerificationCode.objects.create(user=user, code=code)
-
-                # 2. Preparar asunto y remitente
-                subject = 'Verificá tu cuenta en TEDEN'
-                from_email = settings.DEFAULT_FROM_EMAIL
-                to_email = [user.email]
-
-                # 3. Cuerpo de texto plano (fallback)
-                text_content = f'Hola {user.get_full_name() or user.username},\n\n' \
-                            f'Tu código de verificación es: {code}\n\n' \
-                            'Si no solicitaste este correo, podés ignorarlo.'
-
-                # 4. Cargar la plantilla HTML con CSS inline
-                html_content = render_to_string('users/emails/verification_code.html', {
-                    'user': user,
-                    'code': code,
-                    'current_year': timezone.now().year,
-                })
-
-                # 5. Crear y enviar el mensaje
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-
+                user.email_user(
+                    subject='Verificá tu cuenta en TEDEN',
+                    message=f'Tu código de verificación es: {code}'
+                )
 
                 return redirect('verify_email')
 
@@ -89,8 +64,9 @@ def register(request):
         else:
             messages.error(request, "Revisá los campos del formulario.")
 
-        return render(request, 'users/register.html', {
+        return render(request, 'core/home.html', {
             'form': form,
+            'show_register_modal': True
         })
 
     # GET: mostramos el formulario en modal si corresponde
