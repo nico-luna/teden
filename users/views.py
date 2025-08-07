@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import logout
 from django.contrib import messages
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -22,8 +22,12 @@ from .forms import (
     VerificationCodeForm,
 )
 from .models import EmailVerificationCode
+from django.core.mail import EmailMultiAlternatives
+from django.contrib.auth import authenticate
+from django.template.loader import render_to_string
+from django.utils import timezone
+import random
 
-from django.contrib.auth import authenticate, login
 
 # 🟢 REGISTRO
 @csrf_protect
@@ -93,7 +97,7 @@ def register(request):
             'form': form,
             'show_register_modal': True
         })
-    
+        
 # 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
 from .forms import SellerRegistrationForm  # asegurate de importar el form
 from plans.models import SellerProfile
