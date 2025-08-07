@@ -32,31 +32,49 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
-                # 1️⃣ Creamos al usuario sin loguearlo todavía
+                # 1️⃣ Crear usuario sin loguearlo aún
                 user = form.save(commit=False)
                 user.role = 'buyer'
                 user.save()
 
-                # 2️⃣ Autenticamos para obtener user.backend
+                # 2️⃣ Autenticar para obtener backend
                 username = form.cleaned_data['username']
                 raw_password = form.cleaned_data['password1']
                 user = authenticate(request, username=username, password=raw_password)
+
                 if user is None:
-                    messages.error(request, "Hubo un error autenticando tu cuenta.")
+                    messages.error(request, "Hubo un error al autenticar tu cuenta.")
                     return redirect('home')
 
-                # 3️⃣ Forzamos el uso del ModelBackend al loguear
-                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
-                # 4️⃣ Generamos y enviamos el código de verificación
-                import random
+                # 3️⃣ BLOQUEAR login si el correo no está verificado
                 code = str(random.randint(100000, 999999))
-                EmailVerificationCode.objects.create(user=user, code=code)
-                user.email_user(
-                    subject='Verificá tu cuenta en TEDEN',
-                    message=f'Tu código de verificación es: {code}'
+                EmailVerificationCode.objects.update_or_create(
+                    user=user,
+                    defaults={'code': code, 'verified': False}
                 )
 
+                # 4️⃣ Enviar mail
+                subject = 'Verificá tu cuenta en TEDEN'
+                from_email = settings.DEFAULT_FROM_EMAIL
+                to_email = [user.email]
+
+                text_content = f'Hola {user.get_full_name() or user.username},\n\n' \
+                               f'Tu código de verificación es: {code}\n\n' \
+                               'Si no solicitaste este correo, podés ignorarlo.'
+
+                html_content = render_to_string('users/verify_email.html', {
+                    'user': user,
+                    'code': code,
+                    'current_year': timezone.now().year,
+                })
+
+                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+                # 5️⃣ Redireccionar para verificación (NO loguea todavía)
+                request.session['pending_user_id'] = user.id
+                messages.info(request, "Te enviamos un código a tu correo. Verificalo para continuar.")
                 return redirect('verify_email')
 
             except IntegrityError:
@@ -69,13 +87,13 @@ def register(request):
             'show_register_modal': True
         })
 
-    # GET: mostramos el formulario en modal si corresponde
-    form = CustomUserCreationForm()
-    return render(request, 'core/home.html', {
-        'form': form,
-        'show_register_modal': request.GET.get('register', False)
-    })
-
+    else:
+        form = CustomUserCreationForm()
+        return render(request, 'core/home.html', {
+            'form': form,
+            'show_register_modal': True
+        })
+    
 # 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
 from .forms import SellerRegistrationForm  # asegurate de importar el form
 from plans.models import SellerProfile
