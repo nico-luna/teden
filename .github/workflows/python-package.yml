@@ -8,9 +8,9 @@ name: Python package
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -23,8 +23,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
+        ports: [ "5432:5432" ]
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -33,10 +32,7 @@ jobs:
 
     env:
       DJANGO_SETTINGS_MODULE: teden.settings
-      POSTGRES_DB: test_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/test_db
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
 
     strategy:
       fail-fast: false
@@ -44,33 +40,32 @@ jobs:
         python-version: ["3.11"]
 
     steps:
-    - name: 📂 Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: ⚙️ Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: 🔧 Install dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
         pip install flake8 pytest pytest-django psycopg2-binary
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: 🛠️ Run Django migrations
+    - name: Lint with flake8
+      run: |
+        flake8 . --exclude=.venv --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --exclude=.venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run Django migrations
       run: |
         python manage.py migrate --noinput
 
-    - name: 🗑️ Flush database
+    - name: Flush database
       run: |
         python manage.py flush --noinput
 
-    - name: 🌟 Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: 📊 Run tests with pytest
+    - name: Test with pytest
       run: |
         pytest
