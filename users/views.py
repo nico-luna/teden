@@ -66,7 +66,7 @@ def register(request):
                                f'Tu código de verificación es: {code}\n\n' \
                                'Si no solicitaste este correo, podés ignorarlo.'
 
-                html_content = render_to_string('users/verify_email.html', {
+                html_content = render_to_string('users/verification_code.html', {
                     'user': user,
                     'code': code,
                     'current_year': timezone.now().year,
