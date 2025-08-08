@@ -1,296 +1,305 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import logout
-from django.contrib import messages
-from django.db import IntegrityError
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
-from store.models import Store
-from django.urls import reverse, NoReverseMatch
+# views.py
+from __future__ import annotations
 
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
+import random
+import requests
+
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from plans.models import SellerPlan, SellerProfile
+from django.contrib import messages
+from django.contrib.auth import (
+    authenticate, get_user_model, login, logout
+)
+from django.contrib.auth.decorators import csrf_protect, login_required
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.db import IntegrityError
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import NoReverseMatch, reverse
+from django.utils import timezone
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views.decorators.csrf import csrf_exempt
 
+from plans.models import MercadoPagoCredential, SellerPlan, SellerProfile
+from store.models import Store
 from .forms import (
     CustomUserCreationForm,
     EditProfileForm,
+    SellerRegistrationForm,
     VerificationCodeForm,
 )
 from .models import EmailVerificationCode
-from django.core.mail import EmailMultiAlternatives
-from django.contrib.auth import authenticate
-from django.template.loader import render_to_string
-from django.utils import timezone
-import random
 
+User = get_user_model()
 
-# 🟢 REGISTRO
+# ─────────────────────────────────────────────────────────────
+# REGISTRO
+# ─────────────────────────────────────────────────────────────
 @csrf_protect
 def register(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
-                # 1️⃣ Crear usuario sin loguearlo aún
+                # 1️⃣ Crear usuario sin iniciarlo sesión todavía
                 user = form.save(commit=False)
-                user.role = 'buyer'
+                user.role = "buyer"
                 user.save()
 
                 # 2️⃣ Autenticar para obtener backend
-                username = form.cleaned_data['username']
-                raw_password = form.cleaned_data['password1']
-                user = authenticate(request, username=username, password=raw_password)
-
+                user = authenticate(
+                    request,
+                    username=form.cleaned_data["username"],
+                    password=form.cleaned_data["password1"],
+                )
                 if user is None:
                     messages.error(request, "Hubo un error al autenticar tu cuenta.")
-                    return redirect('home')
+                    return redirect("home")
 
-                # 3️⃣ BLOQUEAR login si el correo no está verificado
-                code = str(random.randint(100000, 999999))
+                # 3️⃣ Generar / guardar código y marcar como NO verificado
+                code = str(random.randint(100_000, 999_999))
                 EmailVerificationCode.objects.update_or_create(
-                    user=user,
-                    defaults={'code': code, 'verified': False}
+                    user=user, defaults={"code": code, "verified": False}
                 )
 
-                # 4️⃣ Enviar mail
-                subject = 'Verificá tu cuenta en TEDEN'
-                from_email = settings.DEFAULT_FROM_EMAIL
-                to_email = [user.email]
-
-                text_content = f'Hola {user.get_full_name() or user.username},\n\n' \
-                               f'Tu código de verificación es: {code}\n\n' \
-                               'Si no solicitaste este correo, podés ignorarlo.'
-
-                html_content = render_to_string('users/verification_code.html', {
-                    'user': user,
-                    'code': code,
-                    'current_year': timezone.now().year,
-                })
-
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+                # 4️⃣ Enviar e-mail
+                subject = "Verificá tu cuenta en TEDEN"
+                text_content = (
+                    f"Hola {user.get_full_name() or user.username},\n\n"
+                    f"Tu código de verificación es: {code}\n\n"
+                    "Si no solicitaste este correo, podés ignorarlo."
+                )
+                html_content = render_to_string(
+                    "emails/verification_email.html",
+                    {"user": user, "code": code, "current_year": timezone.now().year},
+                )
+                msg = EmailMultiAlternatives(
+                    subject, text_content, settings.DEFAULT_FROM_EMAIL, [user.email]
+                )
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
 
-                # 5️⃣ Redireccionar para verificación (NO loguea todavía)
-                request.session['pending_user_id'] = user.id
-                messages.info(request, "Te enviamos un código a tu correo. Verificalo para continuar.")
-                return redirect('verify_email')
+                # 5️⃣ Guardar user.id en sesión y redirigir
+                request.session["pending_user_id"] = user.id
+                messages.info(
+                    request,
+                    "Te enviamos un código a tu correo. Verificalo para continuar.",
+                )
+                return redirect("verify_email")
 
             except IntegrityError:
-                messages.error(request, "Este nombre de usuario o email ya está registrado.")
+                messages.error(
+                    request, "Este nombre de usuario o email ya está registrado."
+                )
         else:
             messages.error(request, "Revisá los campos del formulario.")
 
-        return render(request, 'core/home.html', {
-            'form': form,
-            'show_register_modal': True
-        })
+        return render(
+            request,
+            "core/home.html",
+            {"form": form, "show_register_modal": True},
+        )
 
-    else:
-        form = CustomUserCreationForm()
-        return render(request, 'core/home.html', {
-            'form': form,
-            'show_register_modal': True
-        })
-        
-# 🟢 CONVERTIRSE EN VENDEDOR (actualizado con SellerRegistrationForm)
-from .forms import SellerRegistrationForm  # asegurate de importar el form
-from plans.models import SellerProfile
-from .models import EmailVerificationCode
+    # GET
+    form = CustomUserCreationForm()
+    return render(request, "core/home.html", {"form": form, "show_register_modal": True})
 
 
+# ─────────────────────────────────────────────────────────────
+# CONVERTIRSE EN VENDEDOR
+# ─────────────────────────────────────────────────────────────
 @login_required
 def convertirse_en_vendedor(request):
     user = request.user
 
-    if user.role == 'seller':
+    if user.role == "seller":
         messages.info(request, "Ya sos vendedor.")
-        return redirect('dashboard')
+        return redirect("dashboard")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SellerRegistrationForm(request.POST, instance=user)
         if form.is_valid():
             try:
                 vendedor = form.save(commit=False)
-                vendedor.role = 'seller'
+                vendedor.role = "seller"
                 vendedor.ofrece_servicios = True
                 vendedor.save()
 
-                # 🚀 Obtener o crear el plan 'starter'
-                starter_plan, created = SellerPlan.objects.get_or_create(
-                    name='starter',
+                # 🚀 Plan Starter por defecto
+                starter_plan, _ = SellerPlan.objects.get_or_create(
+                    name="starter",
                     defaults={
-                        # Asegurate de rellenar con los campos obligatorios de tu modelo
-                        'price': 15000,
-                        'commission_percent': 20,
-                        # 'monthly_fee': 0,
-                        # …
-                    }
+                        "price": 15000,
+                        "commission_percent": 20,
+                    },
                 )
 
-                # 🚀 Asociar o actualizar el perfil de vendedor
                 SellerProfile.objects.update_or_create(
-                    user=vendedor,
-                    defaults={'plan': starter_plan}
+                    user=vendedor, defaults={"plan": starter_plan}
                 )
 
                 messages.success(
                     request,
-                    "¡Ahora sos vendedor y tenés el plan Starter automáticamente asignado!"
+                    "¡Ahora sos vendedor y tenés el plan Starter automáticamente asignado!",
                 )
-                return redirect('dashboard')
+                return redirect("dashboard")
 
             except IntegrityError:
-                messages.error(request, "Ocurrió un error guardando tus datos. Intentá de nuevo.")
+                messages.error(
+                    request, "Ocurrió un error guardando tus datos. Intentá de nuevo."
+                )
         else:
             messages.error(request, "Revisá los campos del formulario.")
-
     else:
         form = SellerRegistrationForm(instance=user)
 
-    return render(request, 'users/convertirse_en_vendedor.html', {
-        'form': form
-    })
+    return render(request, "users/convertirse_en_vendedor.html", {"form": form})
 
-# 🟢 VERIFICAR CORREO
+
+# ─────────────────────────────────────────────────────────────
+# VERIFICAR CORREO
+# ─────────────────────────────────────────────────────────────
 @login_required
 def verify_email(request):
     try:
         verification = EmailVerificationCode.objects.get(user=request.user)
     except EmailVerificationCode.DoesNotExist:
         messages.error(request, "No se encontró ningún código de verificación.")
-        return redirect('verify_email')
+        return redirect("verify_email")
 
     if verification.verified:
         messages.info(request, "Tu correo ya fue verificado.")
-        return redirect('home')
+        return redirect("home")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = VerificationCodeForm(request.POST)
         if form.is_valid():
-            code = form.cleaned_data['code']
+            code = form.cleaned_data["code"]
             if verification.code == code:
                 verification.verified = True
                 verification.save()
                 messages.success(request, "¡Correo verificado correctamente!")
-                return redirect('home')
+                return redirect("home")
             else:
                 messages.error(request, "El código ingresado no es válido.")
     else:
         form = VerificationCodeForm()
 
-    return render(request, 'users/verify_email.html', {'form': form})
+    return render(request, "users/verify_email.html", {"form": form})
 
 
-# 🟢 DASHBOARD SEGÚN ROL
+# ─────────────────────────────────────────────────────────────
+# DASHBOARD SEGÚN ROL
+# ─────────────────────────────────────────────────────────────
 @login_required
 def dashboard(request):
-    if request.user.role == 'buyer':
-        return render(request, 'core/home.html')
+    if request.user.role == "buyer":
+        return render(request, "core/home.html")
 
-    elif request.user.role == 'seller':
+    if request.user.role == "seller":
         store = Store.objects.filter(owner=request.user).first()
-
         public_url = None
         if store and store.slug:
             try:
-                public_url = reverse('public_store', args=[store.slug])
+                public_url = reverse("public_store", args=[store.slug])
             except NoReverseMatch:
-                public_url = None
+                pass
 
-        return render(request, 'dashboard/dashboard_seller.html', {
-            'store': store,
-            'public_url': public_url
-        })
+        return render(
+            request,
+            "dashboard/dashboard_seller.html",
+            {"store": store, "public_url": public_url},
+        )
 
-    return redirect('select_role')
+    return redirect("select_role")
 
 
-# 🟢 MI CUENTA (UNIFICADA)
+# ─────────────────────────────────────────────────────────────
+# MI CUENTA (unificada)
+# ─────────────────────────────────────────────────────────────
 @login_required
 def mi_cuenta(request):
     user = request.user
 
-    # 🚀 Si es seller, garantizo perfil + plan starter
-    if user.role == 'seller':
-        # 1) Creo o tomo el plan starter
+    # Garantizar perfil + plan starter si es seller
+    if user.role == "seller":
         starter_plan, _ = SellerPlan.objects.get_or_create(
-            name='starter',
+            name="starter",
             defaults={
-                'description': 'Plan base Starter de TEDEN',
-                'monthly_price': 0.00,
-                'max_products': None,
-                'max_services': None,
-                'max_stores': None,
-                'promoted_products': 0,
-                'commission_percent': 20.0,
-            }
+                "description": "Plan base Starter de TEDEN",
+                "monthly_price": 0.00,
+                "commission_percent": 20.0,
+            },
         )
-        # 2) Creo o tomo el perfil asociado
         seller_profile, _ = SellerProfile.objects.get_or_create(
-            user=user,
-            defaults={'plan': starter_plan}
+            user=user, defaults={"plan": starter_plan}
         )
     else:
         seller_profile = None
 
-    credenciales_mp = None
-    if user.role == 'seller':
-        try:
-            credenciales_mp = user.sellerprofile.mercadopagocredential
-        except:
-            pass
-        
-    # manejo de POST/GET de formulario
-    if request.method == 'POST':
+    credenciales_mp = (
+        getattr(user.sellerprofile, "mercadopagocredential", None)
+        if user.role == "seller"
+        else None
+    )
+
+    # Formulario
+    if request.method == "POST":
         form = EditProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             messages.success(request, "Tus datos fueron actualizados correctamente.")
-            return redirect('mi_cuenta')
+            return redirect("mi_cuenta")
     else:
         form = EditProfileForm(instance=user)
 
-    # obtengo todos los planes para el selector
     planes = SellerPlan.objects.all()
 
-    return render(request, 'users/mi_cuenta.html', {
-        'form': form,
-        'es_vendedor': user.role == 'seller',
-        'planes': planes,
-        'seller_profile': seller_profile,
-    })
+    return render(
+        request,
+        "users/mi_cuenta.html",
+        {
+            "form": form,
+            "es_vendedor": user.role == "seller",
+            "planes": planes,
+            "seller_profile": seller_profile,
+            "credenciales_mp": credenciales_mp,
+        },
+    )
 
 
-
-# 🟢 ELIMINAR CUENTA
+# ─────────────────────────────────────────────────────────────
+# ELIMINAR CUENTA
+# ─────────────────────────────────────────────────────────────
 @login_required
 def eliminar_cuenta(request):
     user = request.user
     logout(request)
     user.delete()
     messages.success(request, "Tu cuenta fue eliminada correctamente.")
-    return redirect('home')
+    return redirect("home")
 
-# 🟢 TÉRMINOS Y CONDICIONES
+
+# ─────────────────────────────────────────────────────────────
+# TÉRMINOS Y CONDICIONES
+# ─────────────────────────────────────────────────────────────
 def terms_and_conditions(request):
-    return render(request, 'users/terms_and_conditions.html')
+    return render(request, "users/terms_and_conditions.html")
 
 
-# 🟢 LOGOUT
+# ─────────────────────────────────────────────────────────────
+# LOGOUT
+# ─────────────────────────────────────────────────────────────
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    return redirect("home")
 
 
-User = get_user_model()
-
-# 🟢 Solicitud de reseteo de contraseña
+# ─────────────────────────────────────────────────────────────
+# RESET DE CONTRASEÑA
+# ─────────────────────────────────────────────────────────────
 def password_reset_request(request):
     if request.method == "POST":
         form = PasswordResetForm(request.POST)
@@ -316,7 +325,6 @@ def password_reset_request(request):
     return render(request, "users/password_reset_form.html", {"form": form})
 
 
-# 🟢 Confirmar nueva contraseña
 def password_reset_confirm(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -333,114 +341,90 @@ def password_reset_confirm(request, uidb64, token):
         else:
             form = SetPasswordForm(user)
         return render(request, "users/password_reset_confirm.html", {"form": form})
-    else:
-        return render(request, "users/password_reset_invalid.html")
+
+    return render(request, "users/password_reset_invalid.html")
 
 
-# 🟢 Activar servicios para vendedores
+# ─────────────────────────────────────────────────────────────
+# ACTIVAR SERVICIOS
+# ─────────────────────────────────────────────────────────────
 @login_required
 def activar_servicios(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         user = request.user
         user.ofrece_servicios = True
         user.save()
         messages.success(request, "¡Ahora podés ofrecer servicios!")
-    return redirect('seller_dashboard')
+    return redirect("dashboard")
 
-# 🟢 ELEGIR PLAN   
+
+# ─────────────────────────────────────────────────────────────
+# PLANES
+# ─────────────────────────────────────────────────────────────
+def _ensure_seller_profile(user):
+    if not hasattr(user, "sellerprofile"):
+        starter_plan = SellerPlan.objects.get(name="starter")
+        SellerProfile.objects.create(user=user, plan=starter_plan)
+
+
 @login_required
 def elegir_plan(request):
     user = request.user
-    vendedor = user if user.role == 'seller' else None
-
-    # ⚠️ Si ya tiene perfil con plan asignado, lo redirigimos
-    if not hasattr(vendedor, 'sellerprofile'):
-        starter_plan = SellerPlan.objects.get(name='starter')
-        SellerProfile.objects.get_or_create(user=vendedor, defaults={'plan': starter_plan})
-
+    _ensure_seller_profile(user)
     planes = SellerPlan.objects.all()
 
-    if request.method == 'POST':
-        plan_id = request.POST.get('plan_id')
+    if request.method == "POST":
+        plan_id = request.POST.get("plan_id")
         try:
             plan = SellerPlan.objects.get(id=plan_id)
-
-            # Crear perfil si no existe
-            if not hasattr(user, 'sellerprofile'):
-                SellerProfile.objects.create(user=user, plan=plan)
-            else:
-                user.sellerprofile.plan = plan
-                user.sellerprofile.save()
-
+            user.sellerprofile.plan = plan
+            user.sellerprofile.save()
             messages.success(request, f"Elegiste el plan {plan.name}.")
-            return redirect('dashboard')
+            return redirect("dashboard")
         except SellerPlan.DoesNotExist:
             messages.error(request, "El plan seleccionado no existe.")
 
-    return render(request, 'users/elegir_plan.html', {'planes': planes})
+    return render(request, "users/elegir_plan.html", {"planes": planes})
 
-# 🟢 CAMBIAR PLAN
 
-def ensure_seller_profile(user):
-    if not hasattr(user, 'sellerprofile'):
-        # Si no tiene perfil de vendedor, creamos uno con el plan Starter
-        starter_plan = SellerPlan.objects.get(name='starter')
-        SellerProfile.objects.create(user=user, plan=starter_plan)
 @login_required
 def cambiar_plan(request):
     user = request.user
-    ensure_seller_profile(user)
+    _ensure_seller_profile(user)
     planes = SellerPlan.objects.all()
 
-    if request.method == 'POST':
-        plan_id = request.POST.get('plan_id')
+    if request.method == "POST":
+        plan_id = request.POST.get("plan_id")
         try:
             plan = SellerPlan.objects.get(id=plan_id)
             user.sellerprofile.plan = plan
             user.sellerprofile.save()
             messages.success(request, f"Cambiaste al plan {plan.name}.")
-            return redirect('dashboard')
+            return redirect("dashboard")
         except SellerPlan.DoesNotExist:
             messages.error(request, "El plan seleccionado no existe.")
 
-    return render(request, 'users/elegir_plan.html', {'planes': planes})
+    return render(request, "users/elegir_plan.html", {"planes": planes})
 
-#CONECTAR CUENTA CON MP
-from django.conf import settings
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 
+# ─────────────────────────────────────────────────────────────
+# MERCADOPAGO (OAuth)
+# ─────────────────────────────────────────────────────────────
 @login_required
 def conectar_mercadopago(request):
     client_id = settings.MP_CLIENT_ID
     redirect_uri = settings.MP_REDIRECT_URI
-    return redirect(
-        f"https://auth.mercadopago.com.ar/authorization?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
+    auth_url = (
+        "https://auth.mercadopago.com.ar/authorization"
+        f"?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
     )
+    return redirect(auth_url)
 
-import requests
-from django.conf import settings
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
-from plans.models import MercadoPagoCredential
 
-# 🔗 Redirige al OAuth de MercadoPago
-@login_required
-def conectar_mercadopago(request):
-    client_id = settings.MP_CLIENT_ID
-    redirect_uri = settings.MP_REDIRECT_URI
-    return redirect(
-        f"https://auth.mercadopago.com.ar/authorization?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
-    )
-
-# ✅ Guarda las credenciales luego del OAuth
 @csrf_exempt
 @login_required
 def mp_callback(request):
     code = request.GET.get("code")
-
     if not code:
         messages.error(request, "❌ No se pudo conectar con MercadoPago. Código no recibido.")
         return redirect("mi_cuenta")
@@ -472,7 +456,7 @@ def mp_callback(request):
     messages.success(request, "✅ Tu cuenta de MercadoPago fue conectada con éxito.")
     return redirect("mi_cuenta")
 
-# ❌ Elimina las credenciales del vendedor
+
 @login_required
 def desconectar_mercadopago(request):
     perfil = request.user.sellerprofile
