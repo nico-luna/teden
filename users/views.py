@@ -6,10 +6,11 @@ import requests
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import (
-    authenticate, get_user_model, login, logout
-)
-from django.contrib.auth.decorators import csrf_protect, login_required
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+
+from django.views.decorators.csrf import csrf_protect  # 👈 acá sí
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives, send_mail
