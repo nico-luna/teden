@@ -408,13 +408,18 @@ def cambiar_plan(request):
     return render(request, "users/elegir_plan.html", {"planes": planes})
 
 
+
 # ─────────────────────────────────────────────────────────────
 # MERCADOPAGO (OAuth)
 # ─────────────────────────────────────────────────────────────
+
 @login_required
 def conectar_mercadopago(request):
-    client_id = settings.MP_CLIENT_ID
+    """
+    Redirige al usuario a la pantalla de autorización de MercadoPago
+    """
     redirect_uri = settings.MP_REDIRECT_URI
+    client_id = settings.MP_CLIENT_ID
     auth_url = (
         "https://auth.mercadopago.com.ar/authorization"
         f"?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}"
@@ -425,6 +430,9 @@ def conectar_mercadopago(request):
 @csrf_exempt
 @login_required
 def mp_callback(request):
+    """
+    Callback de MercadoPago después de autorizar. Se intercambia el código por tokens.
+    """
     code = request.GET.get("code")
     if not code:
         messages.error(request, "❌ No se pudo conectar con MercadoPago. Código no recibido.")
@@ -447,6 +455,7 @@ def mp_callback(request):
 
     tokens = r.json()
     perfil = request.user.sellerprofile
+
     cred, _ = MercadoPagoCredential.objects.get_or_create(seller_profile=perfil)
     cred.access_token = tokens.get("access_token")
     cred.refresh_token = tokens.get("refresh_token")
@@ -457,14 +466,12 @@ def mp_callback(request):
     messages.success(request, "✅ Tu cuenta de MercadoPago fue conectada con éxito.")
     return redirect("mi_cuenta")
 
-def conectar_mercadopago(request):
-    # Siempre forzar el reingreso
-    redirect_uri = request.build_absolute_uri(reverse('mp_callback'))
-    return redirect(f"https://auth.mercadopago.com.ar/authorization?client_id={CLIENT_ID}&response_type=code&redirect_uri={redirect_uri}")
-
 
 @login_required
 def desconectar_mercadopago(request):
+    """
+    Elimina las credenciales guardadas del vendedor.
+    """
     perfil = request.user.sellerprofile
     MercadoPagoCredential.objects.filter(seller_profile=perfil).delete()
     messages.success(request, "🔌 Desconectaste tu cuenta de MercadoPago.")
