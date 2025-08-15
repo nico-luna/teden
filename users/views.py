@@ -457,6 +457,11 @@ def mp_callback(request):
     messages.success(request, "✅ Tu cuenta de MercadoPago fue conectada con éxito.")
     return redirect("mi_cuenta")
 
+def conectar_mercadopago(request):
+    # Siempre forzar el reingreso
+    redirect_uri = request.build_absolute_uri(reverse('mp_callback'))
+    return redirect(f"https://auth.mercadopago.com.ar/authorization?client_id={CLIENT_ID}&response_type=code&redirect_uri={redirect_uri}")
+
 
 @login_required
 def desconectar_mercadopago(request):
