@@ -73,7 +73,7 @@ def register(request):
                     "Si no solicitaste este correo, podés ignorarlo."
                 )
                 html_content = render_to_string(
-                    "emails/verification_email.html",
+                    "users/emails/verification_email.html",
                     {"user": user, "code": code, "current_year": timezone.now().year},
                 )
                 msg = EmailMultiAlternatives(
