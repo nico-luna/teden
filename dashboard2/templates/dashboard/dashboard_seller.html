@@ -1,0 +1,144 @@
+{% extends 'users/base.html' %}
+{% block title %}Dashboard Vendedor{% endblock %}
+
+{% if not_seller %}
+  <!-- Bloque para usuarios que NO son vendedores -->
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8">
+      <div class="alert alert-info text-center p-4 rounded-4 shadow-sm mt-5">
+        <h4 class="mb-3">¿Querés vender productos o servicios?</h4>
+        <p>Convertite en vendedor para acceder a todas las herramientas del dashboard.</p>
+        <a href="{% url 'convertirse_en_vendedor' %}" class="btn btn-dark rounded-pill px-4 py-2">Convertirse en vendedor</a>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-5 justify-content-center">
+    <div class="col-12 col-md-10">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <h5 class="fw-bold mb-2">Ventajas de ser vendedor</h5>
+              <ul class="list-unstyled text-muted mb-0">
+                <li>✔️ Acceso a tu propia tienda digital</li>
+                <li>✔️ Publicá productos y servicios</li>
+                <li>✔️ Gestioná ventas y turnos</li>
+                <li>✔️ Estadísticas y reportes</li>
+                <li>✔️ Soporte dedicado</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <h5 class="fw-bold mb-2">¿Cómo funciona?</h5>
+              <ol class="text-muted mb-0" style="text-align:left;">
+                <li>Registrate como vendedor</li>
+                <li>Crea tu tienda digital</li>
+                <li>Publicá productos o servicios</li>
+                <li>Recibí pedidos y reservas</li>
+                <li>Gestioná tu negocio desde el dashboard</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <h5 class="fw-bold mb-2">Preguntas frecuentes</h5>
+              <ul class="list-unstyled text-muted mb-0" style="text-align:left;">
+                <li><strong>¿Tiene costo?</strong> Podés empezar gratis y elegir un plan cuando lo necesites.</li>
+                <li><strong>¿Qué puedo vender?</strong> Productos físicos, digitales y servicios con turnos.</li>
+                <li><strong>¿Cómo cobro?</strong> Integración con MercadoPago y transferencias.</li>
+                <li><strong>¿Puedo personalizar mi tienda?</strong> Sí, con tu logo, colores y banners.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% elif no_store %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8">
+      <div class="alert alert-warning text-center p-4 rounded-4 shadow-sm mt-5">
+        <h4 class="mb-3">¡Aún no tienes una tienda!</h4>
+        <p>Crea tu tienda para comenzar a vender productos y servicios.</p>
+        <a href="{% url 'create_store' %}" class="btn btn-dark rounded-pill px-4 py-2">Crear Tienda</a>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <!-- Bloque para vendedores: dashboard completo -->
+  <div class="row" style="min-height: 100vh; background: #f7f8fa;">
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+        <div class="card-body d-flex flex-column align-items-start">
+          <h6 class="card-title text-muted mb-2">Productos cargados</h6>
+          <h2 class="fw-bold mb-1" id="dashboardProductCount">Cargando...</h2>
+          <h6 class="card-title text-muted mt-3">Productos publicados</h6>
+          <h2 class="fw-bold" id="dashboardPublishedCount">Cargando...</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+        <div class="card-body d-flex flex-column align-items-start">
+          <h6 class="card-title text-muted mb-2">Categorías</h6>
+          <h2 class="fw-bold" id="dashboardCategoryCount">Cargando...</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+        <div class="card-body d-flex flex-column align-items-start">
+          <h6 class="card-title text-muted mb-2">Estado de tienda</h6>
+          <h4 class="fw-bold">
+            {% if store and store.is_active %} <span class="text-success">Activa</span> {% else %} <span class="text-danger">Inactiva</span> {% endif %}
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+        <div class="card-body d-flex flex-column align-items-start">
+          <h6 class="card-title text-muted mb-2">Ventas totales</h6>
+          <h2 class="fw-bold mb-1 text-success" id="dashboardTotalSales">Cargando...</h2>
+          <h6 class="card-title text-muted mt-3">Ganancias</h6>
+          <h2 class="fw-bold mb-1 text-primary" id="dashboardProfit">Cargando...</h2>
+          <h6 class="card-title text-muted mt-3">Citas</h6>
+          <h2 class="fw-bold mb-1" id="dashboardAppointmentCount">Cargando...</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3 mt-4">
+      <div class="card bg-white rounded-4 shadow-sm border-0 h-100">
+        <div class="card-body d-flex flex-column align-items-start">
+          <h4 class="fw-bold mb-2">Agenda de Turnos</h4>
+          <p class="text-muted mb-3">Creá servicios y configurá horarios para que tus clientes puedan reservarte.</p>
+          <a href="{% url 'create_service' %}" class="btn btn-dark rounded-pill mb-2">Configurar Servicios</a>
+          <a href="{% url 'seller_appointments' %}" class="btn btn-outline-dark rounded-pill">Ver Turnos</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<script>
+function fetchProductStats() {
+  fetch('/dashboard/api/stats/')
+    .then((response) => response.json())
+    .then((data) => {
+      document.getElementById('dashboardProductCount').innerText = data.product_count || 'Sin productos';
+      document.getElementById('dashboardPublishedCount').innerText = data.published_count || 'Sin publicados';
+      document.getElementById('dashboardCategoryCount').innerText = data.category_count || 'Sin categorías';
+      document.getElementById('dashboardTotalSales').innerText = data.total_sales ? `$${parseFloat(data.total_sales).toFixed(2)}` : '$0.00';
+      document.getElementById('dashboardProfit').innerText = data.profit ? `$${parseFloat(data.profit).toFixed(2)}` : '$0.00';
+      document.getElementById('dashboardAppointmentCount').innerText = data.appointment_count || 'Sin citas';
+    })
+    .catch((error) => console.error('Error fetching stats:', error));
+}
+setInterval(fetchProductStats, 10000); // Actualiza cada 10 segundos
+window.onload = fetchProductStats;
+</script>

@@ -3,12 +3,16 @@
 
 {% block content %}
 <div class="container-fluid">
-  <div class="row" style="max-height: 100vh;">
+  <div class="row">
 
     <!-- Sidebar fijo y responsive -->
     <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar text-white position-sticky top-0 p-3" style="height: 100vh;">
       <!-- <div class="text-center mb-4">
-        <img src="{{ user.profile.image.url }}" alt="Foto de perfil" class="rounded-circle mb-2" style="width: 90px; height: 90px;">
+        {% if user.profile_picture %}
+          <img src="{{ user.profile_picture.url }}" alt="Foto de perfil" class="rounded-circle mb-2" style="width: 90px; height: 90px;">
+        {% else %}
+          <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-2" style="width:90px; height:90px; font-size:2.5rem; color:#bbb;">👤</div>
+        {% endif %}
         <h5 class="mb-0">{{ user.username }}</h5>
         <small class="text-muted">{{ user.email }}</small>
       </div> -->
@@ -29,121 +33,193 @@
           <h6 class="mb-1">Tienda: <strong>{{ store.name }}</strong></h6>
           {% if request.user.store_profile %}
             <a href="{% url 'store:public_store' request.user.store_profile.slug %}" target="_blank" class="btn btn-outline-light btn-sm w-100">🌐 Ver tienda pública</a>
-          {% else %}
-            <p class="text-warning">Sin URL válida</p>
-          {% endif %}
-          <a href="{% url 'store:edit_store' %}" class="btn btn-warning btn-sm w-100 mt-2">🎨 Personalizar tienda</a>
-        </div>
-      {% else %}
-        <div class="text-center">
-          <p>¡Aún no creaste tu tienda!</p>
-          <a href="{% url 'store:crear_tienda' %}">Crear tienda</a>
+            <a href="{% url 'store:edit_store' %}" class="btn btn-outline-secondary me-2">⚙️ Configurar tienda</a>
+            {% endif %}
         </div>
       {% endif %}
-
-      <hr class="border-secondary">
-
-      <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_product' %}">➕ Cargar producto</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'inventory' %}">📦 Inventario</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'add_category' %}">📁 Agregar categoría</a></li>
-        <li class="nav-item"><a class="nav-link text-white" href="{% url 'category_list' %}">📂 Ver categorías</a></li>
-      </ul>
-
-        <!-- Botón para visualizar órdenes -->
-      <hr class="border-secondary">
-      <ul class="nav flex-column">
-        <li class="nav-item mt-3"><a class="btn btn-primary w-100" href="{% url 'seller_orders' %}">📦 Ver Órdenes</a></li>  
-      <hr class="border-secondary">
-        <li class="nav-item mt-3"><a class="nav-link text-white" href="{% url 'create_service' %}">➕ Crear servicio con turnos</a></li>
-        <li class="nav-item"><a class="btn btn-secondary w-100" href="{% url 'seller_appointments' %}">📅 Mis turnos</a></li>
-      </ul>
-
-
-      
-
     </nav>
 
     <!-- Main -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-      <h2 class="mb-3">Bienvenido, {{ user.username }}</h2>
-      <p class="lead">Desde aquí podés gestionar tu tienda, productos y cuenta de forma sencilla.</p>
-            {% if request.user.sellerprofile %}
-        <div class="alert alert-info d-flex justify-content-between align-items-center mt-4">
-          <div>
-            🧾 Estás usando el plan <strong>{{ request.user.sellerprofile.plan.get_name_display }}</strong>
-            (Comisión: {{ request.user.sellerprofile.plan.commission_percent }}%)
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h2 class="mb-1">Panel del vendedor</h2>
+          <p class="text-muted mb-0">Bienvenido, <strong>{{ user.username }}</strong>. Gestioná tu tienda y ventas desde aquí.</p>
+                </div>
+              </div>
+
+              {% if no_store %}
+                <div class="alert alert-warning">
+                  <strong>¡Aún no tenés una tienda!</strong> Para empezar a vender creá tu tienda.
+                  <a href="{% url 'store:crear_tienda' %}" class="btn btn-sm btn-primary ms-3">Crear mi tienda</a>
+                </div>
+              {% endif %}
+
+              {% if request.user.sellerprofile %}
+                <div class="alert alert-info d-flex justify-content-between align-items-center">
+                  <div>
+                    🧾 Usás el plan <strong>{{ request.user.sellerprofile.plan.get_name_display }}</strong>
+                    — {% if request.user.sellerprofile.plan.monthly_price == 0 %}Gratis{% else %}USD {{ request.user.sellerprofile.plan.monthly_price|floatformat:2 }} / mes{% endif %}
+                    (Comisión: {{ request.user.sellerprofile.plan.commission_percent|floatformat:0 }}%)
+                  </div>
+                  <a href="{% url 'elegir_plan' %}" class="btn btn-sm btn-outline-secondary">Cambiar plan</a>
+                </div>
+              {% endif %}
+
+              <!-- Resumen rápido -->
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="text-muted mb-1">Productos</h6>
+                          <h3 id="dashboardProductCount">{{ product_count|default:0 }}</h3>
+                        </div>
+                        <div class="fs-3 text-primary">📦</div>
+                      </div>
+                      <small class="text-muted">Publicados: <span id="dashboardPublishedCount">{{ published_count|default:0 }}</span></small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="text-muted mb-1">Categorías</h6>
+                          <h3 id="dashboardCategoryCount">{{ category_count|default:0 }}</h3>
+                        </div>
+                        <div class="fs-3 text-success">🗂️</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="text-muted mb-1">Ventas</h6>
+                          <h4 id="dashboardTotalSales">${{ total_sales|floatformat:2 }}</h4>
+                        </div>
+                        <div class="fs-3 text-warning">💰</div>
+                      </div>
+                      <small class="text-muted">Ganancias: <span id="dashboardProfit">${{ profit|floatformat:2 }}</span></small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <h6 class="text-muted mb-1">Turnos</h6>
+                          <h3 id="dashboardAppointmentCount">{{ appointment_count|default:0 }}</h3>
+                        </div>
+                        <div class="fs-3 text-info">📅</div>
+                      </div>
+                      <small class="text-muted">Estado tienda: {% if store and store.is_active %}✅ Activa{% else %}❌ Inactiva{% endif %}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Acciones rápidas y actividad -->
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="card shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title mb-3">Acciones rápidas</h5>
+                      <div class="d-grid gap-2">
+                        <a href="{% url 'add_product' %}" class="btn btn-primary">➕ Publicar producto</a>
+                        <a href="{% url 'seller_products' %}" class="btn btn-outline-primary">📦 Ver productos</a>
+                        <a href="{% url 'create_service' %}" class="btn btn-outline-primary">➕ Crear servicio</a>
+                        <a href="{% url 'ver_servicios' %}" class="btn btn-outline-primary">📅 Ver servicios</a>
+                        <a href="{% url 'seller_orders' %}" class="btn btn-outline-secondary">📦 Ver órdenes</a>
+                        <a href="{% url 'seller_appointments' %}" class="btn btn-outline-secondary">📅 Mis turnos</a>
+                        {% if service and service.id %}
+                          <a href="{% url 'edit_service' service.id %}" class="btn btn-outline-warning">✏️ Editar servicio</a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-8">
+                  <div class="card shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title mb-3">Actividad reciente</h5>
+                      <!-- Actividad reciente: mostrar mensaje si no hay datos -->
+                      <ul class="list-group list-group-flush">
+                        {% if recent_activity and recent_activity|length > 0 %}
+                          {% for activity in recent_activity %}
+                            <li class="list-group-item">{{ activity }}</li>
+                          {% endfor %}
+                        {% else %}
+                          <li class="list-group-item text-muted">No hay actividad reciente aún. Cuando tengas ventas, opiniones o reservas aparecerán aquí.</li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% if services %}
+                <div class="mt-4">
+                  <h4>Mis servicios</h4>
+                  <ul class="list-group">
+                    {% for service in services %}
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ service.title }}</span>
+                        <a href="{% url 'edit_service' service.id %}" class="btn btn-outline-warning btn-sm">✏️ Editar servicio</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </main>
           </div>
-          <a href="{% url 'elegir_plan' %}" class="btn btn-sm btn-outline-secondary">Cambiar plan</a>
-        </div>
-      {% endif %}
-      <div class="row g-4">
-        <!-- Total productos -->
-        <div class="col-md-6 col-xl-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted">📦 Productos cargados</h6>
-              <h3 class="card-text">{{ product_count }}</h3>
-            </div>
-          </div>
         </div>
 
-        <!-- Total categorías -->
-        <div class="col-md-6 col-xl-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted">📁 Categorías</h6>
-              <h3 class="card-text">{{ category_count }}</h3>
-            </div>
-          </div>
-        </div>
+        <script>
+        function fetchProductStats() {
+          var noStore = "{{ no_store|yesno:'true,false' }}" === "true";
+          if (noStore) return;
 
-        <!-- Estado tienda -->
-        <div class="col-md-6 col-xl-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted">🛒 Estado de tienda</h6>
-              <h5 class="card-text">
-                {% if store and public_url %} ✅ Activa {% else %} ❌ Inactiva {% endif %}
-              </h5>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ventas (placeholder) -->
-        <div class="col-md-6 col-xl-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted">💰 Ventas totales</h6>
-              <h4 class="card-text">$0.00</h4> <!-- Reemplazá por variable dinámica a futuro -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-
-      <div class="col-md-6 col-xl-3 mt-4">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-              <h3>Agenda de Turnos</h3>
-              <p>Creá servicios y configurá horarios para que tus clientes puedan reservarte.</p>
-              <a href="{% url 'create_service' %}" class="btn btn-primary">Configurar Servicios</a>
-              <a href="{% url 'seller_appointments' %}" class="btn btn-secondary">Ver Turnos</a>
-          </div>
-        </div>
-      </div>
-
-        <!-- Órdenes (placeholder) -->
-
-      <!-- <div class="col-md-6 col-xl-3 mt-4">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-              <h3>Últimas Órdenes</h3>
-              <p>Revisá las últimas órdenes de tus clientes.</p>
-              <a href="{% url 'seller_orders' %}" class="btn btn-primary">Ver Órdenes</a>
-        </div>
-      </div> -->
-  </div>
-</div>
-{% endblock %}
+          fetch('{% url "dashboard_stats_api" %}')
+            .then(function(response) {
+              if (response.status === 403) {
+                window.location = '{% url "convertirse_en_vendedor" %}';
+                return Promise.reject('Unauthorized');
+              }
+              return response.json();
+            })
+            .then(function(data) {
+              try {
+                var el = function(id, val) {
+                  var node = document.getElementById(id);
+                  if (!node) return;
+                  node.innerText = val;
+                };
+                el('dashboardProductCount', data.product_count || '0');
+                el('dashboardPublishedCount', data.published_count || '0');
+                el('dashboardCategoryCount', data.category_count || '0');
+                el('dashboardTotalSales', data.total_sales ? '$' + parseFloat(data.total_sales).toFixed(2) : '$0.00');
+                el('dashboardProfit', data.profit ? '$' + parseFloat(data.profit).toFixed(2) : '$0.00');
+                el('dashboardAppointmentCount', data.appointment_count || '0');
+              } catch (e) {
+                console.error('Error applying stats:', e);
+              }
+            })
+            .catch(function(err) {
+              if (err !== 'Unauthorized') console.error('Error fetching stats:', err);
+            });
+        }
+        setInterval(fetchProductStats, 10000);
+        window.addEventListener('load', fetchProductStats);
+</script>
+  {% endblock %}

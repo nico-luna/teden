@@ -1,3 +1,6 @@
+  <a href="/auth/google/login/" class="btn btn-outline-danger w-100 mb-3">
+    <i class="fab fa-google me-2"></i> Iniciar sesión con Google
+  </a>
 {% extends 'users/base.html' %}
 {% load form_tags %}
 
@@ -8,6 +11,9 @@
 <div class="container mt-5" style="max-width: 450px;">
   <h2 class="mb-4 text-center">Iniciar sesión</h2>
 
+  <a href="/auth/google/login/" class="btn btn-outline-danger w-100 mb-3">
+    <i class="fab fa-google me-2"></i> Iniciar sesión con Google
+  </a>
   <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
 

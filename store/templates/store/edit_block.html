@@ -11,7 +11,7 @@
     </div>
   {% endif %}
 
-  <form method="post" class="card shadow p-4">
+  <form method="post" enctype="multipart/form-data" class="card shadow p-4">
     {% csrf_token %}
     
     {% for field in form %}
@@ -32,5 +32,16 @@
       <button type="submit" class="btn btn-primary">Guardar cambios</button>
     </div>
   </form>
+
+  {% if block.block_type == 'about' and block.content.image %}
+    <div class="mb-4 text-center">
+      <img src="{{ block.content.image }}" class="img-fluid rounded shadow" alt="Imagen de sección" style="max-width: 400px;">
+    </div>
+  {% endif %}
+  {% if block.block_type == 'testimonial' and block.content.image %}
+    <div class="mb-4 text-center">
+      <img src="{{ block.content.image }}" class="img-fluid rounded-circle shadow" alt="Imagen del autor" style="max-width: 200px;">
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -14,7 +14,7 @@
 
           {% csrf_token %}
 
-          {% for field in form.visible_fields %}
+          {% for field in modal_form.visible_fields %}
             {% if field.name != "accept_terms" %}
               <div class="mb-3">
                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
@@ -44,21 +44,21 @@
           {% endfor %}
 
           <!-- Checkbox separado -->
-          <div class="form-check mb-3">
-            {{ form.accept_terms }}
-            <label class="form-check-label" for="{{ form.accept_terms.id_for_label }}">
-              Acepto los <a href="{% url 'terms_and_conditions' %}" target="_blank">términos y condiciones</a>
-            </label>
-            {% if form.accept_terms.errors %}
-              <div class="form-text text-danger">
-                {{ form.accept_terms.errors.0 }}
-              </div>
-            {% endif %}
-          </div>
+            <div class="form-check mb-3">
+              {{ modal_form.accept_terms }}
+              <label class="form-check-label" for="{{ modal_form.accept_terms.id_for_label }}">
+                Acepto los <a href="{% url 'terms_and_conditions' %}" target="_blank">términos y condiciones</a>
+              </label>
+              {% if modal_form.accept_terms.errors %}
+                <div class="form-text text-danger">
+                  {{ modal_form.accept_terms.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
 
           {% if form.non_field_errors %}
             <div class="alert alert-danger small">
-              {% for error in form.non_field_errors %}
+                {% for error in modal_form.non_field_errors %}
                 {{ error }}<br>
               {% endfor %}
             </div>

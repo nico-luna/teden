@@ -1,0 +1,35 @@
+/* styles.css - Estilos del panel del vendedor */
+
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.sidebar-seller {
+  background-color: #343a40;
+  color: #fff;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.sidebar-seller .nav-link {
+  color: #ffffffcc;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+
+.sidebar-seller .nav-link:hover,
+.sidebar-seller .nav-link.active {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.card-product {
+  transition: 0.3s ease;
+}
+
+.card-product:hover {
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,29 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>✅ ¡Compra realizada con éxito!</h2>
+    <p>Gracias por tu compra, {{ user.first_name }}.</p>
+
+    {% if orders %}
+      <h4>Descargas disponibles:</h4>
+      <ul class="list-group mt-3">
+        {% for order in orders %}
+          {% if order.product.file %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ order.product.name }}
+              <a href="{{ order.product.file.url }}" class="btn btn-success btn-sm" download>
+                📥 Descargar
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay productos digitales en esta compra.</p>
+    {% endif %}
+  </div>
+{% endblock %}

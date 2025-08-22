@@ -1,0 +1,25 @@
+{% extends 'users/base.html' %}
+{% block title %}Servicios por Categoría{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 fw-bold text-center">Servicios en "{{ categoria.name }}"</h2>
+  <div class="row g-4">
+    {% for servicio in servicios %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm rounded-4 h-100">
+          <div class="card-body">
+            <h5 class="fw-bold">{{ servicio.title }}</h5>
+            <p class="text-muted">{{ servicio.description }}</p>
+            <span class="badge bg-primary">${{ servicio.price }}</span>
+            <a href="{% url 'select_appointment' servicio.id %}" class="btn btn-dark mt-3 w-100 rounded-pill">Reservar</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-warning text-center">No hay servicios en esta categoría.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

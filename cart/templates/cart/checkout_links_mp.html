@@ -1,20 +1,90 @@
-{% extends 'users/base.html' %}
-{% block content %}
-<div class="container">
-  <h2>🧾 Tus pagos pendientes</h2>
-  <p>Realizá los pagos de cada vendedor por separado para completar tu compra.</p>
-  <hr>
-
-  <ul class="list-group">
-    {% for p in links %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <span><strong>Vendedor:</strong> {{ p.vendedor.username }}</span>
-      <a href="{{ p.link }}" class="btn btn-success" target="_blank">Pagar ahora</a>
-    </li>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Completar Pagos - Teden</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background: #f7f8fa; }
+      .card-vendedor { box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-radius: 12px; margin-bottom: 32px; background: #fff; }
+      .table-products th, .table-products td { vertical-align: middle; }
+      .btn-modern { border-radius: 6px; font-weight: 500; }
+      .estado-pago { font-size: 1rem; font-weight: 600; }
+      .total-vendedor { font-size: 1.2rem; font-weight: bold; color: #0d6efd; }
+      .descripcion { color: #555; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+  <h2 class="mb-4">Links de pago por vendedor</h2>
+  {% if links and links|length > 0 %}
+    {% for link in links %}
+      <div class="card card-vendedor p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h4 class="mb-0">Vendedor: <span class="text-primary">{{ link.vendedor }}</span></h4>
+          <span class="estado-pago">Estado: 
+            {% if link.estado == 'aprobada' or link.estado == 'approved' %}
+              <span class="badge bg-success">{{ link.estado|title }}</span>
+            {% elif link.estado == 'pendiente' or link.estado == 'pending' %}
+              <span class="badge bg-warning text-dark">{{ link.estado|title }}</span>
+            {% elif link.estado == 'error' %}
+              <span class="badge bg-danger">Error</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ link.estado|title }}</span>
+            {% endif %}
+          </span>
+        </div>
+        {% if link.error %}
+          <div class="alert alert-danger mb-2">{{ link.error }}</div>
+        {% endif %}
+        <div class="table-responsive">
+          <table class="table table-products table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in link.productos %}
+              <tr>
+                <td><strong>{{ producto.nombre }}</strong></td>
+                <td class="descripcion">{{ producto.descripcion|default:'-' }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>{{ producto.cantidad }}</td>
+                <td><span class="fw-bold">${{ producto.subtotal }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex flex-column align-items-center mt-3">
+          <span class="total-vendedor mb-2">Total: ${{ link.total }}</span>
+          {% if link.link %}
+            <a href="{{ link.link }}" target="_blank" class="btn btn-success btn-modern mb-2">Ir al link de pago</a>
+          {% else %}
+            <span class="text-danger">No se pudo generar el link de pago.</span>
+          {% endif %}
+        </div>
+      </div>
     {% endfor %}
-  </ul>
-
-  <hr>
-  <p class="text-muted">Una vez que completes todos los pagos, tus pedidos serán procesados.</p>
+    <div class="d-flex justify-content-end">
+      <a href="{% url 'mis_compras' %}" class="btn btn-primary btn-modern">Ver productos comprados</a>
+    </div>
+  {% elif errores and errores|length > 0 %}
+    <div class="alert alert-danger">
+      <h5 class="mb-2">No se pudieron generar los links de pago:</h5>
+      <ul>
+        {% for error in errores %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'cart_detail' %}" class="btn btn-outline-primary mt-3">Volver al carrito</a>
+    </div>
+  {% endif %}
 </div>
-{% endblock %}
+</body>
+</html>

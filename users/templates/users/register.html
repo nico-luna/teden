@@ -1,52 +1,59 @@
 <!-- register.html -->
- {% extends 'users/base.html' %}
- {% load form_tags %}
+{% extends 'users/base.html' %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+      <div class="card shadow-lg rounded-4 p-4 border-0">
+        <h2 class="mb-4 text-center fw-bold">Crear cuenta</h2>
+        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+          {% csrf_token %}
+          {% for field in form.visible_fields %}
+            {% if field.name != "accept_terms" %}
+              <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                  <div class="form-text text-danger">{{ field.errors.0 }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+          <div class="form-check mb-3">
+            {{ form.accept_terms }}
+            <label class="form-check-label" for="{{ form.accept_terms.id_for_label }}">
+              Acepto los <a href="{% url 'terms_and_conditions' %}" target="_blank">términos y condiciones</a>
+            </label>
+            {% if form.accept_terms.errors %}
+              <div class="form-text text-danger">{{ form.accept_terms.errors.0 }}</div>
+            {% endif %}
+          </div>
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger small">
+              {% for error in form.non_field_errors %}
+                {{ error }}<br>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary w-100 mt-3">Registrarme</button>
+          </hr>
+            <a href="/auth/google/login/" class="btn btn-outline-danger w-100 mb-3 mt-3">
+          <i class="fab fa-google me-2"></i> Registrarse con Google
+        </a>
 
-<form method="post" class="needs-validation" novalidate>
-  {% csrf_token %}
-
-  <div class="mb-3">
-    {{ form.username.label_tag }}
-    {{ form.username }}
-    <div class="invalid-feedback">
-      Ingresá un nombre de usuario válido (letras, números o guiones bajos).
+        </form>
+        <div class="text-center mt-3">
+          <a href="{% url 'login' %}" class="text-decoration-none">¿Ya tenés cuenta? Iniciá sesión</a>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="mb-3">
-    {{ form.email.label_tag }}
-    {{ form.email }}
-    <div class="invalid-feedback">
-      Ingresá un email válido.
-    </div>
-  </div>
-
-  <div class="mb-3">
-    {{ form.password1.label_tag }}
-    {{ form.password1 }}
-    <div class="invalid-feedback">
-      Debe tener al menos 8 caracteres, una mayúscula y un número.
-    </div>
-  </div>
-
-  <div class="mb-3">
-    {{ form.password2.label_tag }}
-    {{ form.password2 }}
-    <div class="invalid-feedback">
-      Repetí la contraseña.
-    </div>
-  </div>
-
-  <div class="mb-3 form-check">
-    {{ form.accept_terms }}
-    {{ form.accept_terms.label_tag }}
-    <div class="invalid-feedback">
-      Tenés que aceptar los términos para continuar.
-    </div>
-  </div>
-
-  <button type="submit" class="btn btn-primary">Registrarse</button>
-</form>
+</div>
+{% endblock %}
 <script>
   (function () {
     'use strict'

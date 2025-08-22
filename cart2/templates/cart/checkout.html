@@ -1,0 +1,89 @@
+
+{% load static %}
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">🛒 Checkout</h2>
+
+  <div class="row">
+    <!-- 🧾 Formulario -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">💳 Datos de facturación</h5>
+          <p class="fw-bold text-success fs-5">Total a pagar: ${{ cart.total_price }}</p>
+
+          <form method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <div class="text-danger small">{{ field.errors }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success w-100">Continuar con el pago</button>
+          </form>
+        </div>
+      </div>
+
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          Por favor, corregí los errores del formulario.
+        </div>
+      {% endif %}
+
+      {% if not cart.items %}
+        <div class="alert alert-info">
+          Tu carrito está vacío. Agregá productos para continuar con el pago.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 🧾 Resumen del pedido -->
+    <div class="col-md-6">
+      {% if cart.items %}
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3">📦 Productos en tu carrito</h5>
+            <ul class="list-group mb-3">
+              {% for item in cart.items.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ item.product.name }} x{{ item.quantity }}
+                  <span class="badge bg-primary rounded-pill">${{ item.total_price }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+
+            <h6 class="fw-bold mt-3">Resumen del pedido:</h6>
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span>${{ cart.total_price }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Envío</span>
+                <span class="text-muted">Gratis</span>
+              </li>
+              <!-- <li class="list-group-item d-flex justify-content-between">
+                <span>Impuestos</span>
+                <span class="text-muted">$0.00</span>
+              </li> -->
+              <li class="list-group-item d-flex justify-content-between fw-bold">
+                <span>Total</span>
+                <span class="text-success">${{ cart.total_price }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

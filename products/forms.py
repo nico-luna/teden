@@ -2,10 +2,17 @@ from django import forms
 from .models import Product, Category
 
 class ProductForm(forms.ModelForm):
+
+    gallery = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*,video/*'}),
+        required=False,
+        label='Galería de archivos',
+        help_text='Podés subir hasta 5 imágenes o videos en total.'
+    )
+
     class Meta:
         model = Product
         fields = ['name', 'description', 'price', 'stock', 'image', 'file', 'category']
-
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
@@ -15,13 +22,12 @@ class ProductForm(forms.ModelForm):
             'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
         }
-
         labels = {
             'name': 'Nombre del producto',
             'description': 'Descripción',
             'price': 'Precio',
             'stock': 'Stock',
-            'image': 'Imagen',
+            'image': 'Imagen principal',
             'file': 'Archivo descargable',
             'category': 'Categoría',
         }
@@ -41,6 +47,12 @@ class ProductForm(forms.ModelForm):
                 self.fields['category'].initial = sin_cat.id
             except Category.DoesNotExist:
                 pass  # Si no existe, no pasa nada
+
+    def clean_stock(self):
+        stock = self.cleaned_data.get('stock')
+        if stock is not None and stock <= 0:
+            raise forms.ValidationError('El stock debe ser mayor a 0 para publicar el producto.')
+        return stock
 
 class FileUploadForm(forms.ModelForm):
     class Meta:

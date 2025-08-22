@@ -1,0 +1,20 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container">
+  <h2>🧾 Tus pagos pendientes</h2>
+  <p>Realizá los pagos de cada vendedor por separado para completar tu compra.</p>
+  <hr>
+
+  <ul class="list-group">
+    {% for p in links %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span><strong>Vendedor:</strong> {{ p.vendedor.username }}</span>
+      <a href="{{ p.link }}" class="btn btn-success" target="_blank">Pagar ahora</a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  <p class="text-muted">Una vez que completes todos los pagos, tus pedidos serán procesados.</p>
+</div>
+{% endblock %}

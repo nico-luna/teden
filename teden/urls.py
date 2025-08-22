@@ -22,17 +22,18 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),         # Página pública (home)
     path('', include('users.urls')),        # 👈 Las rutas de users se cargan en la raíz
     path('cart/', include('cart.urls')),
     path('products/', include('products.urls')),
     path('reviews/', include('reviews.urls')),
     path('panel-admin/', include('admin_panel.urls')),
     path('', include('orders.urls')),
-    path('turnos/', include('appointments.urls')),
+        path('turnos/', include('appointments.urls')),
+    # path('accounts/', include('allauth.urls')),  # Eliminado: allauth
     path('planes/', include('plans.urls')),
     path('store/', include('store.urls', namespace='store')),
     path('payments/', include('payments.urls')),
+    path('', include('core.urls')),         # Página pública (home)
     
     # redirect de /favicon.ico → /static/favicon.ico
     path(

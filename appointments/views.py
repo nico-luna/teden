@@ -1,3 +1,14 @@
+# Vista para filtrar servicios por categoría
+def servicios_por_categoria(request, categoria_id):
+    from .models import Service, ServiceCategory
+    servicios = Service.objects.filter(is_active=True, category_id=categoria_id, vendor__sellerprofile__mercadopagocredential__isnull=False)
+    categoria = ServiceCategory.objects.get(id=categoria_id)
+    categorias = ServiceCategory.objects.all()
+    return render(request, 'appointments/servicios_por_categoria.html', {
+        'servicios': servicios,
+        'categoria': categoria,
+        'categorias': categorias,
+    })
 # --------------------------------------
 # 📦 Importaciones
 # --------------------------------------
@@ -7,6 +18,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from appointments.models import ServiceCategory
+from reviews.models import Review
+from django.db import models
+from django.db.models import Avg, Count
+from django.http import JsonResponse
+from django.forms import modelformset_factory
 
 from .forms import ServiceForm, AvailabilitySlotForm
 from .models import Service, AvailabilitySlot, Appointment
@@ -22,8 +39,17 @@ def create_service(request):
     if request.method == 'POST':
         form = ServiceForm(request.POST)
         if form.is_valid():
+            # Limitar servicios por plan
+            user = request.user
+            seller_profile = getattr(user, 'sellerprofile', None)
+            if seller_profile and seller_profile.plan:
+                max_services = seller_profile.plan.max_services
+                current_services = user.services.count()
+                if max_services is not None and current_services >= max_services:
+                    messages.error(request, f"Has alcanzado el límite de servicios permitidos por tu plan ({max_services}).")
+                    return render(request, 'appointments/create_service.html', {'form': form})
             service = form.save(commit=False)
-            service.vendor = request.user
+            service.vendor = user
             service.save()
             return redirect('set_availability', service_id=service.id)
     else:
@@ -94,7 +120,7 @@ def select_appointment(request, service_id):
                         payment_status='unpaid'
                     )
                     messages.success(request, "¡Turno reservado con éxito!")
-                    return redirect('checkout_payment', appointment_id=appointment.id)
+                    return redirect('appointments_checkout_payment', appointment_id=appointment.id)
             except ValueError:
                 messages.error(request, "Hora inválida.")
 
@@ -153,13 +179,35 @@ def checkout_payment(request, appointment_id):
 # 🧭 Explorar servicios activos disponibles
 # --------------------------------------
 def ver_servicios(request):
-    services = Service.objects.filter(
-        is_active=True,
-        vendor__ofrece_servicios=True
-    ).select_related('vendor')
+    services = Service.objects.filter(is_active=True, vendor__ofrece_servicios=True, vendor__sellerprofile__mercadopagocredential__isnull=False).select_related('vendor', 'category')
+    categorias = ServiceCategory.objects.all()
+    categoria_id = request.GET.get('categoria_id')
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
+    estrellas = request.GET.get('estrellas')
+    min_reviews = request.GET.get('min_reviews')
+
+    if categoria_id:
+        services = services.filter(category_id=categoria_id)
+    if precio_min:
+        services = services.filter(price__gte=precio_min)
+    if precio_max:
+        services = services.filter(price__lte=precio_max)
+    if estrellas:
+        services = services.annotate(avg_rating=Avg('reviews__rating', filter=models.Q(reviews__isnull=False))).filter(avg_rating__gte=estrellas)
+    if min_reviews:
+        services = services.annotate(num_reviews=Count('reviews', filter=models.Q(reviews__isnull=False))).filter(num_reviews__gte=min_reviews)
 
     return render(request, 'appointments/ver_servicios.html', {
-        'services': services
+        'services': services,
+        'categorias': categorias,
+        'selected': {
+            'categoria_id': categoria_id,
+            'precio_min': precio_min,
+            'precio_max': precio_max,
+            'estrellas': estrellas,
+            'min_reviews': min_reviews,
+        }
     })
 
 
@@ -169,7 +217,71 @@ def ver_servicios(request):
 @login_required
 def pay_with_mercadopago(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id, user=request.user)
+    # Generar preferencia de MercadoPago
+    from payments.utils import crear_preferencia_para_vendedor
+    seller = appointment.service.vendor
+    items = [{
+        "title": appointment.service.title,
+        "quantity": 1,
+        "unit_price": float(appointment.service.price),
+        "currency_id": "ARS"
+    }]
 
+    mercadopago_url = crear_preferencia_para_vendedor(
+        seller=seller,
+        items=items,
+        buyer_email=request.user.email
+    )
+    if mercadopago_url:
+        return redirect(mercadopago_url)
     return render(request, 'appointments/pay_with_mercadopago.html', {
-        'appointment': appointment
+        'appointment': appointment,
+        'mercadopago_url': mercadopago_url
+    })
+
+
+# --------------------------------------
+# 🔍 Buscar servicios
+# --------------------------------------
+def buscar_servicios(request):
+    q = request.GET.get('q', '').strip()
+    servicios = Service.objects.all()
+    if q:
+        servicios = servicios.filter(name__icontains=q)
+    context = {
+        'servicios': servicios,
+        'q': q,
+    }
+    return render(request, 'appointments/buscar_servicios.html', context)
+
+def buscar_servicios_autocomplete(request):
+    q = request.GET.get('q', '').strip()
+    servicios = []
+    if len(q) >= 2:
+        servicios = list(Service.objects.filter(name__icontains=q)[:8].values('id', 'name'))
+    return JsonResponse({'servicios': servicios})
+
+# --------------------------------------
+# ✏️ Editar servicio (solo vendedores)
+# --------------------------------------
+@login_required
+def edit_service(request, service_id):
+    service = get_object_or_404(Service, pk=service_id, vendor=request.user)
+    ServiceFormSet = modelformset_factory(AvailabilitySlot, form=AvailabilitySlotForm, extra=0, can_delete=True)
+
+    if request.method == 'POST':
+        service_form = ServiceForm(request.POST, instance=service)
+        slots_formset = ServiceFormSet(request.POST, queryset=service.availability_slots.all())
+        if service_form.is_valid() and slots_formset.is_valid():
+            service_form.save()
+            slots_formset.save()
+            return redirect('dashboard_seller')
+    else:
+        service_form = ServiceForm(instance=service)
+        slots_formset = ServiceFormSet(queryset=service.availability_slots.all())
+
+    return render(request, 'appointments/edit_service.html', {
+        'service_form': service_form,
+        'slots_formset': slots_formset,
+        'service': service,
     })

@@ -42,6 +42,45 @@
           <p class="mt-1 text-muted">Imagen actual</p>
         </div>
       {% endif %}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Galería de archivos (imágenes y videos)</label>
+        <div class="d-flex flex-wrap gap-3">
+          {% for media in product.images.all|dictsort:"order" %}
+            <div class="border rounded p-2 text-center" style="width:120px;">
+              {% if media.image %}
+                <img src="{{ media.image.url }}" alt="Imagen galería" class="img-thumbnail mb-2" style="width:100px; height:100px; object-fit:cover;">
+              {% elif media.video %}
+                <video style="width:100px; height:100px; object-fit:cover;" controls>
+                  <source src="{{ media.video.url }}" type="video/mp4">
+                </video>
+              {% endif %}
+              {% if media.is_header %}
+                <span class="badge bg-warning text-dark">Destacado</span>
+              {% else %}
+                <form method="post" action="{% url 'set_header_image' media.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-warning mt-1">Destacar</button>
+                </form>
+              {% endif %}
+              <form method="post" action="{% url 'delete_gallery_media' media.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger mt-1">Eliminar</button>
+              </form>
+              <form method="post" action="{% url 'move_gallery_media' media.id 'up' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary mt-1">↑</button>
+              </form>
+              <form method="post" action="{% url 'move_gallery_media' media.id 'down' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary mt-1">↓</button>
+              </form>
+            </div>
+          {% empty %}
+            <span class="text-muted">No hay archivos en la galería.</span>
+          {% endfor %}
+        </div>
     </div>
 
     <div class="d-flex justify-content-between">

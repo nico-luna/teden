@@ -1,0 +1,33 @@
+{% extends 'dashboard/dashboard_seller.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2>Editar servicio: {{ service.title }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ service_form.as_p }}
+    <h4>Días y horarios</h4>
+    {{ slots_formset.management_form }}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Hora inicio</th>
+          <th>Hora fin</th>
+          <th>Eliminar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in slots_formset %}
+        <tr>
+          <td>{{ form.weekday }}</td>
+          <td>{{ form.start_time }}</td>
+          <td>{{ form.end_time }}</td>
+          <td>{{ form.DELETE }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+  </form>
+</div>
+{% endblock %}

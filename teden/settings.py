@@ -1,3 +1,18 @@
+# Redirección al login manual
+LOGIN_URL = '/login/'
+# Configuración django-allauth
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 4
+
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 import os
 import logging
 from pathlib import Path
@@ -8,9 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # === SEGURIDAD ===
 SECRET_KEY = 'django-insecure-_6v9pf)cpa_)rg^ia&yt9w=h@9=hb0(iqmhpk9fayx&_kdl!19'
 DEBUG = True  # En producción siempre False
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'teden.onrender.com']
-
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.ngrok-free.app',  # Permite cualquier subdominio de ngrok
+]
 # === APPS INSTALADAS ===
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://teden.net",
+    "https://217.196.61.35",
+    "https://*.ngrok-free.app",
+]
 INSTALLED_APPS = [
     # Django
     'django.contrib.admin',
@@ -20,12 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Allauth
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # Allauth (eliminado para login manual)
 
     # Tus apps
     'users',
@@ -58,8 +78,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # Allauth
-    'allauth.account.middleware.AccountMiddleware',
+    # Middleware para saltar el browser warning de ngrok
+    'teden.ngrok_middleware.NgrokSkipBrowserWarningMiddleware',
+
+    # Allauth (eliminado para login manual)
+    # Cancelación automática de órdenes/citas no pagadas
+    'core.middleware.auto_cancel.AutoCancelMiddleware',
 ]
 
 # === URL & WSGI ===
@@ -85,8 +109,12 @@ TEMPLATES = [
 # === BASE DE DATOS ===
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'app',
+        'USER': 'app',
+        'PASSWORD': 'app',
+    'HOST': 'db',
+        'PORT': '5432',
     }
 }
 
@@ -108,15 +136,9 @@ USE_TZ = True
 # === USUARIO ===
 AUTH_USER_MODEL = 'users.User'
 
-# === ALLAUTH ===
-SITE_ID = 1
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+]
 
 # === EMAIL ===
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -145,15 +167,18 @@ CLOUDINARY_STORAGE = {
 }
 
 # === MERCADOPAGO ===
-MP_CLIENT_ID = os.environ.get("MP_CLIENT_ID", "6884953027292838")
-MP_CLIENT_SECRET = 'HvyZl4cH1lMP2bb72NuYNmVuY7CPu9YU'
-MP_REDIRECT_URI = "https://teden.onrender.com/mercadopago/oauth/callback/"
-MERCADOPAGO_ACCESS_TOKEN = 'TEST-3479281247201721-061619-ed800695334c87adde3970f868bce658-488351234'
-MP_WEBHOOK_SECRET = 'ee1442d95779c9bed735c35989d06cfc9dd4666d9cb6cf8a273c81fd8b47cd40'
+SITE_URL = 'https://teden.net'
 
+# === MercadoPago (hardcoded, sin .env) ===
+MP_CLIENT_ID = "8320957227843622"
+MP_CLIENT_SECRET = "l6P0hpO4NiYeGuYCkIsIDtdjZLcj9P2M"
+MP_REDIRECT_URI = "https://teden.net/mercadopago/oauth/callback/"
+MERCADOPAGO_ACCESS_TOKEN = "APP_USR-8320957227843622-082000-1589461840084336941202c0751a323a-1063624697"
+MERCADOPAGO_PUBLIC_KEY = "APP_USR-6e30d21e-2695-414e-b68f-a891bfb5425c"
+TEDEN_COLLECTOR_ID = 1063624697
+MERCADOPAGO_CURRENCY_ID = 'USD'
+APP_MARKETPLACE_ENABLED = True  # Cambia a False si no tienes Marketplace habilitado
 
-# === STRIPE ===
-STRIPE_SECRET_KEY = 'tu_secret_key'
 
 # === PK POR DEFECTO ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

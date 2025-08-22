@@ -1,0 +1,77 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+<main>
+  <div class="container mt-5">
+    <h2 class="mb-4">Mi cuenta</h2>
+    <div class="card shadow rounded p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <!-- 🔹 Datos generales -->
+  {% block content %}
+            <h5 class="text-primary mb-3">🔹 Datos generales</h5>
+          </div>
+          {% for field in form.visible_fields %}
+            {% if field.name in "username,email,bio,profile_picture" %}
+              <div class="col-md-6">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <div class="form-text text-danger">{{ field.errors.0 }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </form>
+      {% if es_vendedor and seller_profile %}
+        <h3>Integración con MercadoPago</h3>
+        {% if store.mercadopago_connected %}
+          <div class="alert alert-success">
+            ✅ Cuenta conectada (ID: {{ store.mercadopago_user_id }})
+          </div>
+        {% else %}
+          <div class="alert alert-warning">
+            ⚠️ No tenés una cuenta de MercadoPago conectada.
+          </div>
+          <a href="{% url 'mp_conectar' %}" class="btn btn-primary">Conectar con MercadoPago</a>
+        {% endif %}
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">🧾 Tu plan actual</h5>
+            <p>Estás en el plan 
+              <strong>TEDEN {{ seller_profile.plan.name|title }}</strong> 
+              (comisión: {{ seller_profile.plan.commission_percent }}%)
+            </p>
+            <div class="form-group">
+              <label for="planSelector">Cambiar plan:</label>
+              <select id="planSelector" class="form-control" required>
+                <option value="">Seleccioná un plan</option>
+                {% for plan in planes %}
+                  <option value="{{ plan.name }}" {% if plan.name == seller_profile.plan.name %}disabled{% endif %}>
+                    {{ plan.name|title }} ({{ plan.commission_percent }}% comisión)
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="button" onclick="redirigirACambioDePlan(event)" class="btn btn-primary mt-2">
+              Actualizar plan
+            </button>
+            <script>
+              function redirigirACambioDePlan(event) {
+                if (planName && planName !== actualPlan) {
+                  window.location.href = `/planes/confirmar-cambio/${planName}/`;
+                } else {
+                  alert("Seleccioná un plan diferente para continuar.");
+                }
+              }
+            </script>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}

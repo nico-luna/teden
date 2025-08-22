@@ -14,7 +14,6 @@ urlpatterns = [
     # 🧾 Métodos de pago para el carrito completo
     path('checkout/mercadopago/pagar-producto/<int:product_id>/', views.pagar_producto_individual, name='pagar_producto_individual'),
     path('checkout/mercadopago/', views.pagar_con_mercadopago_checkout, name='pagar_con_mercadopago_checkout'),
-    path('checkout/stripe/', views.stripe_checkout_checkout, name='pagar_con_stripe_checkout'),
 
 
     # 🎯 Resultados pagos
@@ -25,9 +24,6 @@ urlpatterns = [
     path('checkout/mercadopago/webhook/', views.checkout_webhook, name='checkout_webhook'),
     path('checkout/mercadopago/return/', views.checkout_return, name='checkout_return'),
     path('checkout/mercadopago/cancel/', views.checkout_cancel, name='checkout_cancel'),
-
-# 🧾 Checkout individual por producto (opcional)
-    path('checkout/mercadopago/pagar-producto/<int:product_id>/', views.pagar_producto_individual, name='pagar_producto_individual'),
 
     # Pago en efectivo
     path('checkout/efectivo/', views.pagar_en_efectivo, name='pagar_en_efectivo'),

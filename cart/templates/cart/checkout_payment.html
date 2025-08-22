@@ -32,11 +32,11 @@
       <div class="card shadow-sm mb-4">
         <div class="card-body text-center">
           <h5 class="card-title mb-4">💰 Total a pagar: <span class="text-success">${{ cart.total_price }}</span></h5>
-          <a href="{% url 'pagar_con_mercadopago_checkout' %}" class="btn btn-outline-success w-100 mt-2">Pagar con MercadoPago</a>
-          <a href="{% url 'pagar_con_stripe_checkout' %}" class="btn btn-outline-primary w-100 mt-2">Pagar con Stripe</a>
-          <a href="{% url 'pagar_en_efectivo' %}" class="btn btn-outline-dark w-100 mt-2">
-  🧾 Pago en efectivo (prueba)
-</a>
+          {% if mercado_pago_checkout_url %}
+            <a href="{{ mercado_pago_checkout_url }}" class="btn btn-outline-success w-100 mt-2">Pagar</a>
+          {% else %}
+            <button type="button" class="btn btn-outline-secondary w-100 mt-2" disabled>No disponible: el vendedor no tiene MercadoPago vinculado</button>
+          {% endif %}
         </div>
       </div>
     </div>

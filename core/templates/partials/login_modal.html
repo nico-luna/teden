@@ -2,6 +2,7 @@
  
 
 
+
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -22,24 +23,17 @@
           </div>
           <button type="submit" class="btn btn-primary w-100">Ingresar</button>
         </form>
-      </div>
-      <p class="mt-2">
-      <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
-      </p>
-      <p class="mt-2">
-        ¿No tenés cuenta? <a href="{% url 'register' %}">Registrate aquí</a>
-      </p>
-    </div>
         {% if field.errors %}
-      <div class="form-text text-danger">
-        {{ field.errors.0 }}
+          <div class="form-text text-danger">{{ field.errors.0 }}</div>
+        {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            Usuario o contraseña incorrectos. ¿Querés <a href="{% url 'password_reset' %}">restablecer tu contraseña</a>?
+          </div>
+        {% endif %}
+        <p class="mt-2"><a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a></p>
+        <p class="mt-2">¿No tenés cuenta? <a href="{% url 'register' %}">Registrate aquí</a></p>
       </div>
-      {% endif %}
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        Usuario o contraseña incorrectos. ¿Querés <a href="{% url 'password_reset' %}">restablecer tu contraseña</a>?
-      </div>
-    {% endif %}
+    </div>
   </div>
-
 </div>

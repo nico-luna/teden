@@ -1,6 +1,7 @@
 # views.py (fragmento central mejorado para personalización total)
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -29,9 +30,19 @@ def crear_tienda(request):
     if request.method == 'POST':
         form = StoreCreateForm(request.POST)
         if form.is_valid():
+            # Limitar tiendas por plan
+            user = request.user
+            seller_profile = getattr(user, 'sellerprofile', None)
+            if seller_profile and seller_profile.plan:
+                max_stores = seller_profile.plan.max_stores
+                current_stores = Store.objects.filter(owner=user).count()
+                if max_stores is not None and current_stores >= max_stores:
+                    from django.contrib import messages
+                    messages.error(request, f"Has alcanzado el límite de tiendas permitidas por tu plan ({max_stores}).")
+                    return render(request, 'store/crear_tienda.html', {'form': form})
             nombre_tienda = form.cleaned_data['name']
             slug_unico = generar_slug_unico(nombre_tienda)
-            store = Store.objects.create(owner=request.user, name=nombre_tienda, slug=slug_unico)
+            store = Store.objects.create(owner=user, name=nombre_tienda, slug=slug_unico)
             for i, block in enumerate(load_default_blocks()):
                 StoreBlock.objects.create(
                     store=store,
@@ -48,10 +59,16 @@ def crear_tienda(request):
 @login_required
 def edit_store(request):
     store = request.user.store_profile
-    form = StoreEditForm(request.POST or None, instance=store)
-    if form.is_valid():
-        form.save()
-        return redirect('store:edit_store')
+    if request.method == 'POST':
+        form = StoreEditForm(request.POST, request.FILES, instance=store)
+        # Actualizar el estado de la tienda según el checkbox
+        is_active = request.POST.get('is_active') == 'true' or request.POST.get('is_active') == 'on'
+        form.instance.is_active = is_active
+        if form.is_valid():
+            form.save()
+            return redirect('store:edit_store')
+    else:
+        form = StoreEditForm(instance=store)
 
     public_url = request.build_absolute_uri(reverse('store:public_store', args=[store.slug]))
     blocks = store.blocks.order_by('order')
@@ -94,7 +111,8 @@ def add_block(request):
     store = request.user.store_profile
     order = store.blocks.count()
     block = StoreBlock.objects.create(store=store, block_type=block_type, content={}, order=order)
-    return JsonResponse({'status': 'ok', 'block_id': block.id})
+    messages.success(request, 'Bloque agregado correctamente.')
+    return redirect('store:edit_store')
 
 # Duplicar bloque
 @login_required
@@ -107,15 +125,19 @@ def duplicate_block(request, block_id):
         content=original.content,
         order=original.order + 1
     )
-    return JsonResponse({'status': 'ok'})
+    return redirect('store:edit_store')
 
 # Eliminar bloque
 @login_required
 @require_POST
 def delete_block(request, block_id):
-    block = get_object_or_404(StoreBlock, id=block_id, store__owner=request.user)
-    block.delete()
-    return JsonResponse({'status': 'ok'})
+    try:
+        block = StoreBlock.objects.get(id=block_id, store__owner=request.user)
+        block.delete()
+        return redirect('store:edit_store')
+    except StoreBlock.DoesNotExist:
+        messages.error(request, 'El bloque no existe o no tienes permisos para eliminarlo.')
+        return redirect('store:edit_store')
 
 # Cambiar orden de bloques
 @login_required
@@ -183,12 +205,20 @@ def edit_block(request, block_id):
         form = FormClass(request.POST, request.FILES)
         if form.is_valid():
             content = form.cleaned_data
+            # Guardar imagen de fondo para Hero
             if 'background_image' in request.FILES:
-                from django.core.files.storage import default_storage
                 from django.core.files.base import ContentFile
                 image = request.FILES['background_image']
                 filename = default_storage.save(f'store_blocks/{image.name}', ContentFile(image.read()))
-                content['background_image'] = default_storage.url(filename)
+                url = default_storage.url(filename)
+                print('URL de imagen hero:', url)
+                content['background_image'] = url
+            # Guardar imagen para About
+            if 'image' in request.FILES:
+                from django.core.files.base import ContentFile
+                image = request.FILES['image']
+                filename = default_storage.save(f'store_blocks/{image.name}', ContentFile(image.read()))
+                content['image'] = default_storage.url(filename)
             block.content = content
             block.save()
             return redirect('store:edit_store')

@@ -15,7 +15,7 @@
       <div class="card shadow-sm h-100 border {% if request.user.sellerprofile and request.user.sellerprofile.plan.name == plan.name %}border-success{% else %}border-secondary{% endif %}">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title text-center">{{ plan.get_name_display }}</h5>
-          <h6 class="text-muted text-center mb-3">Comisión: {{ plan.commission_percent }}%</h6>
+          <h6 class="text-muted text-center mb-3">Comisión por venta: {{ plan.commission_percent }}%</h6>
           <p>{{ plan.description|linebreaks }}</p>
 
           <ul class="list-group list-group-flush my-3">
@@ -28,6 +28,16 @@
             {% else %}
               <li class="list-group-item">🆓 Gratis</li>
             {% endif %}
+            <li class="list-group-item">
+              <span class="fw-bold">Ejemplo de comisión:</span>
+              {% if plan.commission_percent == 20 %}
+                <span class="text-muted">Si vendés a $10, TEDEN recibe $2</span>
+              {% elif plan.commission_percent == 13 %}
+                <span class="text-muted">Si vendés a $10, TEDEN recibe $1.30</span>
+              {% elif plan.commission_percent == 7 %}
+                <span class="text-muted">Si vendés a $10, TEDEN recibe $0.70</span>
+              {% endif %}
+            </li>
           </ul>
 
           <form method="POST" class="mt-auto">

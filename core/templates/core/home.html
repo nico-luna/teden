@@ -42,16 +42,16 @@
 </div>
 
 <!-- Sección de beneficios -->
+
 <section class="container py-5">
-  <h2 class="text-center mb-4">¿Por qué elegir TEDEN?</h2>
-  <div class="row text-center g-4">
-    {% for i in "1234" %}
-      <div class="col-6 col-md-3">
-        <div class="p-3 border rounded shadow-sm h-100 hover-zoom transition">
-          {% load static %}
-          <img src="{% static 'icons/facebook.png' %}" alt="Beneficio {{ forloop.counter }}" class="mb-3" width="50">
-          <h6 class="fw-semibold">Beneficio {{ forloop.counter }}</h6>
-          <p class="small text-muted">Texto breve que explica este beneficio con claridad.</p>
+  <h2 class="text-center mb-5 fw-bold" style="font-size:2.2rem; letter-spacing:-1px;">¿Por qué elegir TEDEN?</h2>
+  <div class="row justify-content-center g-4">
+    {% for img, titulo, texto in beneficios %}
+      <div class="col-12 col-sm-6 col-md-3">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100 d-flex flex-column align-items-center gap-3 border-0" style="min-height:260px;">
+          <img src="{% static 'beneficios/' %}{{ img }}" alt="{{ titulo }}" style="height:64px; margin-bottom:12px;">
+          <h6 class="fw-semibold mb-2" style="font-size:1.1rem;">{{ titulo }}</h6>
+          <p class="text-muted text-center" style="font-size:0.98rem;">{{ texto }}</p>
         </div>
       </div>
     {% endfor %}
@@ -61,64 +61,50 @@
 
 
 <!-- Sección de planes -->
+
 <section class="container py-5">
-  <h2 class="text-center mb-4">Elegí el plan ideal para vos</h2>
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-
-    <!-- Starter -->
-    <div class="col">
-      <div class="card h-100 shadow-sm border-start border-4 border-primary">
-        <div class="card-body">
-          <h5 class="card-title">TEDEN Starter <span class="badge bg-secondary">Gratis</span></h5>
-          <p class="text-muted">Ideal para quienes están comenzando en el mundo digital.</p>
-          <ul class="list-unstyled">
-            <li>✅ Hasta 3 productos digitales</li>
-            <li>✅ 1 servicio o trabajo publicado</li>
-            <li>✅ Tienda digital solo personal</li>
-            <li>✅ Mensajería entre usuarios</li>
-            <li>💸 Comisión: 20%</li>
-          </ul>
-        </div>
+  <h2 class="text-center mb-5 fw-bold" style="font-size:2.2rem; letter-spacing:-1px;">Elegí el plan ideal para vos</h2>
+  <div class="row justify-content-center g-4">
+    <div class="col-12 col-md-4">
+      <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-0 d-flex flex-column gap-2">
+        <h5 class="fw-bold mb-2">TEDEN Starter <span class="badge bg-light text-dark ms-2">Gratis</span></h5>
+        <p class="text-muted mb-3">Ideal para quienes están comenzando en el mundo digital.</p>
+        <ul class="list-unstyled mb-0" style="font-size:1rem;">
+          <li>📦 Hasta 3 productos digitales</li>
+      <li>🛠️ 1 servicio o trabajo publicado</li>
+      <li>🛍️ Tienda digital solo personal</li>
+      <li>💸 Comisión: 20%</li>
+        </ul>
       </div>
     </div>
-
-    <!-- Plus -->
-    <div class="col">
-      <div class="card h-100 shadow border-start border-4 border-success">
-        <div class="card-body">
-          <h5 class="card-title">TEDEN Plus <span class="badge bg-success">USD 9,99 / mes</span></h5>
-          <p class="text-muted">Más herramientas para creadores en expansión.</p>
-          <ul class="list-unstyled">
-            <li>✅ Hasta 20 productos/archivos/licencias</li>
-            <li>✅ Servicios y trabajos ilimitados</li>
-            <li>✅ Hasta 3 tiendas digitales activas</li>
-            <li>🚀 1 producto promocionado</li>
-            <li>💸 Comisión: 13%</li>
-            <li>🔰 Creador verificado</li>
-          </ul>
-        </div>
+    <div class="col-12 col-md-4">
+      <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-0 d-flex flex-column gap-2">
+        <h5 class="fw-bold mb-2">TEDEN Plus <span class="badge bg-success ms-2">USD 9,99 / mes</span></h5>
+        <p class="text-muted mb-3">Más herramientas para creadores en expansión.</p>
+        <ul class="list-unstyled mb-0" style="font-size:1rem;">
+          <li>📦 Hasta 20 productos/archivos/licencias</li>
+      <li>🛠️ Servicios y trabajos ilimitados</li>
+      <li>🛍️ Hasta 3 tiendas digitales activas</li>
+      <li>🚀 1 producto promocionado</li>
+      <li>💸 Comisión: 13%</li>
+      <li>✅ Creador verificado</li>
+        </ul>
       </div>
     </div>
-
-    <!-- Pro -->
-    <div class="col">
-      <div class="card h-100 shadow-lg border-start border-4 border-warning">
-        <div class="card-body">
-          <h5 class="card-title">TEDEN Pro <span class="badge bg-warning text-dark">USD 20 / mes</span></h5>
-          <p class="text-muted">Para profesionales, agencias y vendedores de alto volumen.</p>
-          <ul class="list-unstyled">
-            <li>✅ Publicaciones ilimitadas</li>
-            <li>✅ Tiendas ilimitadas por nicho</li>
-            <li>✅ Hasta 3 productos promocionados</li>
-            <li>❌ Sin anuncios internos</li>
-            <li>⚡ Soporte prioritario</li>
-            <li>💸 Comisión: 7%</li>
-            <li>🔰 Creador verificado</li>
-          </ul>
-        </div>
+    <div class="col-12 col-md-4">
+      <div class="bg-white rounded-4 shadow-sm p-4 h-100 border-0 d-flex flex-column gap-2">
+        <h5 class="fw-bold mb-2">TEDEN Pro <span class="badge bg-warning text-dark ms-2">USD 19,99 / mes</span></h5>
+        <p class="text-muted mb-3">Para profesionales, agencias y vendedores de alto volumen.</p>
+        <ul class="list-unstyled mb-0" style="font-size:1rem;">
+          <li>♾️ Publicaciones ilimitadas</li>
+          <li>🏬 Tiendas ilimitadas por nicho</li>
+          <li>🚀 Hasta 3 productos promocionados</li>
+          <li>⚡ Soporte prioritario</li>
+          <li>💸 Comisión: 7%</li>
+          <li>✅ Creador verificado</li>
+        </ul>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -127,25 +113,30 @@
 
 
 <!-- Catálogo de productos -->
+
 <section class="container py-5">
-  <h2 class="mb-4">Catálogo de Productos</h2>
+  <h2 class="mb-5 fw-bold text-center" style="font-size:2.2rem; letter-spacing:-1px;">Catálogo de Productos</h2>
   <div class="row g-4">
     {% for producto in productos %}
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card h-100 shadow-sm">
+        <div class="bg-white rounded-4 shadow-sm h-100 d-flex flex-column border-0 p-0 card-hover" data-product-id="{{ producto.id }}">
           {% if producto.image %}
-            <img src="{{ producto.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;" alt="{{ producto.name }}">
+            <a href="{% url 'product_detail' producto.id %}" tabindex="-1">
+              <img src="{{ producto.image.url }}" class="rounded-top-4" style="height:180px; object-fit:cover; width:100%; background:#f5f6fa;" alt="{{ producto.name }}">
+            </a>
           {% else %}
-            <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px;">Sin imagen</div>
+            <a href="{% url 'product_detail' producto.id %}" tabindex="-1">
+              <div class="bg-light rounded-top-4 d-flex align-items-center justify-content-center" style="height:180px; width:100%;">Sin imagen</div>
+            </a>
           {% endif %}
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ producto.name }}</h5>
-            <p class="card-text text-truncate" style="max-height:3.5em;">{{ producto.description }}</p>
-            <div class="mt-auto">
-              <p class="h5 text-success mb-3">${{ producto.price }}</p>
-              <button class="btn btn-outline-primary mt-2 w-100" data-bs-toggle="modal" data-bs-target="#productDetailModal" data-product-id="{{ producto.id }}">
+          <div class="p-4 d-flex flex-column flex-grow-1">
+            <h5 class="fw-semibold mb-2" style="font-size:1.1rem;">{{ producto.name }}</h5>
+            <p class="text-muted mb-3" style="font-size:0.98rem; min-height:2.5em;">{{ producto.description }}</p>
+            <div class="mt-auto d-flex flex-column gap-2">
+              <span class="fw-bold text-success" style="font-size:1.1rem;">${{ producto.price }}</span>
+              <a href="{% url 'product_detail' producto.id %}" class="btn btn-outline-dark w-100">
                 Ver más
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -172,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = event.relatedTarget;
     const productId = button.getAttribute('data-product-id');
 
-    fetch(`/products/detalle/${productId}/`)
+  fetch(`/products/detalle-json/${productId}/`)
       .then(response => response.json())
       .then(data => {
         console.log('🔎 Data recibida del producto:', data);
@@ -207,6 +198,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       })
       .catch(error => console.error('❌ Error cargando el producto:', error));
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.card-hover').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      // Evitar que el click en el botón o imagen seleccione la card
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'IMG' || e.target.tagName === 'A') return;
+      document.querySelectorAll('.card-hover.selected').forEach(function(c) { c.classList.remove('selected'); });
+      card.classList.add('selected');
+    });
   });
 });
 </script>

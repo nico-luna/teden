@@ -13,19 +13,19 @@
           </div>
           <div class="col-md-6">
             <p id="modalProductDescription">Cargando descripción...</p>
+            <p id="modalProductFileSize" class="text-muted"></p>
             <p class="h4 text-success">$<span id="modalProductPrice">0.00</span></p>
             <p id="modalProductRating">⭐ Sin valoraciones</p>
 
             <!-- Botones de pago -->
             <div class="d-grid gap-2 mt-4">
-              <a id="btnMercadoPago" href="#" class="btn btn-success">Pagar con MercadoPago</a>
-              <a id="btnStripe" href="#" class="btn btn-primary">Pagar con Stripe</a>
-              <form method="POST" action="{% url 'add_to_cart' %}">
+              <a id="btnMercadoPago" href="#" class="btn btn-success">Pagar </a>
+              <form id="addToCartForm" method="POST" action="{% url 'add_to_cart' %}">
                 {% csrf_token %}
                 <input type="hidden" name="product_id" id="modalProductId">
                 <button type="submit" class="btn btn-success w-100">Agregar al carrito</button>
-                </form>
-
+              </form>
+              <div id="addToCartSuccess" class="alert alert-success mt-2 d-none">¡Producto agregado al carrito!</div>
             </div>
           </div>
         </div>
@@ -44,22 +44,37 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById('productDetailModal');
+  const addToCartForm = document.getElementById('addToCartForm');
+  const addToCartSuccess = document.getElementById('addToCartSuccess');
+
+  addToCartForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(addToCartForm);
+    fetch(addToCartForm.action, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        addToCartSuccess.classList.remove('d-none');
+        setTimeout(() => { addToCartSuccess.classList.add('d-none'); }, 2000);
+        if (window.updateCartCount) window.updateCartCount();
+      }
+    });
+  });
 
   modal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
     const productId = button.getAttribute('data-product-id');
-
-    // ✅ Setea ID en el input oculto para el formulario
     document.getElementById('modalProductId').value = productId;
-
-    // ✅ Actualiza los links de Stripe y MercadoPago
     document.getElementById('btnMercadoPago').href = `/cart/checkout/mercadopago/pagar-producto/${productId}/`;
-    document.getElementById('btnStripe').href = `/cart/checkout/stripe/${productId}/`;
-
-    // ✅ DEBUG VISUAL
+    // DEBUG VISUAL
     console.log("🛒 Abriendo modal de producto:", productId);
-
-    // (Opcional) Podés seguir agregando aquí tu lógica de fetch para cargar los datos del producto
+    addToCartSuccess.classList.add('d-none');
   });
 });
 </script>

@@ -1,0 +1,45 @@
+{% load static %}
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">💸 Elegí cómo querés pagar</h2>
+
+  <div class="row">
+    <!-- 🧾 Detalles de facturación -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">🧍‍♂️ Tus datos de facturación</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Nombre:</strong> {{ billing.full_name }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ billing.email }}</li>
+            <li class="list-group-item"><strong>DNI:</strong> {{ billing.dni }}</li>
+            <li class="list-group-item"><strong>Dirección:</strong> {{ billing.address }}</li>
+            <li class="list-group-item"><strong>Provincia:</strong> {{ billing.province }}</li>
+            <li class="list-group-item"><strong>País:</strong> {{ billing.country }}</li>
+            <li class="list-group-item"><strong>Teléfono:</strong> {{ billing.phone }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 💳 Opciones de pago -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-4">💰 Total a pagar: <span class="text-success">${{ cart.total_price }}</span></h5>
+          <a href="{% url 'pagar_con_mercadopago_checkout' %}" class="btn btn-outline-success w-100 mt-2">Pagar con MercadoPago</a>
+          <a href="{% url 'pagar_con_stripe_checkout' %}" class="btn btn-outline-primary w-100 mt-2">Pagar con Stripe</a>
+          <a href="{% url 'pagar_en_efectivo' %}" class="btn btn-outline-dark w-100 mt-2">
+  🧾 Pago en efectivo (prueba)
+</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

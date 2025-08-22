@@ -1,62 +1,142 @@
 {% extends 'users/base.html' %}
 {% block content %}
-<div class="container py-4">
-  <h2 class="mb-4">🎨 Personalizá tu tienda</h2>
+<div class="container py-5">
+  <h2 class="mb-4 text-center">🎨 <span class="text-primary">Personalizá tu tienda</span></h2>
 
   {% if request.user.store_profile %}
-    <div class="mb-4">
+    <div class="mb-4 text-center">
       <a href="{% url 'store:public_store' request.user.store_profile.slug %}" target="_blank" class="btn btn-outline-primary">
         🌐 Ver tienda pública
       </a>
     </div>
   {% endif %}
 
-  <!-- Botón para agregar bloques -->
-  <form method="post" action="{% url 'store:add_block' %}" class="mb-4">
-    {% csrf_token %}
-    <div class="input-group">
-      <select name="block_type" class="form-select" required>
-        <option value="" disabled selected>Elegí un tipo de bloque</option>
-        <option value="hero">Hero</option>
-        <option value="products">Productos</option>
-        <option value="about">Sobre Nosotros</option>
-        <option value="testimonial">Testimonios</option>
-        <option value="contact">Contacto</option>
-      </select>
-      <button class="btn btn-success" type="submit">➕ Agregar bloque</button>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <form method="post" enctype="multipart/form-data" class="card shadow p-4 bg-light border-0 mb-4">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Estado de la tienda:</label><br>
+          <div class="form-check form-switch d-inline-block">
+            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="true" {% if store.is_active %}checked{% endif %}>
+            <label class="form-check-label" for="is_active">{% if store.is_active %}Activa{% else %}Inactiva{% endif %}</label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Slug público:</label>
+          <input type="text" class="form-control" name="slug" value="{{ store.slug }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nombre de la tienda:</label>
+          <input type="text" class="form-control" name="name" value="{{ store.name }}" required>
+        </div>
+        {% if store.logo %}
+          <div class="mb-3 text-center">
+            <label class="form-label">Logo actual:</label><br>
+            <img src="{{ store.logo.url }}" alt="Logo" class="img-fluid rounded shadow" style="max-width: 120px;" loading="lazy">
+          </div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label">Logo nuevo:</label>
+          <input type="file" class="form-control" name="logo" accept="image/*">
+        </div>
+          {% if store.banner %}
+            <div class="mb-3 text-center">
+              <label class="form-label">Banner actual:</label><br>
+              <img src="{{ store.banner.url }}" alt="Banner" class="img-fluid rounded shadow" style="max-width: 320px; max-height: 120px; object-fit:cover;" loading="lazy">
+            </div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="form-label">Banner nuevo:</label>
+            <input type="file" class="form-control" name="banner" accept="image/*">
+          </div>
+        <div class="mb-3">
+          <label class="form-label">Descripción breve:</label>
+          <textarea class="form-control" name="description" rows="2" maxlength="200" placeholder="Breve descripción de la tienda">{{ store.description }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Correo de contacto:</label>
+          <input type="email" class="form-control" name="contact_email" value="{{ store.contact_email }}" placeholder="ejemplo@email.com">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Teléfono de contacto:</label>
+          <input type="text" class="form-control" name="contact_phone" value="{{ store.contact_phone }}" placeholder="Ej: +54 9 11 1234-5678">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+      </form>
     </div>
-  </form>
-
-<!-- Lista de bloques arrastrables -->
-<ul id="sortable-blocks" class="list-group">
-  {% for block in request.user.store_profile.blocks.all %}
-    <li class="list-group-item d-flex justify-content-between align-items-center" data-block-id="{{ block.id }}">
-      🧩 <strong>{{ block.get_block_type_display|default:block.block_type }}</strong>
-      <div class="d-flex gap-2">
-        <a href="{% url 'store:edit_block' block.id %}" class="btn btn-sm btn-primary">✏️ Editar</a>
-
-        <!-- Formulario para eliminar con POST -->
-        <form action="{% url 'store:delete_block' block.id %}" method="post" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-danger">🗑️ Eliminar</button>
-        </form>
-      </div>
-    </li>
-  {% empty %}
-    <li class="list-group-item">No hay bloques todavía. ¡Agregá uno! 👇</li>
-  {% endfor %}
-</ul>
-
-  <!-- Botón para guardar cambios de orden -->
-  <div class="mt-3">
-    <button id="save-order-btn" class="btn btn-primary" disabled>💾 Guardar cambios</button>
+    <div class="col-md-6">
+      <form method="post" action="{% url 'store:add_block' %}" class="mb-4">
+        {% csrf_token %}
+        <div class="input-group">
+          <select name="block_type" class="form-select" required>
+            <option value="" disabled selected>Elegí un tipo de bloque</option>
+            <option value="hero">Hero</option>
+            <option value="products">Productos</option>
+            <option value="about">Sobre Nosotros</option>
+            <option value="testimonial">Testimonios</option>
+            <option value="contact">Contacto</option>
+          </select>
+          <button class="btn btn-success" type="submit">➕ Agregar bloque</button>
+        </div>
+      </form>
+      <ul id="sortable-blocks" class="list-group mb-3">
+        {% for block in request.user.store_profile.blocks.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center" data-block-id="{{ block.id }}">
+            <span>🧩 <strong>{{ block.get_block_type_display|default:block.block_type }}</strong></span>
+            <div class="d-flex gap-2">
+              <a href="{% url 'store:edit_block' block.id %}" class="btn btn-sm btn-primary">✏️ Editar</a>
+              <form action="{% url 'store:delete_block' block.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+              </form>
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-center">No hay bloques todavía. ¡Agregá uno! 👇</li>
+        {% endfor %}
+      </ul>
+      <button id="save-order-btn" class="btn btn-primary w-100" disabled>💾 Guardar cambios de orden</button>
+    </div>
   </div>
 </div>
 
 <!-- Sortable.js -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-  console.log("Enviando orden a:", "{% url 'store:update_block_order' %}");
+  // Debug para orden de bloques
+  const sortable = new Sortable(document.getElementById('sortable-blocks'), {
+    animation: 150,
+    onEnd: function () {
+      currentOrder = [...document.querySelectorAll('#sortable-blocks li')].map(el => el.dataset.blockId);
+      document.getElementById('save-order-btn').disabled = false;
+      console.log('Nuevo orden:', currentOrder);
+    }
+  });
+
+  // Debug para guardar orden
+  document.getElementById('save-order-btn').addEventListener('click', function () {
+    if (currentOrder.length === 0) return;
+    console.log('Enviando orden al backend:', currentOrder);
+    fetch("{% url 'store:update_block_order' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie('csrftoken'),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ order: currentOrder })
+    }).then(res => {
+      console.log('Respuesta del backend:', res);
+      if (res.ok) {
+        alert("✅ El orden fue actualizado correctamente.");
+        this.disabled = true;
+      } else {
+        alert("❌ Error al guardar el orden.");
+      }
+    });
+  });
+
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -74,31 +154,62 @@
 
   let currentOrder = [];
 
-  const sortable = new Sortable(document.getElementById('sortable-blocks'), {
-    animation: 150,
-    onEnd: function () {
-      currentOrder = [...document.querySelectorAll('#sortable-blocks li')].map(el => el.dataset.blockId);
-      document.getElementById('save-order-btn').disabled = false;
-    }
-  });
+  // Toast messages
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} border-0 show fade`;
+    toast.style.minWidth = '220px';
+    toast.innerHTML = `<div class='d-flex'><div class='toast-body'>${message}</div><button type='button' class='btn-close btn-close-white me-2 m-auto' data-bs-dismiss='toast'></button></div>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 2500);
+  }
 
-  document.getElementById('save-order-btn').addEventListener('click', function () {
-    if (currentOrder.length === 0) return;
-
-    fetch("{% url 'store:update_block_order' %}", {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": getCookie('csrftoken'),
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ order: currentOrder })
-    }).then(res => {
-      if (res.ok) {
-        alert("✅ El orden fue actualizado correctamente.");
-        this.disabled = true;
-      } else {
-        alert("❌ Error al guardar el orden.");
-      }
+  // Recargar la página tras agregar un bloque
+  const addBlockForm = document.querySelector('form[action$="add_block"]');
+  if (addBlockForm) {
+    addBlockForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(addBlockForm);
+      fetch(addBlockForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          showToast('✅ Bloque agregado correctamente', 'success');
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          showToast('❌ Error al agregar el bloque', 'danger');
+        }
+      });
+    });
+  }
+  // Eliminar bloque con mensaje flotante
+  const deleteBlockForms = document.querySelectorAll('form[action*="delete_block"]');
+  deleteBlockForms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          showToast('🗑️ Bloque eliminado correctamente', 'success');
+          setTimeout(() => location.reload(), 1200);
+        } else if (data.status === 'error') {
+          showToast(data.message || '❌ Error al eliminar el bloque', 'danger');
+        }
+      })
+      .catch(() => {
+        showToast('❌ Error al eliminar el bloque', 'danger');
+      });
     });
   });
 </script>

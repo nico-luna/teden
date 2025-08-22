@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, time
 from .models import Appointment
 
-def generar_horas_disponibles(bloque_minutos=30):
+def generar_horas_disponibles(bloque_minutos=60):
     """
     Genera bloques horarios según la duración de turnos.
     Ejemplo: si bloque_minutos=20 => ['08:00', '08:20', '08:40', ...]

@@ -22,6 +22,14 @@ class Store(models.Model):
     contact_email = models.EmailField(blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
+    mercadopago_connected = models.BooleanField(default=False)
+    mercadopago_access_token = models.CharField(max_length=255, blank=True, null=True)
+    mercadopago_refresh_token = models.CharField(max_length=255, blank=True, null=True)
+    mercadopago_public_key = models.CharField(max_length=255, blank=True, null=True)
+    mercadopago_user_id = models.CharField(max_length=255, blank=True, null=True)
+    mercadopago_country = models.CharField(max_length=10, blank=True, null=True)
+    mercadopago_expires_in = models.IntegerField(blank=True, null=True)
+    mercadopago_last_sync = models.DateTimeField(blank=True, null=True)
     def __str__(self):
         return self.name 
     def get_absolute_url(self):
@@ -58,7 +66,6 @@ class StoreBlock(models.Model):
 
 
 from django.utils.text import slugify
-from .models import Store
 from django.db.models import Count
 
 def generar_slug_unico(nombre_base):

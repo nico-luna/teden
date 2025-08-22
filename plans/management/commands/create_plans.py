@@ -29,7 +29,7 @@ class Command(BaseCommand):
             {
                 'name': 'pro',
                 'description': 'Pensado para profesionales o agencias.',
-                'monthly_price': 20.00,
+                'monthly_price': 19.99,
                 'max_products': None,
                 'max_services': None,
                 'max_stores': None,
@@ -39,6 +39,10 @@ class Command(BaseCommand):
         ]
 
         for plan in plans:
-            SellerPlan.objects.update_or_create(name=plan['name'], defaults=plan)
+            obj, created = SellerPlan.objects.get_or_create(name=plan['name'], defaults=plan)
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"✔ Plan '{plan['name']}' creado."))
+            else:
+                self.stdout.write(self.style.WARNING(f"⚠ Plan '{plan['name']}' ya existe. No se actualizó."))
 
         self.stdout.write(self.style.SUCCESS("✔ Planes TEDEN creados correctamente"))

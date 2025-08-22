@@ -1,12 +1,37 @@
 {% extends 'users/base.html' %}
 {% load widget_tweaks %}
-{{ form.title|add_class:"form-control" }}
 {% load static %}
 {% block content %}
 <div class="container mt-5">
   <div class="card shadow-lg">
     <div class="card-body">
       <h3 class="card-title mb-4">🛠️ Crear nuevo servicio</h3>
+      {% if messages %}
+        {% for message in messages %}
+          {% if 'límite' in message %}
+            <!-- Modal de límite de servicios -->
+            <div class="modal fade show" id="modalLimiteServicios" tabindex="-1" aria-modal="true" style="display:block; background:rgba(0,0,0,0.5);">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Límite de servicios alcanzado</h5>
+                    <button type="button" class="btn-close" onclick="document.getElementById('modalLimiteServicios').style.display='none';"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>{{ message }}</p>
+                    <p>Para agregar más servicios, actualizá tu plan.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <a href="/mi-cuenta/" class="btn btn-primary">Ver planes</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
       <form method="post">
         {% csrf_token %}
         <div class="mb-3">

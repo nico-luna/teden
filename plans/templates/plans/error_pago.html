@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Error al procesar el pago</h4>
+        <p>{{ mensaje_error|default:"Ocurrió un problema al intentar procesar el pago del plan. Por favor, intenta nuevamente o contacta soporte." }}</p>
+        <hr>
+        <a href="javascript:history.back()" class="btn btn-primary">Volver atrás</a>
+    </div>
+</div>
+{% endblock %}

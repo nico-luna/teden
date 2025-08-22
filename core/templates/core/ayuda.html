@@ -1,82 +1,78 @@
-{% include "partials/header.html" %}
-{% include "partials/login_modal.html" %}
-{% include "partials/register_modal.html" %}
-{% include "partials/cart_modal.html" %}
+{% extends 'users/base.html' %}
+{% block title %}Ayuda{% endblock %}
 {% block content %}
-<main>
-<div class="container mt-5">
-  <h2 class="mb-4">❓ Preguntas Frecuentes sobre TEDEN</h2>
-
-  <div class="accordion" id="faqAccordion">
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="q1">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
-          ¿Qué es TEDEN?
-        </button>
-      </h2>
-      <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          TEDEN es un marketplace donde podés vender y comprar productos digitales o reservar servicios. Es una plataforma pensada para creadores, freelancers, técnicos, profesionales y emprendedores.
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="text-center mb-5">
+        <img src="/static/img/teden-logo.png" alt="Teden Logo" style="height:60px;">
+        <h1 class="mt-3 mb-2 fw-bold">¿Necesitás ayuda?</h1>
+        <p class="lead text-muted">Encuentra respuestas rápidas, recursos útiles y soporte personalizado.</p>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h4 class="mb-3">Preguntas frecuentes</h4>
+          <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="faq1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                  ¿Cómo creo una tienda en Teden?
+                </button>
+              </h2>
+              <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Ve al panel de vendedor y haz clic en <strong>Crear mi tienda</strong>. Sigue los pasos para completar la información y publicar tu tienda.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="faq2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                  ¿Cómo publico un producto o servicio?
+                </button>
+              </h2>
+              <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Desde el dashboard, selecciona <strong>Publicar producto</strong> o <strong>Crear servicio</strong> y completa los datos requeridos.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="faq3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                  ¿Cómo contacto al soporte?
+                </button>
+              </h2>
+              <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Puedes escribirnos a <a href="mailto:tedengroup@gmail.com">tedengroup@gmail.com</a> o usar el formulario de contacto abajo.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="q2">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
-          ¿Cómo reservo un turno con un vendedor?
-        </button>
-      </h2>
-      <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Ingresá a la sección <strong>Servicios</strong>, elegí el servicio que te interese, seleccioná fecha y horario, y confirmá tu turno. Podés pagar desde la misma plataforma.
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h4 class="mb-3">¿Aún tenés dudas?</h4>
+          <form method="post" action="/contacto/">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="email" class="form-label">Tu email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="mensaje" class="form-label">Mensaje</label>
+              <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enviar consulta</button>
+          </form>
         </div>
       </div>
-    </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="q3">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
-          Soy vendedor, ¿cómo empiezo a ofrecer servicios?
-        </button>
-      </h2>
-      <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Desde tu panel de vendedor podés activar la opción <strong>“Ofrecer servicios”</strong>. Una vez activada, podés cargar tus servicios, precios, duración y disponibilidad horaria.
-        </div>
+      <div class="text-center text-muted small mt-4">
+        <i class="bi bi-info-circle"></i> Respuestas rápidas y soporte personalizado. ¡Estamos para ayudarte!
       </div>
     </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="q4">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a4">
-          ¿Qué métodos de pago acepta TEDEN?
-        </button>
-      </h2>
-      <div id="a4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Actualmente podés pagar con <strong>MercadoPago</strong> o <strong>Stripe</strong> (tarjeta de crédito/débito). El sistema elige según tu país y el tipo de producto o servicio.
-        </div>
-      </div>
-    </div>
-
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="q5">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a5">
-          ¿Cómo contacto a un vendedor?
-        </button>
-      </h2>
-      <div id="a5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Cada vendedor tiene su perfil con medios de contacto. Si el servicio es con turno, podés enviar notas al reservar. En el futuro también podrás chatear directamente desde TEDEN.
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
-</main>
 {% endblock %}
-
-{% include "partials/footer.html" %}

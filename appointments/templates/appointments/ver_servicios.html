@@ -7,31 +7,70 @@
 <main>
 <div class="container mt-5">
   <h2 class="mb-4">🧑‍🔧 Servicios disponibles</h2>
-
-  {% if services %}
-    <div class="row">
-      {% for service in services %}
-        <div class="col-md-4 mb-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">{{ service.title }}</h5>
-              <p class="card-text">{{ service.description|truncatewords:20 }}</p>
-              <p class="fw-bold">$ {{ service.price }}</p>
-              <p class="text-muted">Duración: {{ service.duration_minutes }} min</p>
-              <a href="{% url 'select_appointment' service.id %}" class="btn btn-primary w-100">
-                Reservar turno
-              </a>
+  <div class="row">
+    <aside class="col-12 col-md-3 mb-4 mb-md-0">
+      <form method="get" class="card p-3 shadow-sm sticky-top" style="top:80px;">
+        <h5 class="mb-3">Filtrar</h5>
+        <div class="mb-3">
+          <label class="form-label">Categoría</label>
+          <select name="categoria_id" class="form-select">
+            <option value="">Todas</option>
+            {% for cat in categorias %}
+              <option value="{{ cat.id }}" {% if selected.categoria_id == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Precio mínimo</label>
+          <input type="number" name="precio_min" class="form-control" value="{{ selected.precio_min }}" min="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Precio máximo</label>
+          <input type="number" name="precio_max" class="form-control" value="{{ selected.precio_max }}" min="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Estrellas mín.</label>
+          <select name="estrellas" class="form-select">
+            <option value="">Todas</option>
+            {% for i in "12345" %}
+              <option value="{{ i }}" {% if selected.estrellas == i %}selected{% endif %}>{{ i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reseñas mín.</label>
+          <input type="number" name="min_reviews" class="form-control" value="{{ selected.min_reviews }}" min="0">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+      </form>
+    </aside>
+    <section class="col-12 col-md-9">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+        {% for service in services %}
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ service.title }}</h5>
+                <p class="card-text">{{ service.description|truncatewords:20 }}</p>
+                <p class="fw-bold">$ {{ service.price }}</p>
+                <p class="text-muted">Duración: {{ service.duration_minutes }} min</p>
+                <p class="card-text mb-1">⭐ {{ service.avg_rating|default:"-" }} | {{ service.reviews.count }} reseñas</p>
+                <a href="{% url 'select_appointment' service.id %}" class="btn btn-outline-primary mt-auto">Reservar turno</a>
+              </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="alert alert-info">
-      Aún no hay usuarios que ofrezcan servicios.
-    </div>
-  {% endif %}
+        {% empty %}
+          <p>No hay servicios disponibles.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
 </div>
+<style>
+  @media (max-width: 768px) {
+    aside.sticky-top { position: static !important; }
+  }
+</style>
 </main>
 {% endblock %}
 {% include "partials/footer.html" %}

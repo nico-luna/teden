@@ -25,12 +25,44 @@
           <tr>
             <th scope="row">{{ forloop.counter }}</th>
             <td>{{ c.name }}</td>
-            <td>
+            <td class="d-flex flex-wrap gap-2">
               <a href="{% url 'delete_category' c.id %}" class="btn btn-sm btn-outline-danger">
                 🗑️ Eliminar
               </a>
+              {% with products_in_stock=c.products.all|dictsort:'stock' %}
+                {% if products_in_stock|length == 0 or not products_in_stock|dictsort:'stock'|yesno:'1,0' %}
+                  <span class="text-muted">No hay productos con stock en esta categoría.</span>
+                {% else %}
+                  {% for product in products_in_stock %}
+                    {% if product.stock > 0 %}
+                      <form action="{% url 'add_to_cart' %}" method="post" class="add-to-cart-form" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit" class="btn btn-sm btn-success">🛒 Agregar: {{ product.name }} <span class="badge bg-light text-success ms-1">{{ product.stock }}</span></button>
+                      </form>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
             </td>
           </tr>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.add-to-cart-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.innerHTML = '✔️ Agregado';
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.innerHTML = btn.innerHTML.replace('✔️ Agregado', '🛒 Agregar: ' + btn.textContent.split('Agregar: ')[1]);
+      }, 1500);
+      form.submit();
+    });
+  });
+});
+</script>
           {% endfor %}
         </tbody>
       </table>

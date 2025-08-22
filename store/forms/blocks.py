@@ -15,7 +15,7 @@ class HeroBlockForm(forms.Form):
 class AboutBlockForm(forms.Form):
     title = forms.CharField(label="Título", max_length=255)
     content = forms.CharField(label="Contenido", widget=forms.Textarea)
-    image = forms.URLField(label="URL de la imagen", required=False)
+    image = forms.ImageField(label="Imagen de la sección", required=False)
 
 
 # 3. Formulario para bloque de Productos destacados
@@ -28,7 +28,7 @@ class ProductsBlockForm(forms.Form):
 class TestimonialBlockForm(forms.Form):
     quote = forms.CharField(label="Testimonio", widget=forms.Textarea)
     author = forms.CharField(label="Autor del testimonio", max_length=100)
-    image = forms.URLField(label="Imagen del autor", required=False)
+    image = forms.ImageField(label="Imagen del autor", required=False)
 
 
 # 5. Formulario para bloque de Contacto

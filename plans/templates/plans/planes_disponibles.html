@@ -21,13 +21,20 @@
             <li>Tiendas: {{ plan.max_stores|default:"Ilimitadas" }}</li>
             <li>Promociones: {{ plan.promoted_products }}</li>
             <li>Comisión: {{ plan.commission_percent }}%</li>
+            <li>Precio mensual: ${{ plan.monthly_price }}</li>
           </ul>
           {% if perfil.plan == plan %}
             <button class="btn btn-secondary" disabled>Plan activo</button>
           {% else %}
-            <a href="{% url 'confirmar_cambio_plan' plan.name %}" class="btn btn-primary">
-              Elegir este plan
-            </a>
+            {% if plan.name == 'plus' or plan.name == 'pro' %}
+              <a href="{% url 'confirmar_cambio_plan' plan.name %}" class="btn btn-success">
+                Pagar
+              </a>
+            {% else %}
+              <a href="{% url 'confirmar_cambio_plan' plan.name %}" class="btn btn-primary">
+                Elegir este plan
+              </a>
+            {% endif %}
           {% endif %}
         </div>
       </div>

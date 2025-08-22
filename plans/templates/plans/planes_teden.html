@@ -1,0 +1,65 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">Elegí tu plan TEDEN</h2>
+  <p class="lead mb-5">Cada plan tiene beneficios y una comisión diferente sobre tus ventas. TEDEN descuenta la comisión automáticamente al vender tus productos o servicios.</p>
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-4 shadow border-success">
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title text-success text-center">Starter</h4>
+          <span class="badge bg-success mb-2 mx-auto">Gratis y por defecto</span>
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item">✅ Hasta 3 productos digitales</li>
+            <li class="list-group-item">✅ 1 servicio o trabajo publicado</li>
+            <li class="list-group-item">✅ Tienda digital solo personal</li>
+            <li class="list-group-item">💸 <strong>Comisión por venta: 20%</strong> <br><span class="text-muted">Ejemplo: vendés a $10, TEDEN recibe $2</span></li>
+          </ul>
+          <button class="btn btn-outline-success w-100" disabled>Plan por defecto</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-4 shadow border-primary">
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title text-primary text-center">TEDEN Plus</h4>
+          <span class="badge bg-primary mb-2 mx-auto">Recomendado</span>
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item">✅ Hasta 20 productos/archivos/licencias</li>
+            <li class="list-group-item">✅ Servicios y trabajos ilimitados</li>
+            <li class="list-group-item">✅ Hasta 3 tiendas digitales activas</li>
+            <li class="list-group-item">🚀 1 producto promocionado</li>
+            <li class="list-group-item">💸 <strong>Comisión por venta: 13%</strong> <br><span class="text-muted">Ejemplo: vendés a $10, TEDEN recibe $1.30</span></li>
+          </ul>
+          <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="plan_id" value="{{ plus_id }}">
+            <button type="submit" class="btn btn-success w-100 mt-auto">Elegir TEDEN Plus</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-4 shadow border-dark">
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title text-dark text-center">TEDEN Pro</h4>
+          <span class="badge bg-dark mb-2 mx-auto">Avanzado</span>
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item">✅ Publicaciones ilimitadas</li>
+            <li class="list-group-item">✅ Tiendas ilimitadas por nicho</li>
+            <li class="list-group-item">✅ Hasta 3 productos promocionados</li>
+            <li class="list-group-item">❌ Sin anuncios internos</li>
+            <li class="list-group-item">⚡ Soporte prioritario</li>
+            <li class="list-group-item">💸 <strong>Comisión por venta: 7%</strong> <br><span class="text-muted">Ejemplo: vendés a $10, TEDEN recibe $0.70</span></li>
+          </ul>
+          <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="plan_id" value="{{ pro_id }}">
+            <button type="submit" class="btn btn-outline-dark w-100 mt-auto">Elegir TEDEN Pro</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

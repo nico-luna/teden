@@ -18,6 +18,7 @@ services:
     build: .
     entrypoint: []                 # ← por si la imagen arrastra un ENTRYPOINT
     command: sh -lc "./start.sh"
+    env_file: .env
     environment:
       DJANGO_SETTINGS_MODULE: teden.settings
       PORT: "8000"

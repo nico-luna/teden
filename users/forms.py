@@ -173,6 +173,9 @@ class SellerRegistrationForm(forms.ModelForm):
 
     def clean_telefono(self):
         tel = self.cleaned_data.get('telefono')
+        if not tel:
+            return tel  # Permite vacío, o puedes lanzar ValidationError si es obligatorio
+        import re
         if not re.match(r'^\+?\d{10,15}$', tel):
             raise forms.ValidationError("Ingresá un número de teléfono válido con prefijo internacional.")
         return tel

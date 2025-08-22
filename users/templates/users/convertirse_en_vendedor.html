@@ -13,38 +13,145 @@
 <!-- JS de intl-tel-input -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
-
 <div class="container mt-5">
-  <h2 class="mb-4">Convertite en vendedor</h2>
-  <p>Para empezar a vender en TEDEN, necesitamos algunos datos extra.</p>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="bg-white rounded-4 shadow-sm p-4">
+        <h2 class="mb-3">Convertite en vendedor</h2>
+        <p class="text-muted">Comenzá a vender productos y servicios en TEDEN. Completa este formulario y activaremos tu perfil de vendedor.</p>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+        <hr>
 
-    <button type="submit" class="btn btn-success mt-3">Guardar y continuar</button>
-  </form>
+        <h5 class="mb-2">Ventajas</h5>
+        <ul class="list-unstyled text-muted mb-3">
+          <li>✅ Tu propia tienda online con personalización</li>
+          <li>✅ Publicar productos físicos y digitales</li>
+          <li>✅ Gestionar órdenes y turnos desde un panel</li>
+          <li>✅ Integración con MercadoPago y cobros automáticos</li>
+          <li>✅ Estadísticas y reportes de ventas</li>
+        </ul>
+
+        <h5 class="mb-2">Cómo funciona</h5>
+        <ol class="text-muted mb-3">
+          <li>Completás tus datos y aceptás los términos.</li>
+          <li>Recibís tu tienda y configurás métodos de cobro.</li>
+          <li>Publicás productos y empezás a recibir pedidos.</li>
+        </ol>
+
+        <h5 class="mb-2">Preguntas rápidas</h5>
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="faqOne">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">¿Tiene costo?</button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted">Podés empezar gratis con el plan Starter. Luego podrás elegir un plan según tus necesidades.</div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="faqTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">¿Cómo cobro?</button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-muted">Integración con MercadoPago o transferencia bancaria según tu configuración.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="bg-white rounded-4 shadow-sm p-4">
+        <h4 class="mb-3">Formulario de registro como vendedor</h4>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id_cuit_cuil" class="form-label">{{ form.cuit_cuil.label }}</label>
+              {{ form.cuit_cuil }}
+              {% if form.cuit_cuil.errors %}
+                <div class="form-text text-danger">{{ form.cuit_cuil.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_codigo_postal" class="form-label">{{ form.codigo_postal.label }}</label>
+              {{ form.codigo_postal }}
+              {% if form.codigo_postal.errors %}
+                <div class="form-text text-danger">{{ form.codigo_postal.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12 mb-3">
+              <label for="id_direccion" class="form-label">{{ form.direccion.label }}</label>
+              {{ form.direccion }}
+              {% if form.direccion.errors %}
+                <div class="form-text text-danger">{{ form.direccion.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_provincia" class="form-label">{{ form.provincia.label }}</label>
+              {{ form.provincia }}
+              {% if form.provincia.errors %}
+                <div class="form-text text-danger">{{ form.provincia.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_pais" class="form-label">{{ form.pais.label }}</label>
+              {{ form.pais }}
+              {% if form.pais.errors %}
+                <div class="form-text text-danger">{{ form.pais.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12 mb-3">
+              <label for="id_telefono" class="form-label">{{ form.telefono.label }}</label>
+              {{ form.telefono }}
+              <div class="form-text text-muted">Ingresá tu teléfono con código de país. Ej: +54 9 11 1234 5678</div>
+              {% if form.telefono.errors %}
+                <div class="form-text text-danger">{{ form.telefono.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <button type="submit" class="btn btn-success rounded-pill px-4">Guardar y continuar</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Volver</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
   const input = document.querySelector("#id_telefono");
-  const iti = window.intlTelInput(input, {
-    initialCountry: "ar",
-    preferredCountries: ["ar", "br", "uy", "cl", "mx"],
-    separateDialCode: true,
-    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-  });
+  if (input) {
+    const iti = window.intlTelInput(input, {
+      initialCountry: "ar",
+      preferredCountries: ["ar", "br", "uy", "cl", "mx"],
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+    });
 
-  const form = document.querySelector("form");
-  form.addEventListener("submit", function(e) {
-    const number = iti.getNumber();
-    if (!iti.isValidNumber()) {
-      e.preventDefault();
-      alert("Ingresá un número de teléfono válido.");
-    } else {
-      input.value = number;  // Reemplazá el input con el número en formato internacional
-    }
-  });
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function(e) {
+      const number = iti.getNumber();
+      if (!iti.isValidNumber()) {
+        e.preventDefault();
+        alert("Ingresá un número de teléfono válido.");
+      } else {
+        input.value = number;  // Reemplazá el input con el número en formato internacional
+      }
+    });
+  }
 </script>
+
 {% endblock %}
 

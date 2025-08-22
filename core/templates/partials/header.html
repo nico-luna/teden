@@ -11,73 +11,210 @@
 </head>
 <body>
 <!-- Header superior -->
-<div class="bg-warning py-2 border-bottom">
-  <div class="container d-flex flex-wrap justify-content-between align-items-center">
-    
-    <!-- Logo + ubicación -->
-    <div class="d-flex align-items-center gap-3">
-      <span class="fw-bold fs-4"><a href="{% url 'home' %}" class="text-decoration-none, text-dark">TEDEN</a></span>
+
+<header class="bg-white border-bottom shadow-sm py-2">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <!-- Logo -->
+    <a href="{% url 'home' %}" class="d-flex align-items-center gap-2 text-decoration-none">
+      <!-- <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#f7c948"/><text x="50%" y="55%" text-anchor="middle" fill="#222" font-size="16" font-family="Arial" font-weight="bold" dy=".3em">T</text></svg> -->
+      <!-- <span class="fw-bold fs-4 text-dark">TEDEN</span> -->
+      <img src="{% static 'img/teden_logo.png' %}" alt="Logo TEDEN" class="img-fluid" style="max-height: 80px;">
+    </a>
+    <!-- Buscador centrado -->
+    <div class="flex-grow-1 d-flex justify-content-center">
+      <form id="mainSearchForm" class="w-100" style="max-width: 420px;">
+        <div class="input-group rounded-pill overflow-hidden shadow-sm border">
+          <input type="text" class="form-control border-0" id="mainSearchInput" name="q" placeholder="Buscar" style="background:transparent;">
+          <select id="mainSearchType" class="form-select border-0" style="max-width:110px; background:transparent;">
+            <option value="productos">Productos</option>
+            <option value="servicios">Servicios</option>
+          </select>
+          <button class="btn btn-light border-0" type="submit"><i class="fas fa-search"></i></button>
+        </div>
+      </form>
     </div>
-
-    <!-- Buscador -->
-    <form class="flex-grow-1 mx-4" style="max-width: 500px;">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Buscar productos, marcas y más...">
-        <button class="btn btn-outline-dark" type="submit"><i class="fas fa-search"></i></button>
-      </div>
-    </form>
-
-    <!-- Carrito -->
+    <!-- Acciones -->
     <div class="d-flex align-items-center gap-3">
-      <a href="#" class="text-dark" data-bs-toggle="modal" data-bs-target="#cartModal"><i class="fas fa-shopping-cart fs-5"></i></a>
+      <a href="#" class="text-dark position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+        <i class="fas fa-shopping-cart fs-5"></i>
+        <span id="cartCountBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.8em;">0</span>
+      </a>
+      <a href="{% url 'dashboard' %}" class="btn btn-dark fw-bold px-3 py-2 ms-2 rounded-pill">Vender</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'mi_cuenta' %}" class="d-flex align-items-center ms-2 text-decoration-none">
+          {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Perfil" class="rounded-circle border" style="width:40px; height:40px; object-fit:cover;">
+            <span class="ms-2 fw-bold text-primary">{{ user.username }}</span>
+          {% else %}
+            <div class="dropdown">
+              <a href="#" class="btn btn-outline-dark fw-bold px-3 py-2 rounded-pill dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user"></i>
+                {% if user.profile_picture %}
+                  <img src="{{ user.profile_picture.url }}" alt="Perfil" class="rounded-circle border ms-2" style="width:32px; height:32px; object-fit:cover;">
+                {% endif %}
+                <span class="ms-2 fw-bold text-primary">{{ user.username }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+              </ul>
+            </div>
+          {% endif %}
+        </a>
+      {% else %}
+        <button class="btn btn-primary fw-bold px-3 py-2 ms-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar sesión</button>
+      {% endif %}
     </div>
   </div>
-</div>
+</header>
 
 <!-- Subnavegación -->
-<div class="bg-warning-subtle py-1 border-bottom">
-  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-    
-    <!-- Links a la izquierda -->
-    <div class="d-flex flex-wrap gap-3">
-      <a class="text-dark text-decoration-none" href="{% url 'lista_categorias' %}">Categorías</a>
-      <a href="#" class="text-dark text-decoration-none">Ofertas</a>
-      {% if request.user.is_authenticated and request.user.role == "buyer" %}
-        <a class="text-dark text-decoration-none" href="{% url 'convertirse_en_vendedor' %}">Quiero vender</a>
-      {% endif %}
 
-      <a class="text-dark text-decoration-none" href="{% url 'ver_servicios' %}">Servicios</a>
-      <a  href="{% url 'ayuda' %}" class="text-dark text-decoration-none">Ayuda</a>
+<nav class="bg-white py-1 border-bottom">
+  <div class="container d-flex justify-content-center align-items-center flex-wrap gap-2">
+    <ul class="nav nav-pills gap-2">
+      <li class="nav-item"><a href="{% url 'home' %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-home"></i> Inicio</a></li>
+      <li class="nav-item dropdown" onmouseenter="document.getElementById('categoriasDropdown').click()" onmouseleave="document.getElementById('categoriasDropdown').click()">
+        <a class="nav-link text-dark px-3 d-flex align-items-center gap-1 dropdown-toggle" href="#" id="categoriasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-th-large"></i> Categorías
+        </a>
+        <ul class="dropdown-menu p-3" aria-labelledby="categoriasDropdown" style="min-width:700px; background:#fff; box-shadow:0 4px 24px rgba(0,0,0,0.10); border-radius:1rem;">
+          <div class="row">
+            <div class="col-6">
+              <h6 class="dropdown-header">Productos</h6>
+              {% for categoria in categorias_productos %}
+                <a class="dropdown-item" href="{% url 'productos_por_categoria' categoria.id %}">{{ categoria.name }}</a>
+              {% endfor %}
+            </div>
+            <div class="col-6">
+              <h6 class="dropdown-header">Servicios</h6>
+              {% for categoria in categorias_servicios %}
+                <a class="dropdown-item" href="{% url 'servicios_por_categoria' categoria.id %}">{{ categoria.name }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </ul>
+      </li>
+      <li class="nav-item"><a href="{% url 'productos_por_categoria' 0 %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-box"></i> Productos</a></li>
+      <li class="nav-item"><a href="{% url 'ver_servicios' %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-user-cog"></i> Servicios</a></li>
+      <li class="nav-item"><a href="{% url 'ayuda' %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-question-circle"></i> Ayuda</a></li>
+  <li class="nav-item"><a href="{% url 'contacto' %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-envelope"></i> Contacto</a></li>
       {% if user.is_authenticated %}
-        <a href="{% url 'mi_cuenta' %}" class="text-dark text-decoration-none">Mi cuenta</a>
+        <li class="nav-item"><a href="{% url 'mi_cuenta' %}" class="nav-link text-dark px-3 d-flex align-items-center gap-1"><i class="fas fa-user"></i> Mi cuenta</a></li>
       {% endif %}
-      <a href="{% url 'mis_compras' %}" class="text-dark text-decoration-none">Mis compras</a>
-    </div>
-
-    <!-- Botones a la derecha -->
-    <div class="d-flex gap-2 align-items-center">
-      {% if user.is_authenticated %}
-        <span class="me-2">Hola, {{ user.first_name|default:user.username }}</span>
-        {% if user.role == 'seller' %}
-          <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">Panel</a>
-        {% endif %}
-        <form method="POST" action="{% url 'logout' %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar sesión</button>
-        </form>
-      {% else %}
-        <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Ingresá</button>
-        <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</button>
-      {% endif %}
-    </div>
-
+    </ul>
   </div>
-</div>
+</nav>
 
 {% include "partials/login_modal.html" %}
 {% include "partials/register_modal.html" %}
 {% include "partials/cart_modal.html" %}
 
+<div id="searchAutocomplete" class="position-absolute bg-white border rounded shadow-sm" style="z-index:1050; max-width:500px; display:none;"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.getElementById('mainSearchInput');
+  const searchType = document.getElementById('mainSearchType');
+  const autocompleteBox = document.getElementById('searchAutocomplete');
+  if (!searchInput || !searchType || !autocompleteBox) {
+    console.error('No se encontró el buscador o el div de sugerencias.');
+    return;
+  }
+  let lastQuery = '';
+
+  searchInput.addEventListener('input', function() {
+    const q = searchInput.value.trim();
+    if (searchType.value === 'productos') {
+      if (q.length < 2) {
+        autocompleteBox.style.display = 'none';
+        return;
+      }
+      lastQuery = q;
+      fetch(`/buscar-productos-autocomplete/?q=${encodeURIComponent(q)}`)
+        .then(response => response.json())
+        .then(data => {
+          const productos = data.productos;
+          if (productos.length > 0) {
+            autocompleteBox.innerHTML = productos.map(p => `
+              <div class='search-suggestion p-2 border-bottom d-flex align-items-center gap-2' style='cursor:pointer; background:#fff; transition:background 0.2s;' data-id='${p.id}' data-type='producto'>
+                <i class="fas fa-box text-primary"></i>
+                <span class="fw-semibold">${p.name}</span>
+              </div>
+            `).join('');
+            autocompleteBox.style.display = 'block';
+            const rect = searchInput.getBoundingClientRect();
+            autocompleteBox.style.left = rect.left + 'px';
+            autocompleteBox.style.top = (rect.bottom + window.scrollY) + 'px';
+            autocompleteBox.style.width = searchInput.offsetWidth + 'px';
+          } else {
+            autocompleteBox.innerHTML = "<div class='p-2 text-muted'>No hay coincidencias</div>";
+            autocompleteBox.style.display = 'block';
+          }
+        })
+        .catch(err => { console.error('Error AJAX:', err); autocompleteBox.style.display = 'none'; });
+    } else if (searchType.value === 'servicios') {
+      if (q.length < 2) {
+        autocompleteBox.style.display = 'none';
+        return;
+      }
+      lastQuery = q;
+      fetch(`/appointments/buscar-servicios-autocomplete/?q=${encodeURIComponent(q)}`)
+        .then(response => response.json())
+        .then(data => {
+          const servicios = data.servicios;
+          if (servicios.length > 0) {
+            autocompleteBox.innerHTML = servicios.map(s => `
+              <div class='search-suggestion p-2 border-bottom d-flex align-items-center gap-2' style='cursor:pointer; background:#fff; transition:background 0.2s;' data-id='${s.id}' data-type='servicio'>
+                <i class="fas fa-user-cog text-success"></i>
+                <span class="fw-semibold">${s.name}</span>
+              </div>
+            `).join('');
+            autocompleteBox.style.display = 'block';
+            const rect = searchInput.getBoundingClientRect();
+            autocompleteBox.style.left = rect.left + 'px';
+            autocompleteBox.style.top = (rect.bottom + window.scrollY) + 'px';
+            autocompleteBox.style.width = searchInput.offsetWidth + 'px';
+          } else {
+            autocompleteBox.innerHTML = "<div class='p-2 text-muted'>No hay coincidencias</div>";
+            autocompleteBox.style.display = 'block';
+          }
+        })
+        .catch(err => { console.error('Error AJAX servicios:', err); autocompleteBox.style.display = 'none'; });
+    } else {
+      autocompleteBox.style.display = 'none';
+    }
+  });
+
+  autocompleteBox.addEventListener('click', function(e) {
+    if (e.target.classList.contains('search-suggestion')) {
+      if (e.target.dataset.type === 'producto') {
+        window.location.href = `/buscar-productos/?q=${encodeURIComponent(e.target.textContent)}`;
+      } else if (e.target.dataset.type === 'servicio') {
+        window.location.href = `/appointments/buscar-servicios/?q=${encodeURIComponent(e.target.textContent)}`;
+      }
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!autocompleteBox.contains(e.target) && e.target !== searchInput) {
+      autocompleteBox.style.display = 'none';
+    }
+  });
+
+  document.getElementById('mainSearchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const q = searchInput.value.trim();
+    const tipo = searchType.value;
+    if (!q) return;
+    if (tipo === 'productos') {
+      window.location.href = `/buscar-productos/?q=${encodeURIComponent(q)}`;
+    } else {
+      window.location.href = `/appointments/buscar-servicios/?q=${encodeURIComponent(q)}`;
+    }
+  });
+});
+</script>
 </body>
 </html>

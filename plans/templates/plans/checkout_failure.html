@@ -1,0 +1,11 @@
+{% extends "partials/base.html" %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h1 class="display-4 text-danger">¡Pago fallido!</h1>
+  <p class="lead mt-3">Hubo un error con el pago y tu plan no se actualizó.</p>
+  <div class="my-4">
+    <img src="https://cdn-icons-png.flaticon.com/512/463/463612.png" alt="Error" width="120">
+  </div>
+  <a href="/planes/disponibles/" class="btn btn-outline-primary btn-lg mt-3">Volver a elegir plan</a>
+</div>
+{% endblock %}

@@ -11,6 +11,7 @@ from products.models import Product
 
 import mercadopago
 import stripe
+import requests
 
 from .forms import BillingForm
 from .models import BillingInfo
@@ -32,6 +33,8 @@ def add_to_cart(request):
         if not created:
             item.quantity += 1
             item.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return HttpResponse('{"success": true}', content_type='application/json')
         return redirect('cart_detail')
     return redirect('home')
 
@@ -82,9 +85,41 @@ def checkout_payment(request):
 
     billing_info = get_object_or_404(BillingInfo, id=billing_id, user=request.user)
 
+    from payments.utils import crear_preferencia_para_vendedor
+    from collections import defaultdict
+    productos_por_vendedor = defaultdict(list)
+    for item in cart.items.all():
+        seller = item.product.seller
+        productos_por_vendedor[seller].append({
+            "title": item.product.name,
+            "quantity": item.quantity,
+            "unit_price": float(item.product.price),
+            "currency_id": "ARS"
+        })
+
+    # Si hay más de un vendedor, redirigir a la lista de links
+    if len(productos_por_vendedor) > 1:
+        return redirect('pagar_con_mercadopago_checkout')
+
+    # Si solo hay uno, intentar generar el link
+    mercado_pago_checkout_url = None
+    vendedor = next(iter(productos_por_vendedor.keys()), None)
+    items = productos_por_vendedor[vendedor] if vendedor else []
+    if vendedor:
+        try:
+            mercado_pago_checkout_url = crear_preferencia_para_vendedor(
+                seller=vendedor,
+                items=items,
+                buyer_email=request.user.email
+            )
+        except Exception as e:
+            mercado_pago_checkout_url = None
+            messages.error(request, str(e))
+
     return render(request, 'cart/checkout_payment.html', {
         'cart': cart,
         'billing': billing_info,
+        'mercado_pago_checkout_url': mercado_pago_checkout_url,
     })
 
 # Vista de éxito post pago
@@ -127,7 +162,6 @@ def pagar_con_mercadopago_checkout(request):
         return redirect('cart_detail')
 
     productos_por_vendedor = defaultdict(list)
-
     for item in cart.items.all():
         seller = item.product.seller
         productos_por_vendedor[seller].append({
@@ -138,24 +172,30 @@ def pagar_con_mercadopago_checkout(request):
         })
 
     preferencias = []
-
-    try:
-        for vendedor, items in productos_por_vendedor.items():
+    for vendedor, items in productos_por_vendedor.items():
+        total_vendedor = sum(item['unit_price'] * item['quantity'] for item in items)
+        try:
             link_pago = crear_preferencia_para_vendedor(
                 seller=vendedor,
                 items=items,
                 buyer_email=request.user.email
             )
             preferencias.append({
-                "vendedor": vendedor,
-                "link": link_pago
+                "vendedor": vendedor.username,
+                "link": link_pago,
+                "error": None,
+                "total": total_vendedor
+            })
+        except Exception as e:
+            preferencias.append({
+                "vendedor": vendedor.username,
+                "link": None,
+                "error": str(e),
+                "total": total_vendedor
             })
 
-        request.session['links_de_pago'] = preferencias
-        return redirect('checkout_links_mp')
-
-    except Exception as e:
-        return HttpResponse(f"❌ Error: {e}")
+    request.session['links_de_pago'] = preferencias
+    return redirect('checkout_links_mp')
 
 # Vista de pago directo por producto desde modal
 @login_required
@@ -182,7 +222,7 @@ def stripe_checkout_checkout(request):
     for item in cart.items.all():
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'USD',
                 'product_data': {
                     'name': item.product.name,
                 },
@@ -270,9 +310,65 @@ def pagar_en_efectivo(request):
 @login_required
 def checkout_links_mp(request):
     links = request.session.get('links_de_pago', [])
+    cart = get_user_cart(request.user)
+    productos_por_vendedor = {}
+    totales_por_vendedor = {}
+    for item in cart.items.all():
+        vendedor = item.product.seller.username
+        if vendedor not in productos_por_vendedor:
+            productos_por_vendedor[vendedor] = []
+            totales_por_vendedor[vendedor] = 0
+        subtotal = item.product.price * item.quantity
+        productos_por_vendedor[vendedor].append({
+            'id': item.id,
+            'nombre': item.product.name,
+            'precio': item.product.price,
+            'cantidad': item.quantity,
+            'descripcion': item.product.description,
+            'tamano': item.product.file.size if item.product.file else None,
+            'subtotal': subtotal
+        })
+        totales_por_vendedor[vendedor] += subtotal
 
-    if not links:
-        messages.error(request, "No hay enlaces de pago disponibles.")
-        return redirect('cart_detail')
+    # Consultar estado de pago en MercadoPago
+    for link in links:
+        estado = 'pendiente'
+        if link['link']:
+            try:
+                import re
+                m = re.search(r'/checkout/preferences/(\d+)', link['link'])
+                preference_id = m.group(1) if m else None
+                if preference_id:
+                    url = f'https://api.mercadopago.com/checkout/preferences/{preference_id}'
+                    token = settings.MERCADOPAGO_ACCESS_TOKEN
+                    resp = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        estado = data.get('status', 'pendiente')
+            except Exception:
+                estado = 'error'
+        link['estado'] = estado
+        link['productos'] = productos_por_vendedor.get(link['vendedor'], [])
+        link['total'] = totales_por_vendedor.get(link['vendedor'], 0)
 
-    return render(request, 'cart/checkout_links_mp.html', {'links': links})
+    # Permitir eliminar producto y editar cantidad
+    if request.method == 'POST':
+        eliminar_id = request.POST.get('eliminar_id')
+        editar_id = request.POST.get('editar_id')
+        nueva_cantidad = request.POST.get('nueva_cantidad')
+        if eliminar_id:
+            CartItem.objects.filter(id=eliminar_id, cart=cart).delete()
+            return redirect('checkout_links_mp')
+        if editar_id and nueva_cantidad:
+            try:
+                item = CartItem.objects.get(id=editar_id, cart=cart)
+                item.quantity = int(nueva_cantidad)
+                item.save()
+            except Exception:
+                pass
+            return redirect('checkout_links_mp')
+
+    return render(request, 'cart/checkout_links_mp.html', {
+        'links': links,
+        'ver_productos_url': '/orders/comprados/'
+    })

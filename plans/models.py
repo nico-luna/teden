@@ -47,7 +47,7 @@ class MercadoPagoCredential(models.Model):
     access_token = models.CharField(max_length=255)
     public_key = models.CharField(max_length=255, blank=True, null=True)
     refresh_token = models.CharField(max_length=255, blank=True, null=True)
-    user_id = models.CharField(max_length=100, blank=True, null=True)
+    user_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     live_mode = models.BooleanField(default=False)
 
     def __str__(self):

@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends 'users/base.html' %}
 {% block content %}
-  <div class="container py-5 text-center">
-    <h1 class="text-danger">Pago fallido</h1>
-    <p>Hubo un problema con el pago. Intentá nuevamente.</p>
-    <a href="/" class="btn btn-warning">Volver al inicio</a>
-  </div>
+<div class="container py-5 text-center">
+  <h2 class="text-danger">❌ Pago fallido</h2>
+  <p>Tu pago no pudo ser procesado por MercadoPago.</p>
+  <a href="/cart/checkout/payment/" class="btn btn-primary mt-3">Intentar nuevamente</a>
+</div>
 {% endblock %}

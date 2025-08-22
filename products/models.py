@@ -15,6 +15,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     is_active = models.BooleanField(default=True)
+    is_promoted = models.BooleanField(default=False)  # Nuevo campo para productos promocionados
 
     seller = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -32,7 +33,10 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
+    # El campo image principal se puede mantener para la portada
     image = models.ImageField(upload_to='products/', blank=True, null=True)
+    # Relación a galería de imágenes
+    # (La clase ProductImage está en models_productimage.py)
     file = models.FileField(upload_to='products/files/', blank=True, null=True)  # 📎 Campo nuevo
 
     category = models.ForeignKey(

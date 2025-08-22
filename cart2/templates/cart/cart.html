@@ -1,0 +1,45 @@
+{% include "partials/header.html" %}
+{% include "partials/login_modal.html" %}
+{% include "partials/register_modal.html" %}
+{% include "partials/cart_modal.html" %}
+{% block title %}Mi carrito{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Tu carrito</h2>
+  {% if cart.items.exists %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Producto</th><th>Cant.</th><th>Precio</th><th>Total</th><th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart.items.all %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.product.price }}</td>
+          <td>${{ item.total_price }}</td>
+          <td>
+            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger">
+              Eliminar
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-end"><strong>Total:</strong></td>
+          <td colspan="2">${{ cart.total_price }}</td>
+        </tr>
+      </tfoot>
+    </table>
+    <a href="{% url 'checkout' %}" class="btn btn-primary">Ir al checkout</a>
+  {% else %}
+    <p>Tu carrito está vacío.</p>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Seguir comprando</a>
+  {% endif %}
+</div>
+{% endblock %}
