@@ -24,9 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_6v9pf)cpa_)rg^ia&yt9w=h@9=hb0(iqmhpk9fayx&_kdl!19'
 DEBUG = True  # En producción siempre False
 ALLOWED_HOSTS = [
+    'https://teden.net',
+    'https://teden.onrender.com',
     'localhost',
     '127.0.0.1',
     '.ngrok-free.app',  # Permite cualquier subdominio de ngrok
+    "https://217.196.61.35",
 ]
 # === APPS INSTALADAS ===
 CSRF_TRUSTED_ORIGINS = [
