@@ -110,17 +110,50 @@ TEMPLATES = [
     },
 ]
 
+# # === BASE DE DATOS ===
+
+    
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'app',
+#         'USER': 'app',
+#         'PASSWORD': 'app',
+#     'HOST': 'db',
+#         'PORT': '5432',
+#     }
+# }
 # === BASE DE DATOS ===
+import os
+import dj_database_url
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'app',
-        'USER': 'app',
-        'PASSWORD': 'app',
-    'HOST': 'db',
-        'PORT': '5432',
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", f"postgres://app:app@db:5432/app"),
+        conn_max_age=600,
+    )
 }
+
+# Compatibilidad: si corrés en Docker sin DATABASE_URL,
+# sigue funcionando con el host `db`
+if not os.getenv("DATABASE_URL"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "app",
+            "USER": "app",
+            "PASSWORD": "app",
+            "HOST": "db",
+            "PORT": "5432",
+        }
+    }
+
+
 
 # === VALIDADORES DE CONTRASEÑA ===
 AUTH_PASSWORD_VALIDATORS = [
