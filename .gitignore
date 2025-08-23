@@ -1,0 +1,36 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# --- Virtualenv ---
+.venv/
+venv/
+env/
+
+# --- IDEs ---
+.vscode/
+.idea/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Django / DB ---
+db.sqlite3
+*.log
+
+# --- Static / Media (si se generan automáticamente) ---
+staticfiles/
+media/
+
+# --- Coverage / Testing ---
+.coverage
+htmlcov/
+.pytest_cache/

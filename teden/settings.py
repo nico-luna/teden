@@ -126,32 +126,23 @@ TEMPLATES = [
 #     }
 # }
 # === BASE DE DATOS ===
+from pathlib import Path
 import os
 import dj_database_url
-from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL", f"postgres://app:app@db:5432/app"),
+        # Fallback local: SQLite si no hay DATABASE_URL
+        default=f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}",
         conn_max_age=600,
     )
 }
 
-# Compatibilidad: si corrés en Docker sin DATABASE_URL,
-# sigue funcionando con el host `db`
-if not os.getenv("DATABASE_URL"):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "app",
-            "USER": "app",
-            "PASSWORD": "app",
-            "HOST": "db",
-            "PORT": "5432",
-        }
-    }
+# (Opcional) Si de verdad corrés en docker-compose y querés forzar "db", usá un flag:
+if os.getenv("RUNNING_IN_DOCKER") == "1":
+     DATABASES["default"]["HOST"] = "db"
 
 
 
